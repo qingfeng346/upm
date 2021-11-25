@@ -1,0 +1,19 @@
+{
+  "name": "com.scorpio.unity.sco",
+  "displayName": "Scorpio-CSharp",
+  "version": "0.0.1-preview3",
+  "description": "sco是c#实现的解释型脚本,是一种高效,轻量,可嵌入的脚本语言,语法类似javascript,类型为弱类型,通过使用基于栈的虚拟机解释字节码来运行.\n兼容平台列表\n* PC, Mac & Linux Standalone(包括IL2CPP)\r\n* iOS(包括IL2CPP)\r\n* Android(包括IL2CPP)\r\n* UWP IL2CPP\n* WebGL",
+  "unity": "2018.1",
+  "type": "library",
+  "hideInEditor": false,
+  "author": {
+    "name": "linyuan.yang",
+    "email": "qingfeng346@fengyuezhu.com",
+    "url": "https://github.com/qingfeng346/Scorpio-CSharp"
+  },
+  "keywords": [
+    "scripts",
+    "hot update",
+    "sco"
+  ]
+}
