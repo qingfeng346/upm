@@ -1,6 +1,9 @@
 const { spawn } = require('child_process')
 async function main() {
+    let args = process.argv.splice(2)
+    let version = args[0]
     let unityPath = `D:/Program Files/2018.4.36f1/Editor/Unity.exe`
+    await exec("git", ["clone", "-b", `v${version}`, "https://gitee.com/qingfeng346/Scorpio-CSharp.git", "./temp"])
     await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./upm/", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args"])
 }
 function exec(command, args) {

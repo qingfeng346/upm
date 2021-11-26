@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Scorpio.Compile.Compiler;
 using Scorpio.Instruction;
 namespace Scorpio.Compile.CodeDom.Temp {
@@ -22,6 +22,8 @@ namespace Scorpio.Compile.CodeDom.Temp {
 
             Operators[TokenType.Equal] = new TempOperator(TokenType.Equal, Compare);
             Operators[TokenType.NotEqual] = new TempOperator(TokenType.NotEqual, Compare);
+            Operators[TokenType.EqualReference] = new TempOperator(TokenType.Equal, Compare);
+            Operators[TokenType.NotEqualReference] = new TempOperator(TokenType.NotEqual, Compare);
             Operators[TokenType.Greater] = new TempOperator(TokenType.Greater, Compare);
             Operators[TokenType.GreaterOrEqual] = new TempOperator(TokenType.GreaterOrEqual, Compare);
             Operators[TokenType.Less] = new TempOperator(TokenType.Less, Compare);
@@ -42,8 +44,7 @@ namespace Scorpio.Compile.CodeDom.Temp {
         }
         //获得运算符
         public static TempOperator GetOperator(TokenType oper) {
-            TempOperator ret;
-            if (Operators.TryGetValue(oper, out ret))
+            if (Operators.TryGetValue(oper, out var ret))
                 return ret;
             return null;
         }
@@ -80,13 +81,24 @@ namespace Scorpio.Compile.CodeDom.Temp {
                 case TokenType.Shr:
                 case TokenType.ShrAssign:
                     return Opcode.Shr;
-                case TokenType.Greater: return Opcode.Greater;
-                case TokenType.GreaterOrEqual: return Opcode.GreaterOrEqual;
-                case TokenType.Less: return Opcode.Less;
-                case TokenType.LessOrEqual: return Opcode.LessOrEqual;
-                case TokenType.Equal: return Opcode.Equal;
-                case TokenType.NotEqual: return Opcode.NotEqual;
-                default: return Opcode.None;
+                case TokenType.Greater:
+                    return Opcode.Greater;
+                case TokenType.GreaterOrEqual:
+                    return Opcode.GreaterOrEqual;
+                case TokenType.Less:
+                    return Opcode.Less;
+                case TokenType.LessOrEqual:
+                    return Opcode.LessOrEqual;
+                case TokenType.Equal:
+                    return Opcode.Equal;
+                case TokenType.NotEqual:
+                    return Opcode.NotEqual;
+                case TokenType.EqualReference:
+                    return Opcode.EqualReference;
+                case TokenType.NotEqualReference:
+                    return Opcode.NotEqualReference;
+                default:
+                    throw new System.Exception("无效计算符 : " + type);
             }
         }
     }

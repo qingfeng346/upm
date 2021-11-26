@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "d28d3bcf-4235-0dc3-2edd-237827deb0ab": {
+      "ProjectGuid": "d28d3bcf-4235-0dc3-2edd-237827deb0ab",
+      "DisplayName": "Assembly-CSharp-Editor",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "杂项文件",
+      "ColorIndex": -1
+    }
+  },
+  "NextColorIndex": 1
+}

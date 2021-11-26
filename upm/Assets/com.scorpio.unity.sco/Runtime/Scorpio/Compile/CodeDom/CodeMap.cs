@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 namespace Scorpio.Compile.CodeDom {
     //返回一个map类型 t = { a = "1", b = "2", function hello() { } }
     public class CodeMap : CodeObject {
@@ -10,7 +10,10 @@ namespace Scorpio.Compile.CodeDom {
                 this.value = value;
             }
         }
+        public bool onlyString;
         public List<MapVariable> Variables = new List<MapVariable>();
-        public CodeMap(int line) : base(line) { }
+        public CodeMap(int line, bool onlyString) : base(line) {
+            this.onlyString = onlyString;
+        }
     }
 }

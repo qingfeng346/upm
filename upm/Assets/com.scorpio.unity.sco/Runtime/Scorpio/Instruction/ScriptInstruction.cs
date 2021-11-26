@@ -1,4 +1,4 @@
-﻿namespace Scorpio.Instruction {
+namespace Scorpio.Instruction {
     //不能使用 struct 编译时会稍后修改内部值 
     //单条指令
     public class ScriptInstruction {
@@ -6,8 +6,9 @@
         public Opcode opcode;       //指令类型
         public int opvalue;         //指令值
         public int line;            //代码在多少行
+        public ScriptInstruction(int opcode, int opvalue, int line) : this((Opcode)opcode, opvalue, line) { }
         public ScriptInstruction(Opcode opcode, int opvalue, int line) {
-            this.optype = OpcodeType.None;
+            this.optype = OpcodeType.Nop;
             this.opcode = opcode;
             this.opvalue = opvalue;
             this.line = line;
@@ -19,7 +20,9 @@
         public void SetOpcode(Opcode opcode, int opvalue) {
             this.opcode = opcode;
             this.opvalue = opvalue;
-            if (opcode > Opcode.LoadBegin && opcode < Opcode.LoadEnd) {
+            if (opcode == Opcode.Nop) {
+                this.optype = OpcodeType.Nop;
+            } else if (opcode > Opcode.LoadBegin && opcode < Opcode.LoadEnd) {
                 this.optype = OpcodeType.Load;
             } else if (opcode > Opcode.NewBegin && opcode < Opcode.NewEnd) {
                 this.optype = OpcodeType.New;

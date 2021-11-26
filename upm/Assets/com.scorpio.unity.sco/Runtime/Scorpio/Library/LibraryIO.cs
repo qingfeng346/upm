@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System;
 namespace Scorpio.Library {
@@ -6,7 +6,7 @@ namespace Scorpio.Library {
         public static readonly Encoding DefaultEncoding = Encoding.UTF8;
         public const long BaseTime = 621355968000000000;                        //1970, 1, 1, 0, 0, 0, DateTimeKind.Utc
         public static void Load(Script script) {
-            var map = new ScriptMap(script);
+            var map = new ScriptMapString(script);
             map.SetValue("unixNow", script.CreateFunction(new unixNow()));
             map.SetValue("toString", script.CreateFunction(new toString()));
             map.SetValue("toBytes", script.CreateFunction(new toBytes()));
@@ -44,7 +44,7 @@ namespace Scorpio.Library {
         }
         private class readAll : ScorpioHandle {
             public ScriptValue Call(ScriptValue thisObject, ScriptValue[] args, int length) {
-                return new ScriptValue(File.ReadAllBytes(args[0].ToString()));
+                return ScriptValue.CreateValue(File.ReadAllBytes(args[0].ToString()));
             }
         }
         private class writeAll : ScorpioHandle {
@@ -102,7 +102,7 @@ namespace Scorpio.Library {
                 var path = args[0].ToString();
                 var searchPattern = length > 1 ? args[1].ToString() : "*";
                 var searchOption = length > 2 ? (args[1].IsTrue ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly) : SearchOption.TopDirectoryOnly;
-                return new ScriptValue(Directory.GetFiles(path, searchPattern, searchOption));
+                return ScriptValue.CreateValue(Directory.GetFiles(path, searchPattern, searchOption));
             }
         }
         private class getPaths : ScorpioHandle {
@@ -110,7 +110,7 @@ namespace Scorpio.Library {
                 var path = args[0].ToString();
                 var searchPattern = length > 1 ? args[1].ToString() : "*";
                 var searchOption = length > 2 ? (args[1].IsTrue ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly) : SearchOption.TopDirectoryOnly;
-                return new ScriptValue(Directory.GetDirectories(path, searchPattern, searchOption));
+                return ScriptValue.CreateValue(Directory.GetDirectories(path, searchPattern, searchOption));
             }
         }
         private class workPath : ScorpioHandle {

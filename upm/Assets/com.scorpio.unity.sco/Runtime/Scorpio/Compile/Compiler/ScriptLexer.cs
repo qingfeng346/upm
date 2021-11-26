@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 namespace Scorpio.Compile.Compiler {
     /// <summary> 脚本语法解析 </summary>
     public partial class ScriptLexer {
@@ -94,18 +94,6 @@ namespace Scorpio.Compile.Compiler {
                 UndoChar();
             }
         }
-        /// <summary> = </summary>
-        void ReadAssign() {
-            ch = ReadChar();
-            if (ch == '=') {
-                AddToken(TokenType.Equal, "==");
-            } else if (ch == '>') {
-                AddToken(TokenType.Lambda, "=>");
-            } else {
-                AddToken(TokenType.Assign, "=");
-                UndoChar();
-            }
-        }
         /// <summary> & </summary>
         void ReadAnd() {
             ch = ReadChar();
@@ -134,9 +122,31 @@ namespace Scorpio.Compile.Compiler {
         void ReadNot() {
             ch = ReadChar();
             if (ch == '=') {
-                AddToken(TokenType.NotEqual, "!=");
+                if (ReadChar() == '=') {
+                    AddToken(TokenType.NotEqualReference, "!==");
+                } else {
+                    AddToken(TokenType.NotEqual, "!=");
+                    UndoChar();
+                }
             } else {
                 AddToken(TokenType.Not, "!");
+                UndoChar();
+            }
+        }
+        /// <summary> = </summary>
+        void ReadAssign() {
+            ch = ReadChar();
+            if (ch == '=') {
+                if (ReadChar() == '=') {
+                    AddToken(TokenType.EqualReference, "===");
+                } else {
+                    AddToken(TokenType.Equal, "==");
+                    UndoChar();
+                }
+            } else if (ch == '>') {
+                AddToken(TokenType.Lambda, "=>");
+            } else {
+                AddToken(TokenType.Assign, "=");
                 UndoChar();
             }
         }
@@ -146,8 +156,7 @@ namespace Scorpio.Compile.Compiler {
             if (ch == '=') {
                 AddToken(TokenType.GreaterOrEqual, ">=");
             } else if (ch == '>') {
-                ch = ReadChar();
-                if (ch == '=') {
+                if (ReadChar() == '=') {
                     AddToken(TokenType.ShrAssign, ">>=");
                 } else {
                     AddToken(TokenType.Shr, ">>");
@@ -164,8 +173,7 @@ namespace Scorpio.Compile.Compiler {
             if (ch == '=') {
                 AddToken(TokenType.LessOrEqual, "<=");
             } else if (ch == '<') {
-                ch = ReadChar();
-                if (ch == '=') {
+                if (ReadChar() == '=') {
                     AddToken(TokenType.ShiAssign, "<<=");
                 } else {
                     AddToken(TokenType.Shi, "<<");
@@ -178,8 +186,7 @@ namespace Scorpio.Compile.Compiler {
         }
         /// <summary> ^ </summary>
         void ReadXor() {
-            ch = ReadChar();
-            if (ch == '=') {
+            if (ReadChar() == '=') {
                 AddToken(TokenType.XORAssign, "^=");
             } else {
                 AddToken(TokenType.XOR, "^");
@@ -232,11 +239,20 @@ namespace Scorpio.Compile.Compiler {
             }
         }
         void ReadQuestionMark() {
-            if (ReadChar() == '?') {
-                AddToken(TokenType.EmptyRet, "??");
-            } else {
-                AddToken(TokenType.QuestionMark, "?");
-                UndoChar();
+            switch (ReadChar()) {
+                case '?': AddToken(TokenType.EmptyRet, "??"); return;
+                case '.': AddToken(TokenType.QuestionMarkDot, "?."); return;
+                default: AddToken(TokenType.QuestionMark, "?"); UndoChar(); return;
+            }
+        }
+        /// <summary> 读取 @ </summary>
+        void ReadAt() {
+            var ch = PeekChar();
+            if (ch == '\'' || ch == '\"' || ch == '`') {
+                ReadSimpleString(true);
+            } else if (ch == '{') {
+                ReadChar();
+                AddToken(TokenType.LeftBraceAt);
             }
         }
         /// <summary> 读取 }  </summary>
@@ -257,6 +273,7 @@ namespace Scorpio.Compile.Compiler {
                 }
             }
         }
+        /// <summary> 读取字符串 </summary>
         void ReadSimpleString(bool symbol) {
             if (symbol) {
                 m_ch = ReadChar();
@@ -300,6 +317,7 @@ namespace Scorpio.Compile.Compiler {
                 }
             } while (true);
         }
+        /// <summary> 读取字符串 </summary>
         void ReadString() {
             do {
                 ch = ReadChar();
@@ -318,6 +336,14 @@ namespace Scorpio.Compile.Compiler {
                         case 'v': m_Builder.Append('\v'); break;
                         case '0': m_Builder.Append('\0'); break;
                         case '/': m_Builder.Append("/"); break;
+                        case 'u': {
+                            var hex = new System.Text.StringBuilder();
+                            for (int i = 0; i < 4; i++) {
+                                hex.Append(ReadChar());
+                            }
+                            m_Builder.Append((char)System.Convert.ToUInt16(hex.ToString(), 16));
+                            break;
+                        }
                         default: ThrowInvalidCharacterException(ch); break;
                     }
                 } else if (ch == '\n') {
@@ -347,6 +373,46 @@ namespace Scorpio.Compile.Compiler {
             }
             while (true);
         }
+        
+        void ReadSharp() {
+            m_Builder.Append(m_ch);
+            do {
+                ch = ReadChar();
+                if (IsIdentifier(ch)) {
+                    m_Builder.Append(ch);
+                } else {
+                    UndoChar();
+                    break;
+                }
+            } while (true);
+            switch (m_Builder.ToString()) {
+                case "#define":
+                    AddToken(TokenType.MacroDefine);
+                    break;
+                case "#if":
+                    AddToken(TokenType.MacroIf);
+                    break;
+                case "#ifndef":
+                    AddToken(TokenType.MacroIfndef);
+                    break;
+                case "#else":
+                    AddToken(TokenType.MacroElse);
+                    break;
+                case "#elif":
+                    AddToken(TokenType.MacroElif);
+                    break;
+                case "#endif":
+                    AddToken(TokenType.MacroEndif);
+                    break;
+                case "#import":
+                    AddToken(TokenType.Import);
+                    break;
+                default:
+                    ThrowInvalidCharacterException($"无法识别的宏命令 : {m_Builder}");
+                    break;
+            }
+        }
+        /// <summary> 读取关键字 </summary>
         void ReadIdentifier() {
             m_Builder.Append(m_ch);
             do {
@@ -407,6 +473,15 @@ namespace Scorpio.Compile.Compiler {
                 case "return":
                     tokenType = TokenType.Return;
                     break;
+                case "try":
+                    tokenType = TokenType.Try;
+                    break;
+                case "catch":
+                    tokenType = TokenType.Catch;
+                    break;
+                case "throw":
+                    tokenType = TokenType.Throw;
+                    break;
                 case "null":
                 case "nil":
                     tokenType = TokenType.Null;
@@ -422,8 +497,15 @@ namespace Scorpio.Compile.Compiler {
                 case "class":
                     tokenType = TokenType.Class;
                     break;
+                case "async":
+                    tokenType = TokenType.Async;
+                    break;
+                case "await":
+                    tokenType = TokenType.Await;
+                    break;
                 case "new":
                 case "gvar":
+                case "global":
                     m_Builder.Length = 0;
                     return;
                 default:
@@ -482,11 +564,11 @@ namespace Scorpio.Compile.Compiler {
                     case ';':
                         AddToken(TokenType.SemiColon);
                         break;
-                    case '#':
-                        AddToken(TokenType.Sharp);
-                        break;
                     case '~':
                         AddToken(TokenType.Negative);
+                        break;
+                    case '#':
+                        ReadSharp();
                         break;
                     case '?':
                         ReadQuestionMark();
@@ -534,7 +616,7 @@ namespace Scorpio.Compile.Compiler {
                         ReadXor();
                         break;
                     case '@':
-                        ReadSimpleString(true);
+                        ReadAt();
                         break;
                     case '\"':
                     case '\'':

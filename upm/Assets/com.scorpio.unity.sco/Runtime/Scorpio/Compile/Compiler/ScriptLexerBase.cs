@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Scorpio.Compile.Exception;
@@ -46,6 +46,9 @@ namespace Scorpio.Compile.Compiler {
         }
         void ThrowInvalidCharacterException(char ch) {
             throw new LexerException(this, $"Unexpected character [{ch}]  Line:{m_iSourceLine + 1} Column:{m_iSourceChar}");
+        }
+        void ThrowInvalidCharacterException(string message) {
+            throw new LexerException(this, $"{message}  Line:{m_iSourceLine + 1} Column:{m_iSourceChar}");
         }
         char ReadChar() {
             ++m_iIndex;

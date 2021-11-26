@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 namespace Scorpio.Instruction {
     //单个函数的信息
     public class ScriptFunctionData {
@@ -34,6 +34,7 @@ namespace Scorpio.Instruction {
                     case Opcode.StoreGlobalStringAssign:
                     case Opcode.LoadValueString:
                     case Opcode.StoreValueString:
+                    case Opcode.StoreValueStringAssign:
                         value = constString[instruction.opvalue].ToString();
                         break;
                     case Opcode.LoadInternal:
@@ -50,6 +51,10 @@ namespace Scorpio.Instruction {
                     case Opcode.TrueTo:
                     case Opcode.TrueLoadTrue:
                     case Opcode.FalseLoadFalse:
+                    case Opcode.NotNullTo:
+                    case Opcode.NullTo:
+                    case Opcode.TryTo:
+                    case Opcode.TryEnd:
                         value = instruction.opvalue.ToString("D5");
                         break;
                     case Opcode.CallUnfold:
@@ -66,6 +71,7 @@ namespace Scorpio.Instruction {
                     case Opcode.CopyStackTop:
                     case Opcode.Plus:
                     case Opcode.Pop:
+                    case Opcode.Nop:
                         break;
                     default: value = instruction.opvalue.ToString(); break;
                 }

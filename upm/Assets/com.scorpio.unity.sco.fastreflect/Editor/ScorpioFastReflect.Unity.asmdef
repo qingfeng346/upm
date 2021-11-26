@@ -1,6 +1,8 @@
 {
     "name": "NewAssembly",
-    "references": [],
+    "references": [
+        "Scorpio.Unity"
+    ],
     "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
