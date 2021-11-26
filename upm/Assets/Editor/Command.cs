@@ -20,6 +20,8 @@ public class Command
     }
     static void Execute() {
         var command = ParseCommand();
-        Scorpio.Commons.FileUtil.SyncFolder("../temp", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
+        Scorpio.Commons.FileUtil.SyncFolder("../temp/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
+        Scorpio.Commons.FileUtil.SyncFolder("../temp/ScorpioReflect/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
+        AssetDatabase.Refresh();
     }
 }
