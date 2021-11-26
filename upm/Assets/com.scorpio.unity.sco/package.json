@@ -15,5 +15,12 @@
     "hot update",
     "sco",
     "Scorpio-CSharp"
+  ],
+  "samples": [
+    {
+      "displayName": "语法简介",
+      "description": "语法简介",
+      "path": "Samples~/Sample"
+    }
   ]
 }
