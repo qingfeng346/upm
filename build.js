@@ -1,10 +1,13 @@
+const fs = require('fs')
 const { spawn } = require('child_process')
 async function main() {
     let args = process.argv.splice(2)
     let version = args[0]
     let unityPath = `D:/Program Files/2018.4.36f1/Editor/Unity.exe`
-    await exec("git", ["clone", "-b", `v${version}`, "https://gitee.com/qingfeng346/Scorpio-CSharp.git", "./temp"])
+    rmdir("./sco")
+    await exec("git", ["clone", "-b", `v${version}`, "https://gitee.com/qingfeng346/Scorpio-CSharp.git", "./sco"])
     await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./upm/", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-version", version, "-path", "sco"])
+    rmdir("./sco")
 }
 function exec(command, args) {
     return new Promise((resolve) => {
@@ -25,5 +28,18 @@ function exec(command, args) {
             resolve({ code: code, stdout: stdout, stderr: stderr })
         })
     })
+}
+function rmdir(p) {
+    if (!fs.existsSync(p)) { return; }
+    let files = fs.readdirSync(p)
+    files.forEach((file) => {
+        let curPath = p + "/" + file
+        if (fs.statSync(curPath).isDirectory()) {
+            rmdir(curPath)
+        } else {
+            fs.unlinkSync(curPath)
+        }
+    })
+    fs.rmdirSync(p)
 }
 main()
