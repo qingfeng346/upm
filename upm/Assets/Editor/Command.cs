@@ -28,10 +28,12 @@ public class Command
         var path = command.GetValue("-path");
         FileUtil.SyncFolder($"../{path}/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
         FileUtil.SyncFolder($"../{path}/ScorpioReflect/src", "Assets/com.scorpio.unity.sco.fastreflect/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
-        FileUtil.CopyFile($"../{path}/README.md", "Assets/com.scorpio.unity.sco/Documentation~/index.md", true);
+        FileUtil.CopyFile($"../{path}/README.md",       "Assets/com.scorpio.unity.sco/Documentation~/index.md", true);
         FileUtil.CopyFile($"../{path}/ReleaseNotes.md", "Assets/com.scorpio.unity.sco/CHANGELOG.md", true);
-        FileUtil.CopyFile($"../{path}/README.md", "Assets/com.scorpio.unity.sco.fastreflect/Documentation~/index.md", true);
+        FileUtil.CopyFile($"../{path}/LICENSE",         "Assets/com.scorpio.unity.sco/LICENSE.md", true);
+        FileUtil.CopyFile($"../{path}/README.md",       "Assets/com.scorpio.unity.sco.fastreflect/Documentation~/index.md", true);
         FileUtil.CopyFile($"../{path}/ReleaseNotes.md", "Assets/com.scorpio.unity.sco.fastreflect/CHANGELOG.md", true);
+        FileUtil.CopyFile($"../{path}/LICENSE",         "Assets/com.scorpio.unity.sco.fastreflect/LICENSE.md", true);
         AssetDatabase.Refresh();
         {
             var file = "Assets/com.scorpio.unity.sco/package.json";
