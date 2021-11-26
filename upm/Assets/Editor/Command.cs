@@ -24,10 +24,11 @@ public class Command
     [MenuItem("Assets/Execute")]
     static void Execute() {
         var command = ParseCommand();
-        FileUtil.SyncFolder("../temp/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
-        FileUtil.SyncFolder("../temp/ScorpioReflect/src", "Assets/com.scorpio.unity.sco.fastreflect/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
-        AssetDatabase.Refresh();
         var version = command.GetValue("-version");
+        var path = command.GetValue("-path");
+        FileUtil.SyncFolder($"../{path}/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder($"../{path}/ScorpioReflect/src", "Assets/com.scorpio.unity.sco.fastreflect/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        AssetDatabase.Refresh();
         {
             var file = "Assets/com.scorpio.unity.sco/package.json";
             var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
