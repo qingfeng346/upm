@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using Scorpio.Commons;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using FileUtil = Scorpio.Commons.FileUtil;
 public class Command
 {
     static CommandLine ParseCommand () {
@@ -18,10 +21,25 @@ public class Command
         });
         return CommandLine.Parse (args.ToArray ());
     }
+    [MenuItem("Assets/Execute")]
     static void Execute() {
         var command = ParseCommand();
-        Scorpio.Commons.FileUtil.SyncFolder("../temp/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
-        Scorpio.Commons.FileUtil.SyncFolder("../temp/ScorpioReflect/src", "Assets/com.scorpio.unity.sco.fastreflect/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder("../temp/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder("../temp/ScorpioReflect/src", "Assets/com.scorpio.unity.sco.fastreflect/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
         AssetDatabase.Refresh();
+        var version = command.GetValue("-version");
+        {
+            var file = "Assets/com.scorpio.unity.sco/package.json";
+            var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+            package["version"] = version;
+            FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
+        }
+        {
+            var file = "Assets/com.scorpio.unity.sco.fastreflect/package.json";
+            var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+            package["version"] = version;
+            ((JObject)package["dependencies"])["com.scorpio.unity.sco"] = version;
+            FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
+        }
     }
 }
