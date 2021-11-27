@@ -26,29 +26,16 @@ public class Command
         var command = ParseCommand();
         var version = command.GetValue("-version");
         var path = command.GetValue("-path");
-        FileUtil.SyncFolder($"../{path}/Scorpio/src", "Assets/com.scorpio.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
-        FileUtil.SyncFolder($"../{path}/ScorpioReflect/src", "Assets/com.scorpio.unity.sco.fastreflect/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
-        FileUtil.CopyFile($"../{path}/README.md",       "Assets/com.scorpio.unity.sco/Documentation~/index.md", true);
-        FileUtil.CopyFile($"../{path}/README.md",       "Assets/com.scorpio.unity.sco/README.md", true);
-        FileUtil.CopyFile($"../{path}/ReleaseNotes.md", "Assets/com.scorpio.unity.sco/CHANGELOG.md", true);
-        FileUtil.CopyFile($"../{path}/LICENSE",         "Assets/com.scorpio.unity.sco/LICENSE.md", true);
-        FileUtil.CopyFile($"../{path}/README.md",       "Assets/com.scorpio.unity.sco.fastreflect/Documentation~/index.md", true);
-        FileUtil.CopyFile($"../{path}/README.md",       "Assets/com.scorpio.unity.sco.fastreflect/README.md", true);
-        FileUtil.CopyFile($"../{path}/ReleaseNotes.md", "Assets/com.scorpio.unity.sco.fastreflect/CHANGELOG.md", true);
-        FileUtil.CopyFile($"../{path}/LICENSE",         "Assets/com.scorpio.unity.sco.fastreflect/LICENSE.md", true);
+        FileUtil.SyncFolder($"../{path}/Scorpio/src",           "Assets/com.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder($"../{path}/ScorpioReflect/src",    "Assets/com.unity.sco/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        FileUtil.CopyFile($"../{path}/README.md",               "Assets/com.unity.sco/Documentation~/index.md", true);
+        FileUtil.CopyFile($"../{path}/README.md",               "Assets/com.unity.sco/README.md", true);
+        FileUtil.CopyFile($"../{path}/ReleaseNotes.md",         "Assets/com.unity.sco/CHANGELOG.md", true);
+        FileUtil.CopyFile($"../{path}/LICENSE",                 "Assets/com.unity.sco/LICENSE.md", true);
         AssetDatabase.Refresh();
-        {
-            var file = "Assets/com.scorpio.unity.sco/package.json";
-            var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
-            package["version"] = version;
-            FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
-        }
-        {
-            var file = "Assets/com.scorpio.unity.sco.fastreflect/package.json";
-            var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
-            package["version"] = version;
-            ((JObject)package["dependencies"])["com.scorpio.unity.sco"] = version;
-            FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
-        }
+        var file = "Assets/com.scorpio.unity.sco/package.json";
+        var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+        package["version"] = version;
+        FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
     }
 }
