@@ -33,7 +33,7 @@ public class Command
         FileUtil.CopyFile($"../{path}/ReleaseNotes.md",         "Assets/com.unity.sco/CHANGELOG.md", true);
         FileUtil.CopyFile($"../{path}/LICENSE",                 "Assets/com.unity.sco/LICENSE.md", true);
         AssetDatabase.Refresh();
-        var file = "Assets/com.scorpio.unity.sco/package.json";
+        var file = "Assets/com.unity.sco/package.json";
         var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
         package["version"] = version;
         FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));

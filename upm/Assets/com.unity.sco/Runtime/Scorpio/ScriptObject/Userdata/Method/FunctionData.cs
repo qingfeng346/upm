@@ -43,7 +43,6 @@ namespace Scorpio.Userdata {
         public virtual bool IsStatic => false;
         public int Priority => IsNormal ? 0 : (IsDefault ? 1 : 2);
         public abstract object Invoke (object obj, ScriptValue[] parameters);
-
         //优先检查无默认值，非不定参的函数
         public virtual bool CheckNormalType (ScriptValue[] parameters, int length) {
             if (IsNormal && length == ParameterCount) {
@@ -105,7 +104,8 @@ namespace Scorpio.Userdata {
             }
             return false;
         }
-        public void SetArgs(ScriptValue[] parameters, int length) {
+        //函数数量为1时,直接设置参数
+        public virtual void SetArgs(ScriptValue[] parameters, int length) {
             if (IsNormal) {
                 for (var i = 0; i < length; ++i) {
                     Args[i] = Util.ChangeType(parameters[i], ParameterType[i]);
@@ -119,7 +119,7 @@ namespace Scorpio.Userdata {
                 }
             } else {
                 for (var i = 0; i < ParameterCount; ++i) {
-                    Args[i] = i < length ? (Util.ChangeType (parameters[i], ParameterType[i])) : DefaultParameter[i];
+                    Args[i] = i < length ? (Util.ChangeType(parameters[i], ParameterType[i])) : DefaultParameter[i];
                 }
                 if (length > ParameterCount) {
                     var array = Array.CreateInstance(ParamType, length - ParameterCount);
@@ -146,6 +146,7 @@ namespace Scorpio.Userdata {
                 for (var i = 0; i < length; ++i) {
                     Args[i] = Util.ChangeType (RefOuts[i] ? parameters[i].GetValue (RefOutValue) : parameters[i], ParameterType[i]);
                 }
+                return true;
             }
             return false;
         }
@@ -191,6 +192,30 @@ namespace Scorpio.Userdata {
                 return true;
             }
             return false;
+        }
+        //函数数量为1时,直接设置参数
+        public override void SetArgs(ScriptValue[] parameters, int length) {
+            if (IsNormal) {
+                for (var i = 0; i < length; ++i) {
+                    Args[i] = Util.ChangeType(RefOuts[i] ? parameters[i].GetValue(RefOutValue) : parameters[i], ParameterType[i]);
+                }
+            } else if (IsDefault) {
+                for (var i = 0; i < ParameterCount; ++i) {
+                    Args[i] = i < length ? (Util.ChangeType(RefOuts[i] ? parameters[i].GetValue(RefOutValue) : parameters[i], ParameterType[i])) : DefaultParameter[i];
+                }
+            } else {
+                for (var i = 0; i < ParameterCount; ++i) {
+                    Args[i] = i < length ? (Util.ChangeType(RefOuts[i] ? parameters[i].GetValue(RefOutValue) : parameters[i], ParameterType[i])) : DefaultParameter[i];
+                }
+                if (length > ParameterCount) {
+                    var array = Array.CreateInstance(ParamType, length - ParameterCount);
+                    for (int i = ParameterCount; i < length; ++i)
+                        array.SetValue(Util.ChangeType(parameters[i], ParamType), i - ParameterCount);
+                    Args[ParameterCount] = array;
+                } else {
+                    Args[ParameterCount] = Array.CreateInstance(ParamType, 0);
+                }
+            }
         }
     }
 }
