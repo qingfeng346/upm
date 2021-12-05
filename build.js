@@ -6,7 +6,7 @@ async function main() {
     let unityPath = `D:/Program Files/2018.4.36f1/Editor/Unity.exe`
     rmdir("./sco")
     await exec("git", ["clone", "-b", `v${version}`, "https://gitee.com/qingfeng346/Scorpio-CSharp.git", "./sco"])
-    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./upm/", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-version", version, "-path", "sco"])
+    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-version", version, "-path", "sco"])
     rmdir("./sco")
 }
 function exec(command, args) {
