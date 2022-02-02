@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 namespace Scorpio.Tools {
-    internal class JsonParser {
+    internal class ScorpioJsonParser {
         const long MinInt = int.MinValue;
         const long MaxInt = int.MaxValue;
         const char END_CHAR = (char)0;
@@ -24,7 +24,7 @@ namespace Scorpio.Tools {
         private readonly bool m_SupportLong;         //是否支持 数字无[.]解析成long值
         private int m_Index;
         private readonly int m_Length;
-        public JsonParser(Script script, string buffer, bool supportLong) {
+        public ScorpioJsonParser(Script script, string buffer, bool supportLong) {
             m_Script = script;
             m_SupportLong = supportLong;
             m_Buffer = buffer;
@@ -210,10 +210,10 @@ namespace Scorpio.Tools {
             }
         }
     }
-    internal class JsonSerializer {
+    internal class ScorpioJsonSerializer {
         internal readonly StringBuilder m_Builder;
         private readonly HashSet<ScriptObject> m_Recurve;
-        public JsonSerializer() {
+        public ScorpioJsonSerializer() {
             m_Builder = new StringBuilder();
             m_Recurve = new HashSet<ScriptObject>();
         }

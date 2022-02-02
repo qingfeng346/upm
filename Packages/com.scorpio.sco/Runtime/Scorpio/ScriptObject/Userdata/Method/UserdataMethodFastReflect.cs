@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using Scorpio.Tools;
 namespace Scorpio.Userdata {
     public class UserdataMethodFastReflect : UserdataMethod {
-        public UserdataMethodFastReflect(Type type, string methodName, ScorpioFastReflectMethodInfo[] methods, ScorpioFastReflectMethod fastMethod):
+        public UserdataMethodFastReflect(Type type, string methodName, ScorpioFastReflectMethodInfo[] methods, IScorpioFastReflectMethod fastMethod):
             base(type, methodName) {
             Initialize(methods, fastMethod, methodName);
         }
-        void Initialize(ScorpioFastReflectMethodInfo[] methods, ScorpioFastReflectMethod fastMethod, string methodName) {
+        void Initialize(ScorpioFastReflectMethodInfo[] methods, IScorpioFastReflectMethod fastMethod, string methodName) {
             var functionMethod = new List<FunctionData>();          //实例函数
             var functionStaticMethod = new List<FunctionData>();    //静态函数
             var genericMethods = new List<FunctionDataGeneric>();   //模板函数
@@ -20,7 +20,7 @@ namespace Scorpio.Userdata {
             }
             var methodInfos = m_Type.GetMethods(Script.BindingFlag);
             Array.ForEach(methodInfos, (methodInfo) => {
-                if (methodInfo.Name.Equals(methodName) && Util.IsGenericMethod(methodInfo)) {
+                if (methodInfo.Name.Equals(methodName) && methodInfo.IsGenericMethod()) {
                     genericMethods.Add(new FunctionDataGeneric(methodInfo));
                 }
             });

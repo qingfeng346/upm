@@ -12,7 +12,7 @@ namespace Scorpio {
         public override string ValueTypeName => $"Object<{m_Prototype}>";            //变量名称
         public ScriptType Prototype { get { return m_Prototype; } set { m_Prototype = value; } }
         public override ScriptValue GetValue(string key) {
-            return m_Values.TryGetValue(key, out var value) ? value : m_Prototype.GetValue(key);
+            return m_Values.TryGetValue(key, out var value) ? value : m_Prototype.GetValue(key, this);
         }
         public override void SetValue(string key, ScriptValue value) {
             m_Values[key] = value;
@@ -182,7 +182,7 @@ namespace Scorpio {
             return base.Call(thisObject, parameters, length);
         }
         public override string ToString() { return $"Object<{m_Prototype}>"; }
-        internal virtual void ToJson(JsonSerializer jsonSerializer) {
+        internal virtual void ToJson(ScorpioJsonSerializer jsonSerializer) {
             var builder = jsonSerializer.m_Builder;
             builder.Append("{");
             var first = true;

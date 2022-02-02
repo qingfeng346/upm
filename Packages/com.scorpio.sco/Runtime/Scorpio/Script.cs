@@ -104,9 +104,9 @@ namespace Scorpio {
             ProtoStringBuilder.Load(this, TypeStringBuilder);
             ProtoHashSet.Load(this, TypeHashSet);
 
-            TypeManager.PushAssembly(typeof(object).Assembly);                        //mscorlib.dll
-            TypeManager.PushAssembly(typeof(System.Net.Sockets.Socket).Assembly);     //System.dll
-            TypeManager.PushAssembly(GetType().Assembly);                             //当前所在的程序集
+            PushAssembly(typeof(object));                        //mscorlib.dll
+            PushAssembly(typeof(System.Net.Sockets.Socket));     //System.dll
+            PushAssembly(GetType());                             //当前所在的程序集
 
             LibraryBasis.Load(this);
             LibraryJson.Load(this);
@@ -149,6 +149,35 @@ namespace Scorpio {
                 }
             }
             return null;
+        }
+        public void PushReferencedAssemblies(Assembly assembly) {
+            foreach (var assemblyName in assembly.GetReferencedAssemblies ()) {
+                PushAssembly (Assembly.Load (assemblyName));
+            }
+        }
+        /// <summary> 压入程序集 </summary>
+        public void PushAssembly(Type type) {
+            PushAssembly(Assembly.GetAssembly(type));
+        }
+        /// <summary> 压入程序集 </summary>
+        public void PushAssembly(AssemblyName assemblyName) {
+            PushAssembly(Assembly.Load(assemblyName));
+        }
+        /// <summary> 压入程序集 </summary>
+        public void PushAssembly(Assembly assembly) {
+            ScorpioTypeManager.PushAssembly(assembly);
+        }
+        /// <summary> 设置函数指针仓库 </summary>
+        public void SetDelegateFactory(IScorpioDelegateFactory factory) {
+            ScorpioDelegateFactoryManager.SetFactory(factory);
+        }
+        /// <summary> 设置快速反射类 </summary>
+        public void SetFastReflectClass(Type type, IScorpioFastReflectClass fastReflectClass) {
+            ScorpioTypeManager.SetFastReflectClass(type, fastReflectClass);
+        }
+        /// <summary> 关联扩展函数 </summary>
+        public void LoadExtension(Type type) {
+            ScorpioTypeManager.LoadExtension(type);
         }
         /// <summary> 设置一个全局变量 </summary>
         /// <param name="key">名字</param>
@@ -261,7 +290,7 @@ namespace Scorpio {
         /// <summary> 使用字符串方式加载流 </summary>
         public ScriptValue LoadStreamByString(string breviary, Stream stream, int count, CompileOption compileOption) {
             var buffer = new byte[count];
-            Util.ReadBytes(stream, buffer);
+            stream.ReadBytes(buffer);
             return Execute(Serializer.Serialize(breviary, Encoding.GetString(buffer), m_SearchPaths, compileOption));
         }
         /// <summary> 使用字节码方式加载流 </summary>
@@ -298,7 +327,7 @@ namespace Scorpio {
             }
             using (var stream = File.OpenRead(fullFileName)) {
                 var buffer = new byte[stream.Length];
-                Util.ReadBytes(stream, buffer);
+                stream.ReadBytes(buffer);
                 return LoadBuffer(fileName, buffer, compileOption);
             }
         }
@@ -324,7 +353,9 @@ namespace Scorpio {
         }
         /// <summary> 加载一段数据 </summary>
         public ScriptValue LoadBuffer(string breviary, byte[] buffer, int index, int count, CompileOption compileOption) {
-            if (count > 6 && buffer[index] == 0 && BitConverter.ToInt32(buffer, index + 1) == int.MaxValue) {
+            if (count <= 0) { 
+                return ScriptValue.Null;
+            } else if (count > 6 && buffer[index] == 0 && BitConverter.ToInt32(buffer, index + 1) == int.MaxValue) {
                 using (var stream = new MemoryStream(buffer, index, count)) {
                     return Execute(Deserializer.Deserialize(stream));
                 }

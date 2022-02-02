@@ -48,7 +48,7 @@ namespace Scorpio.Userdata {
         private ScriptValue GetNestedType(string name) {
             var nestedType = m_Type.GetNestedType(name, Script.BindingFlag);
             if (nestedType != null) {
-                return m_Values[string.Intern(name)] = TypeManager.GetUserdataType(nestedType);
+                return m_Values[string.Intern(name)] = ScorpioTypeManager.GetUserdataType(nestedType);
             }
             return ScriptValue.Null;
         }
@@ -105,9 +105,9 @@ namespace Scorpio.Userdata {
         /// <summary> 设置一个类变量 </summary>
         public override void SetValue(object obj, string name, ScriptValue value) {
             var variable = GetVariable(name);
-            Util.Assert(variable != null, $"SetValue Type:[{m_Type.FullName}] 变量:[{name}]不存在");
+            (variable != null).Assert($"SetValue Type:[{m_Type.FullName}] 变量:[{name}]不存在");
             try {
-                variable.SetValue(obj, Util.ChangeType(value, variable.FieldType));
+                variable.SetValue(obj, value.ChangeType(variable.FieldType));
             } catch (System.Exception e) {
                 throw new ExecutionException($"SetValue 出错 源类型:{value.ValueTypeName}  目标类型:{variable?.FieldType?.Name}: {e}");
             }

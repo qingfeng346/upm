@@ -1,6 +1,6 @@
 {
   "name": "com.scorpio.sco",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "unity": "2018.1",
   "displayName": "Scorpio-CSharp",
   "description": "sco\u662fc#\u5b9e\u73b0\u7684\u89e3\u91ca\u578b\u811a\u672c,\u662f\u4e00\u79cd\u9ad8\u6548,\u8f7b\u91cf,\u53ef\u5d4c\u5165\u7684\u811a\u672c\u8bed\u8a00,\u8bed\u6cd5\u7c7b\u4f3cjavascript,\u7c7b\u578b\u4e3a\u5f31\u7c7b\u578b,\u901a\u8fc7\u4f7f\u7528\u57fa\u4e8e\u6808\u7684\u865a\u62df\u673a\u89e3\u91ca\u5b57\u8282\u7801\u6765\u8fd0\u884c.\n\u517c\u5bb9\u5e73\u53f0\u5217\u8868\n* PC, Mac & Linux Standalone(\u5305\u62ecIL2CPP)\r\n* iOS(\u5305\u62ecIL2CPP)\r\n* Android(\u5305\u62ecIL2CPP)\r\n* UWP IL2CPP\n* WebGL",

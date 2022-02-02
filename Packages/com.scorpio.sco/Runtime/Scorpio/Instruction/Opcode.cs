@@ -35,7 +35,6 @@ namespace Scorpio.Instruction {
         CopyStackTopIndex,      //复制栈顶的数据
         ToGlobal,               //转为Global变量
         ToGlobalFunction,       //转为Global函数
-        LoadEnd,
 
 
         //New操作
@@ -45,14 +44,14 @@ namespace Scorpio.Instruction {
         NewArray,               //new array
         NewMap,                 //new map
         NewMapObject,           //new map with key contain object
-        NewType,                //new class
+        NewTypeOld,             //new class
         [System.Obsolete]
         NewTypeParent,          //new class with parent, 已弃用deprecated,兼容旧版本,暂时不能删除
         NewMapString,           //new map only string key
         NewAsyncFunction,       //new async function
         NewAsyncLambdaFunction, //new async lambda function
         NewAsyncType,           //new async type
-        NewEnd,
+        NewType,                //new type, the NewTypeOld and NewAsyncType will deprecated
 
         //取栈操作
         StoreBegin = NewBegin + 20,
@@ -70,7 +69,6 @@ namespace Scorpio.Instruction {
         StoreGlobalString,      //store global value by string
         StoreValueString,       //store a value by string
         StoreValueObject,       //store a value by object
-        StoreEnd,
 
         //运算指令
         ComputeBegin = StoreBegin + 30,
@@ -87,7 +85,6 @@ namespace Scorpio.Instruction {
         FlagNot,                //取反操作
         FlagMinus,              //取负操作
         FlagNegative,           //取非操作
-        ComputeEnd,
 
         //比较指令
         CompareBegin = ComputeBegin + 20,
@@ -101,7 +98,6 @@ namespace Scorpio.Instruction {
         Or,                     //||
         EqualReference,         //===
         NotEqualReference,      //!==
-        CompareEnd,
 
         //跳转指令
         JumpBegin = CompareBegin + 20,
@@ -127,6 +123,5 @@ namespace Scorpio.Instruction {
         TryEnd,                 //try结束
         Throw,                  //throw
         Await,                  //await
-        JumpEnd,
     }
 }
