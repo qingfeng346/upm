@@ -44,7 +44,7 @@ public class Command
     }
     static void ExecScov(string path, string version) {
         var packagePath = "Packages/com.scorpio.conversion.runtime";
-        FileUtil.SyncFolder($"./{path}/ScorpioProto/CSharp/Scorpio.Conversion.Runtime/src",     $"{packagePath}/Runtime/Scorpio.Conversion.Runtime", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder($"./{path}/ScorpioProto/CSharp/Scorpio.Conversion.Runtime/src",     $"{packagePath}/Runtime/", new[] { "*.cs" }, true);
         FileUtil.CopyFile($"./{path}/README.md",                                                $"{packagePath}/Documentation~/index.md", true);
         FileUtil.CopyFile($"./{path}/README.md",                                                $"{packagePath}/README.md", true);
         AssetDatabase.Refresh();
