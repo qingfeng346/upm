@@ -23,15 +23,22 @@ public class Command
     }
     [MenuItem("Assets/Execute")]
     static void Execute() {
-        var command = ParseCommand();
-        var versions = command.GetValues("-version");
-        ExecSco("tmp/sco", versions[0]);
-        ExecScov("tmp/scov", versions[1]);
+        UnityEngine.Debug.Log("============================开始处理============================");
+        try {
+            var command = ParseCommand();
+            var versions = command.GetValues("-version");
+            ExecSco("tmp/sco", versions[0]);
+            ExecScov("tmp/scov", versions[1]);
+            UnityEngine.Debug.Log("============================处理完成============================");
+        } catch (System.Exception e) {
+            UnityEngine.Debug.LogError("============================处理失败============================:" + e.ToString());
+        }
+        
     }
     static void ExecSco(string path, string version) {
         var packagePath = "Packages/com.scorpio.sco";
         FileUtil.SyncFolder($"./{path}/Scorpio/src",           $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
-        FileUtil.SyncFolder($"./{path}/ScorpioReflect/src",    $"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder($"./{path}/ScorpioFastReflect/src",$"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
         FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/Documentation~/index.md", true);
         FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/README.md", true);
         FileUtil.CopyFile($"./{path}/ReleaseNotes.md",         $"{packagePath}/CHANGELOG.md", true);

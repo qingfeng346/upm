@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Scorpio.ScorpioReflect {
+namespace Scorpio.FastReflect {
     public partial class GenerateScorpioClass {
         //反射列表,struct的value会使用反射
         string GenerateReflectList() {
@@ -46,13 +46,13 @@ namespace Scorpio.ScorpioReflect {
         private string GenerateSetValue() {
             var builder = new StringBuilder();
             var reflectFormat = @"
-            case ""{0}"": {{ {1}.SetValue(obj, Util.ChangeType(value, typeof({2}))); return; }}";
+            case ""{0}"": {{ {1}.SetValue(obj, value.ChangeType(typeof({2}))); return; }}";
             var normalFormat = @"
-            case ""{0}"": {{ {1} = ({2})(Util.ChangeType(value, typeof({2}))); return; }}";
+            case ""{0}"": {{ {1} = ({2})(value.ChangeType(typeof({2}))); return; }}";
             //类变量
             foreach (var field in m_Fields) {
                 if (field.IsInitOnly /*readonly 属性*/ || field.IsLiteral /*const 属性*/) { continue; }
-                var fieldFullName = ScorpioReflectUtil.GetFullName(field.FieldType);
+                var fieldFullName = ScorpioFastReflectUtil.GetFullName(field.FieldType);
                 if (IsStruct && !field.IsStatic) {
                     builder.AppendFormat(reflectFormat, field.Name, $"_field_{field.Name}", fieldFullName);
                 } else {
@@ -63,7 +63,7 @@ namespace Scorpio.ScorpioReflect {
             foreach (var property in m_Propertys) {
                 MethodInfo setMethod;
                 if (!property.CanWrite || (setMethod = property.GetSetMethod(false)) == null) { continue; }
-                var propertyFullName = ScorpioReflectUtil.GetFullName(property.PropertyType);
+                var propertyFullName = ScorpioFastReflectUtil.GetFullName(property.PropertyType);
                 if (IsStruct && !setMethod.IsStatic) {
                     builder.AppendFormat(reflectFormat, property.Name, $"_property_{property.Name}", propertyFullName);
                 } else {
