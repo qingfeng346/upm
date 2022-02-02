@@ -8,7 +8,7 @@ async function main() {
     rmdir("./tmp")
     await exec("git", ["clone", "-b", `v${scoVersion}`, "https://github.com/qingfeng346/Scorpio-CSharp.git", "./tmp/sco"])
     await exec("git", ["clone", "-b", `v${scovVersion}`, "https://github.com/qingfeng346/ScorpioConversion.git", "./tmp/scov"])
-    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-version", scovVersion, scovVersion])
+    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-version", scoVersion, scovVersion])
     rmdir("./tmp")
 }
 function exec(command, args) {
