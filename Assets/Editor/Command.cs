@@ -24,16 +24,31 @@ public class Command
     [MenuItem("Assets/Execute")]
     static void Execute() {
         var command = ParseCommand();
-        var version = command.GetValue("-version");
-        var path = command.GetValue("-path");
-        FileUtil.SyncFolder($"./{path}/Scorpio/src",           "Assets/com.unity.sco/Runtime/Scorpio", new[] { "*.cs" }, true);
-        FileUtil.SyncFolder($"./{path}/ScorpioReflect/src",    "Assets/com.unity.sco/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
-        FileUtil.CopyFile($"./{path}/README.md",               "Assets/com.unity.sco/Documentation~/index.md", true);
-        FileUtil.CopyFile($"./{path}/README.md",               "Assets/com.unity.sco/README.md", true);
-        FileUtil.CopyFile($"./{path}/ReleaseNotes.md",         "Assets/com.unity.sco/CHANGELOG.md", true);
-        FileUtil.CopyFile($"./{path}/LICENSE",                 "Assets/com.unity.sco/LICENSE.md", true);
+        var versions = command.GetValues("-version");
+        ExecSco("tmp/sco", versions[0]);
+        ExecScov("tmp/scov", versions[1]);
+    }
+    static void ExecSco(string path, string version) {
+        var packagePath = "Packages/com.scorpio.sco";
+        FileUtil.SyncFolder($"./{path}/Scorpio/src",           $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder($"./{path}/ScorpioReflect/src",    $"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/Documentation~/index.md", true);
+        FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/README.md", true);
+        FileUtil.CopyFile($"./{path}/ReleaseNotes.md",         $"{packagePath}/CHANGELOG.md", true);
+        FileUtil.CopyFile($"./{path}/LICENSE",                 $"{packagePath}/LICENSE.md", true);
         AssetDatabase.Refresh();
-        var file = "Assets/com.unity.sco/package.json";
+        var file = $"{packagePath}/package.json";
+        var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+        package["version"] = version;
+        FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
+    }
+    static void ExecScov(string path, string version) {
+        var packagePath = "Packages/com.scorpio.conversion.runtime";
+        FileUtil.SyncFolder($"./{path}/ScorpioProto/CSharp/Scorpio.Conversion.Runtime/src",     $"{packagePath}/Runtime/Scorpio.Conversion.Runtime", new[] { "*.cs" }, true);
+        FileUtil.CopyFile($"./{path}/README.md",                                                $"{packagePath}/Documentation~/index.md", true);
+        FileUtil.CopyFile($"./{path}/README.md",                                                $"{packagePath}/README.md", true);
+        AssetDatabase.Refresh();
+        var file = $"{packagePath}/package.json";
         var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
         package["version"] = version;
         FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
