@@ -1,13 +1,4 @@
 {
-  "scopedRegistries": [
-    {
-      "name": "npm",
-      "url": "https://registry.npmjs.org/",
-      "scopes": [
-        "com.scorpio.unity.sco"
-      ]
-    }
-  ],
   "dependencies": {
     "com.unity.package-manager-ui": "2.0.13",
     "com.unity.modules.ai": "1.0.0",
