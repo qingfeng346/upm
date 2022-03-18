@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Scorpio.Tools;
+using Scorpio.Library;
 namespace Scorpio {
     public class ScriptInstance : ScriptObject, IEnumerable<KeyValuePair<string, ScriptValue>> {
         internal Dictionary<string, ScriptValue> m_Values = new Dictionary<string, ScriptValue>();         //所有的数据(函数和数据都在一个数组)
@@ -181,7 +181,13 @@ namespace Scorpio {
             }
             return base.Call(thisObject, parameters, length);
         }
-        public override string ToString() { return $"Object<{m_Prototype}>"; }
+        public override string ToString() {
+            var func = m_Prototype.GetValueNoDefault(ScriptOperator.toString).Get<ScriptFunction>();
+            if (func != null) {
+                return func.Call(ThisValue).ToString();
+            }
+            return $"Object<{m_Prototype}>";
+        }
         internal virtual void ToJson(ScorpioJsonSerializer jsonSerializer) {
             var builder = jsonSerializer.m_Builder;
             builder.Append("{");
