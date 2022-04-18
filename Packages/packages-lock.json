@@ -1,13 +1,13 @@
 {
   "dependencies": {
-    "com.scorpio.console": {
-      "version": "file:com.scorpio.console",
+    "com.scorpio.conversion.runtime": {
+      "version": "file:com.scorpio.conversion.runtime",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
     },
-    "com.scorpio.conversion.runtime": {
-      "version": "file:com.scorpio.conversion.runtime",
+    "com.scorpio.debugger": {
+      "version": "file:com.scorpio.debugger",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
