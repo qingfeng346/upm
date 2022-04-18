@@ -84,6 +84,10 @@ namespace Scorpio.Debugger {
                 }
                 return addedChar;
             };
+            CommandHistory commands = new CommandHistory("__command_history");
+            //List<string> commands;
+            //var a = JsonUtility.FromJson<List<string>>("[]");
+            //int b = 200;
         }
         //    //ScorpioDebugger.Instance.SetConsoleWindow(this);
 
