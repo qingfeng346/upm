@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-namespace Scorpio.Console {
+namespace Scorpio.Debugger {
     public class DebugLogListView : MonoBehaviour {
         private const float ItemHeight = 40;
         private static readonly Vector2 ItemSize = new Vector2(0, ItemHeight);
@@ -11,7 +11,7 @@ namespace Scorpio.Console {
         public GameObject buttonBottom;                 //到底部按钮
         private float viewportHeight;                   //窗口高度
         private bool autoToBottom;                      //是否自动到底部
-        private List<DebugLogItem> items = new List<DebugLogItem>();        //所有日志元素
+        private List<ConsoleLogItem> items = new List<ConsoleLogItem>();        //所有日志元素
         private List<DebugLogEntry> entrys = new List<DebugLogEntry>();     //要显示的日志
         private int minNum = 0;
         private int maxNum = 0;
@@ -57,9 +57,9 @@ namespace Scorpio.Console {
             foreach (var item in items) { item.gameObject.SetActive(false); }
             var itemNum = 0;
             for (var i = minNum; i < maxNum; ++i) {
-                DebugLogItem item;
+                ConsoleLogItem item;
                 if (itemNum >= items.Count) {
-                    item = GameObject.Instantiate(debugLogItem).GetComponent<DebugLogItem>();
+                    item = GameObject.Instantiate(debugLogItem).GetComponent<ConsoleLogItem>();
                     item.SetParent(transform);
                     item.rectTransform.sizeDelta = ItemSize;
                     items.Add(item);

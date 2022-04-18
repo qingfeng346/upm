@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Scorpio.Console {
-    public class DebugLogItem : MonoBehaviour, IVirtualView {
+namespace Scorpio.Debugger {
+    public class ConsoleLogItem : MonoBehaviour, IVirtualView {
         public RectTransform rectTransform { get; private set; }
         public Sprite spriteInfo, spriteWarn, spriteError;
         public Image imageLogType;
@@ -36,7 +36,7 @@ namespace Scorpio.Console {
             }
         }
         void OnClick() {
-            ScorpioConsole.Instance.ShowLogInfo(entry);
+            ScorpioDebugger.Instance.ShowLogInfo(entry);
         }
     }
 }

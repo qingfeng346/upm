@@ -1,4 +1,4 @@
-﻿namespace Scorpio.Console
+﻿namespace Scorpio.Debugger
 {
     using System.Collections.Generic;
     using UnityEngine;

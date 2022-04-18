@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Scorpio.Console {
+namespace Scorpio.Debugger {
     public class ScorpioToggle : Selectable, IPointerClickHandler, ISubmitHandler, IEventSystemHandler, ICanvasElement {
         public static Color DeactiveColor = new Color(0.31f, 0.31f, 0.31f, 1);      //未选中颜色
         public static Color ActiveColor = new Color(0.5f, 0.5f, 0.5f, 1);           //选中颜色

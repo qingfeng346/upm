@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Scorpio.Console {
+namespace Scorpio.Debugger {
     public class ScorpioToggleGroup : UIBehaviour {
         private List<ScorpioToggle> m_Toggles = new List<ScorpioToggle>();
         [SerializeField] private bool m_AllowSwitchOff = false;

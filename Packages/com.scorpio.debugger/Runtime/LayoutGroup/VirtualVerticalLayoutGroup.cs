@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-namespace Scorpio.Console {
+namespace Scorpio.Debugger {
     public interface IVirtualView {
         void SetDataContext(object data);
     }
