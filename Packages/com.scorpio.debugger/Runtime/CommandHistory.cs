@@ -17,7 +17,7 @@ namespace Scorpio.Debugger {
             PlayerPrefs.SetString(key, JsonUtility.ToJson(this));
             PlayerPrefs.Save();
         }
-        public void AddCommand(string command) {
+        public void AddHistory(string command) {
             var index = commands.IndexOf(command);
             if (index >= 0) { commands.RemoveAt(index); }
             commands.Add(command);
@@ -25,14 +25,14 @@ namespace Scorpio.Debugger {
             selected = commands.Count;
             Save();
         }
-        public string Up() {
+        public string Last() {
             if (commands.Count > 0) {
                 selected = Mathf.Max(0, selected - 1);
                 return commands[selected];
             }
             return "";
         }
-        public string Down() {
+        public string Next() {
             if (commands.Count > 0) {
                 selected = Mathf.Min(commands.Count, selected + 1);
                 return selected == commands.Count ? "" : commands[selected];

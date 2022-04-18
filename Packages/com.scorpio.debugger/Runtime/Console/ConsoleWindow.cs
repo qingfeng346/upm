@@ -49,6 +49,7 @@ namespace Scorpio.Debugger {
         public VirtualVerticalLayoutGroup listView;
         public ConsoleLogInfo logInfo;
         public ConsoleCommands commands;
+        private CommandHistory commandHistory;
         //private const string CommandHistoryKey = "__command_history";
         //public GameObject commandItem;                          //命令行列表元素
         //public GameObject buttonItem;                           //日志操作Button
@@ -77,6 +78,7 @@ namespace Scorpio.Debugger {
         //private LogFilter filterError = new LogFilter();       //Error过滤
         //private bool autoToBottom;                              //是否自动到底部
         void Awake() {
+            commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
             inputCommand.onValidateInput += (text, charIndex, addedChar) => {
                 if (addedChar == '\n') {
                     ExecuteCommand(text);
@@ -84,7 +86,6 @@ namespace Scorpio.Debugger {
                 }
                 return addedChar;
             };
-            CommandHistory commands = new CommandHistory("__command_history");
             //List<string> commands;
             //var a = JsonUtility.FromJson<List<string>>("[]");
             //int b = 200;
@@ -253,60 +254,50 @@ namespace Scorpio.Debugger {
                     var entry = new DebugLogEntry(0, DebugLogType.Info, text + i, "wwww");
                     listView.AddItem(entry);
                 }
-                //AddCommandHistory(text);
+                commandHistory.AddHistory(text);
                 //ScorpioDebugger.Instance.ExecuteCommand(text);
             }
         }
-        ////添加一条历史记录
-        //void AddCommandHistory(string text) {
-        //    var index = commandHistory.IndexOf(text);
-        //    if (index >= 0) { commandHistory.RemoveAt(index); }
-        //    commandHistory.Add(text);
-        //    if (commandHistory.Count > ScorpioDebugger.MaxHistoryNumber) { commandHistory.RemoveAt(0); }
-        //    commandHistoryIndex = commandHistory.Count;
-        //    // PlayerPrefs.SetString(CommandHistoryKey, MiniJson.Json.Serialize(commandHistory));
-        //    // PlayerPrefs.Save();
-        //}
-        //void LateUpdate() {
-        //    if (inputCommand.isFocused) {
-        //        if (Input.GetKeyDown(KeyCode.UpArrow)) {
-        //            if (commandHistory.Count > 0) {
-        //                commandHistoryIndex = Mathf.Max(0, commandHistoryIndex - 1);
-        //                inputCommand.text = commandHistory[commandHistoryIndex];
-        //                inputCommand.caretPosition = inputCommand.text.Length;
-        //            }
-        //        } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
-        //            if (commandHistory.Count > 0) {
-        //                commandHistoryIndex = Mathf.Min(commandHistory.Count, commandHistoryIndex + 1);
-        //                inputCommand.text = commandHistoryIndex == commandHistory.Count ? "" : commandHistory[commandHistoryIndex];
-        //                inputCommand.caretPosition = inputCommand.text.Length;
-        //            }
-        //        }
-        //    }
-        //    if (addEntrys.Count > 0) {
-        //        var entry = addEntrys.Dequeue();
-        //        if (entry.logType == DebugLogType.Info) {
-        //            filterInfo.AddCount();
-        //        } else if (entry.logType == DebugLogType.Warn) {
-        //            filterWarn.AddCount();
-        //        } else if (entry.logType == DebugLogType.Error) {
-        //            filterError.AddCount();
-        //        }
-        //        listView.AddItem(entry);
-        //        // UpdateListView();
-        //    }
-        //}
+        void LastHistory() {
+            inputCommand.text = commandHistory.Last();
+            inputCommand.caretPosition = inputCommand.text.Length;
+        }
+        void NextHistory() {
+            inputCommand.text = commandHistory.Next();
+            inputCommand.caretPosition = inputCommand.text.Length;
+        }
+        void LateUpdate() {
+            if (inputCommand.isFocused) {
+                if (Input.GetKeyDown(KeyCode.UpArrow)) {
+                    LastHistory();
+                } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+                    NextHistory();
+                }
+            }
+            //if (addEntrys.Count > 0) {
+            //    var entry = addEntrys.Dequeue();
+            //    if (entry.logType == DebugLogType.Info) {
+            //        filterInfo.AddCount();
+            //    } else if (entry.logType == DebugLogType.Warn) {
+            //        filterWarn.AddCount();
+            //    } else if (entry.logType == DebugLogType.Error) {
+            //        filterError.AddCount();
+            //    }
+            //    listView.AddItem(entry);
+            //    // UpdateListView();
+            //}
+        }
         public void OnClickClear() {
 
         }
         public void OnClickCommands() {
 
         }
-        public void OnClickDown() {
-
+        public void OnClickNext() {
+            NextHistory();
         }
-        public void OnClickUp() {
-
+        public void OnClickLast() {
+            LastHistory();
         }
         public void OnClickEnter() {
 
