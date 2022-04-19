@@ -1,8 +1,8 @@
 {
-  "name": "com.scorpio.debugger",
+  "name": "com.scorpio.timer",
   "version": "1.0.0",
-  "unity": "2019.1",
-  "displayName": "Scorpio.Debugger",
+  "unity": "2018.1",
+  "displayName": "Scorpio.Timer",
   "hideInEditor": false,
   "type": "tool",
   "author": {
@@ -12,8 +12,8 @@
   },
   "keywords": [
     "scorpio",
-    "console"
+    "timer"
   ],
   "samples": [],
-  "description": "\u6e38\u620f\u5185\u8c03\u8bd5\u754c\u9762"
+  "description": "\u8ba1\u65f6\u5668"
 }

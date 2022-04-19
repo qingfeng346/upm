@@ -1,0 +1,242 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using UnityEngine;
+namespace Scorpio.Timer {
+    public enum TimerType {
+        Game,
+        Real,
+        Clock,
+        Watch,
+    }
+    /// <summary> 计时器回调 </summary>
+    public delegate void TimerDelegate (Timer timer, object args, object fixedArgs);
+    public class TimerManager {
+        public static TimerManager Instance { get; } = new TimerManager ();
+        private List<Timer> m_Timers = new List<Timer> ();              //当前正在运行的所有计时器
+        private HashSet<Timer> m_AddTimers = new HashSet<Timer> ();     //要添加的计时器数组 下一帧统一添加
+        private HashSet<Timer> m_DelTimers = new HashSet<Timer> ();     //要删除的计时器数组 下一帧统一删除
+        private object sync = new object ();                            //线程锁
+        private object timeSync = new object ();                        //线程锁
+        public long GameTimeOffset { get; set; } = 0;
+        public long RealTimeOffset { get; set; } = 0;
+        public long ClockTimeOffset { get; set; } = 0;
+        public long WatchTimeOffset { get; set; } = 0;
+        public long GameTime { get; private set; }                      //游戏时间 受 Time.timeScale 影响
+        public long RealTime { get; private set; }                      //真实时间 不受 Time.timeScale 影响
+        public long ClockTime { get; private set; }                     //设备系统时间 受调整设备时间影响
+        public long WatchTime { get; private set; }                     //计时器时间
+        public long GameTimeImmediate => Convert.ToInt64(Time.time * 1000) + GameTimeOffset;                        //游戏时间 受 Time.timeScale 影响
+        public long RealTimeImmediate => Convert.ToInt64(Time.realtimeSinceStartup * 1000) + RealTimeOffset;        //真实时间 不受 Time.timeScale 影响
+        public long ClockTimeImmediate => DateTime.UtcNow.Ticks / 10000 + ClockTimeOffset;                          //设备系统时间 受调整设备时间影响
+        public long WatchTimeImmediate => stopWatch.ElapsedMilliseconds + WatchTimeOffset;                          //计时器时间
+        public Stopwatch stopWatch { get; set; }                        //计时器实例
+        public List<Timer> Timers => m_Timers;
+        private TimerManager () {
+            stopWatch = Stopwatch.StartNew ();
+            UpdateNowTime ();
+        }
+        public void UpdateNowTime () {
+            GameTime = Convert.ToInt64 (Time.time * 1000) + GameTimeOffset;
+            RealTime = Convert.ToInt64 (Time.realtimeSinceStartup * 1000) + RealTimeOffset;
+            ClockTime = DateTime.UtcNow.Ticks / 10000 + ClockTimeOffset;
+            WatchTime = stopWatch.ElapsedMilliseconds + WatchTimeOffset;
+        }
+        /// <summary> 普通循环 </summary>
+        public void OnUpdate () {
+            UpdateNowTime ();
+            lock (sync) {
+                if (m_DelTimers.Count > 0) {
+                    foreach (var timer in m_DelTimers) {
+                        lock (timeSync) {
+                            m_Timers.Remove(timer);
+                        }
+                    }
+                    m_DelTimers.Clear();
+                }
+                if (m_AddTimers.Count > 0) {
+                    foreach (var timer in m_AddTimers) {
+                        lock (timeSync) {
+                            if (!m_Timers.Contains (timer))
+                                m_Timers.Add (timer);
+                        }
+                    }
+                    m_AddTimers.Clear ();
+                }
+            }
+            lock (timeSync) {
+                var length = m_Timers.Count;
+                for (var i = 0 ; i < length; ++i) {
+                    m_Timers[i].OnUpdate();
+                }
+            }
+        }
+        public void AddTimer (Timer timer) {
+            if (timer == null) { return; }
+            //此处不判断 m_Timers.Contains(timer) 是因为 如果一个计时器 在Callback回调里 ResetLength  m_Timer 里面还没有删除此计时器
+            lock (sync) {
+                m_AddTimers.Add(timer);
+            }
+        }
+        public void DelTimer (Timer timer) {
+            if (timer == null) { return; }
+            lock (sync) {
+                m_DelTimers.Add(timer);
+                m_AddTimers.Remove(timer);
+            }
+        }
+
+        public Timer AddTimer (TimerType timerType, float length, TimerDelegate callBack) {
+            return AddTimer (timerType, length, callBack, null);
+        }
+        public Timer AddTimer (TimerType timerType, float length, TimerDelegate callBack, object args) {
+            switch (timerType) {
+                case TimerType.Game:
+                    return new GameTimer (callBack).ResetLength (length, args);
+                case TimerType.Real:
+                    return new RealTimer (callBack).ResetLength (length, args);
+                case TimerType.Clock:
+                    return new ClockTimer (callBack).ResetLength (length, args);
+                case TimerType.Watch:
+                    return new WatchTimer (callBack).ResetLength (length, args);
+                default:
+                    return null;
+            }
+        }
+        /// <summary> 添加游戏时间计时器 </summary>
+        public Timer AddGameTimer (float length, TimerDelegate callBack) {
+            return AddGameTimer (length, callBack, null);
+        }
+        /// <summary> 添加游戏时间计时器 </summary>
+        public Timer AddGameTimer (float length, TimerDelegate callBack, object args) {
+            return AddTimer (TimerType.Game, length, callBack, args);
+        }
+        /// <summary> 添加真实时间计时器 </summary>
+        public Timer AddRealTimer (float length, TimerDelegate callBack) {
+            return AddRealTimer (length, callBack, null);
+        }
+        /// <summary> 添加真实时间计时器 </summary>
+        public Timer AddRealTimer (float length, TimerDelegate callBack, object args) {
+            return AddTimer (TimerType.Real, length, callBack, args);
+        }
+        /// <summary> 添加本地时钟计时器 </summary>
+        public Timer AddClockTimer (float length, TimerDelegate callBack) {
+            return AddClockTimer (length, callBack, null);
+        }
+        /// <summary> 添加真实时间计时器 </summary>
+        public Timer AddClockTimer (float length, TimerDelegate callBack, object args) {
+            return AddTimer (TimerType.Clock, length, callBack, args);
+        }
+        /// <summary> watch计时器 </summary>
+        public Timer AddWatchTimer (float length, TimerDelegate callBack) {
+            return AddWatchTimer (length, callBack, null);
+        }
+        /// <summary> watch计时器 </summary>
+        public Timer AddWatchTimer (float length, TimerDelegate callBack, object args) {
+            return AddTimer (TimerType.Watch, length, callBack, args);
+        }
+
+        public Timer AddTimerMS (TimerType timerType, long length, TimerDelegate callBack) {
+            return AddTimerMS (timerType, length, callBack, null);
+        }
+        public Timer AddTimerMS (TimerType timerType, long length, TimerDelegate callBack, object args) {
+            switch (timerType) {
+                case TimerType.Game:
+                    return new GameTimer (callBack).ResetLengthMS (length, args);
+                case TimerType.Real:
+                    return new RealTimer (callBack).ResetLengthMS (length, args);
+                case TimerType.Clock:
+                    return new ClockTimer (callBack).ResetLengthMS (length, args);
+                case TimerType.Watch:
+                    return new WatchTimer (callBack).ResetLengthMS (length, args);
+                default:
+                    return null;
+            }
+        }
+        public Timer AddGameTimerMS (long length, TimerDelegate callBack) {
+            return AddGameTimerMS (length, callBack, null);
+        }
+        /// <summary> 添加游戏时间计时器 </summary>
+        public Timer AddGameTimerMS (long length, TimerDelegate callBack, object args) {
+            return AddTimerMS (TimerType.Game, length, callBack, args);
+        }
+        /// <summary> 添加真实时间计时器 </summary>
+        public Timer AddRealTimerMS (long length, TimerDelegate callBack) {
+            return AddRealTimerMS (length, callBack, null);
+        }
+        /// <summary> 添加真实时间计时器 </summary>
+        public Timer AddRealTimerMS (long length, TimerDelegate callBack, object args) {
+            return AddTimerMS (TimerType.Real, length, callBack, args);
+        }
+        /// <summary> 添加本地时钟计时器 </summary>
+        public Timer AddClockTimerMS (long length, TimerDelegate callBack) {
+            return AddClockTimerMS (length, callBack, null);
+        }
+        /// <summary> 添加真实时间计时器 </summary>
+        public Timer AddClockTimerMS (long length, TimerDelegate callBack, object args) {
+            return AddTimerMS (TimerType.Clock, length, callBack, args);
+        }
+        /// <summary> watch计时器 </summary>
+        public Timer AddWatchTimerMS (long length, TimerDelegate callBack) {
+            return AddWatchTimerMS (length, callBack, null);
+        }
+        /// <summary> watch计时器 </summary>
+        public Timer AddWatchTimerMS (long length, TimerDelegate callBack, object args) {
+            return AddTimerMS (TimerType.Watch, length, callBack, args);
+        }
+
+        /// <summary> 暂停计时器 </summary>
+        public void Pause (TimerType type) {
+            lock (timeSync) {
+                foreach (var timer in m_Timers) {
+                    if (timer.TimerType == type)
+                        timer.Pause ();
+                }
+            }
+        }
+        /// <summary> 继续计时器 </summary>
+        public void Play (TimerType type) {
+            lock (timeSync) {
+                foreach (var timer in m_Timers) {
+                    if (timer.TimerType == type)
+                        timer.Play ();
+                }
+            }
+        }
+        /// <summary> 暂停所有计时器 </summary>
+        public void Pause () {
+            lock (timeSync) {
+                foreach (var timer in m_Timers) {
+                    timer.Pause ();
+                }
+            }
+        }
+        /// <summary> 继续所有计时器 </summary>
+        public void Play () {
+            lock (timeSync) {
+                foreach (var timer in m_Timers) {
+                    timer.Play ();
+                }
+            }
+        }
+        /// <summary> 清除计时器 </summary>
+        public void Shutdown (TimerType type) {
+            lock (timeSync) {
+                foreach (var timer in m_Timers) {
+                    if (timer.TimerType == type)
+                        timer.Shutdown ();
+                }
+            }
+        }
+        /// <summary> 清除计时器 </summary>
+        public void Shutdown () {
+            lock (timeSync) {
+                m_AddTimers.Clear();
+                m_DelTimers.Clear();
+                foreach (var timer in m_Timers) {
+                    timer.Shutdown ();
+                }
+            }
+        }
+    }
+}

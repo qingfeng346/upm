@@ -300,7 +300,7 @@ namespace Scorpio.Debugger {
             LastHistory();
         }
         public void OnClickEnter() {
-
+            ExecuteCommand(inputCommand.text);
         }
     }
 }
