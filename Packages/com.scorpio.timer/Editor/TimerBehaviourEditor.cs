@@ -1,6 +1,5 @@
-﻿using Scorpio.Timer;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEditor;
+using Scorpio.Timer;
 
 [CustomEditor (typeof (TimerBehaviour))]
 public class TimerBehaviourEditor : Editor {

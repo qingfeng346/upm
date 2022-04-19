@@ -36,6 +36,9 @@ namespace Scorpio.Timer {
             stopWatch = Stopwatch.StartNew ();
             UpdateNowTime ();
         }
+        public void InitializeGameObject() {
+            TimerBehaviour.Initialize();
+        }
         public void UpdateNowTime () {
             GameTime = Convert.ToInt64 (Time.time * 1000) + GameTimeOffset;
             RealTime = Convert.ToInt64 (Time.realtimeSinceStartup * 1000) + RealTimeOffset;
@@ -71,14 +74,14 @@ namespace Scorpio.Timer {
                 }
             }
         }
-        public void AddTimer (Timer timer) {
+        internal void AddTimer (Timer timer) {
             if (timer == null) { return; }
             //此处不判断 m_Timers.Contains(timer) 是因为 如果一个计时器 在Callback回调里 ResetLength  m_Timer 里面还没有删除此计时器
             lock (sync) {
                 m_AddTimers.Add(timer);
             }
         }
-        public void DelTimer (Timer timer) {
+        internal void DelTimer (Timer timer) {
             if (timer == null) { return; }
             lock (sync) {
                 m_DelTimers.Add(timer);

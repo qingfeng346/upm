@@ -1,0 +1,17 @@
+{
+    "name": "Scorpio.Timer.Editor",
+    "references": [
+        "GUID:343136c4674736440b27fb69216d655b"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
