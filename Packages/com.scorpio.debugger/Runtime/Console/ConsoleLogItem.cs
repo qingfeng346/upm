@@ -7,30 +7,30 @@ namespace Scorpio.Debugger {
         public Sprite spriteInfo, spriteWarn, spriteError;
         public Image imageLogType;
         public Text textLogStr;
-        private DebugLogEntry entry;
+        private LogEntry entry;
         void Awake() {
             rectTransform = transform as RectTransform;
             ScorpioDebugUtil.RegisterClick(gameObject, this.OnClick);
         }
         public void SetDataContext(object data) {
-            var entry = data as DebugLogEntry;
+            var entry = data as LogEntry;
             SetLogEntry(entry);
         }
         public void SetParent(Transform parent) {
             rectTransform.SetParent(parent);
             rectTransform.transform.localScale = Vector3.one;
         }
-        public void SetLogEntry(DebugLogEntry entry) {
+        public void SetLogEntry(LogEntry entry) {
             this.entry = entry;
             this.textLogStr.text = entry.LogString;
             switch (entry.logType) {
-                case DebugLogType.Error:
+                case LogType.Error:
                     imageLogType.sprite = spriteError;
                     break;
-                case DebugLogType.Warn:
+                case LogType.Warn:
                     imageLogType.sprite = spriteWarn;
                     break;
-                case DebugLogType.Info:
+                case LogType.Info:
                     imageLogType.sprite = spriteInfo;
                     break;
             }

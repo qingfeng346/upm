@@ -2,9 +2,9 @@
 using UnityEngine;
 
 namespace Scorpio.Timer {
-    //回调
-    using LooperDelegate = System.Action<object>;
-    public class LooperManager {
+    /// <summary> 计时器回调 </summary>
+    public delegate void LooperDelegate(object args);
+    public partial class LooperManager {
         public static LooperManager Instance { get; } = new LooperManager ();
         private class LooperData {
             public LooperDelegate Call;
@@ -15,7 +15,7 @@ namespace Scorpio.Timer {
         private List<LooperData> m_LooperDatas = new List<LooperData> (); //主线程回调
         private List<LooperData> m_RemoveDatas = new List<LooperData> (); //要删除的结构
         private object sync = new object (); //线程锁
-        public void InitializeGameObject() {
+        private LooperManager() {
             TimerBehaviour.Initialize();
         }
         public void Run (LooperDelegate call) {

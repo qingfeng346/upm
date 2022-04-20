@@ -3,15 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 namespace Scorpio.Timer {
-    public enum TimerType {
-        Game,
-        Real,
-        Clock,
-        Watch,
-    }
     /// <summary> 计时器回调 </summary>
     public delegate void TimerDelegate (Timer timer, object args, object fixedArgs);
-    public class TimerManager {
+    public partial class TimerManager {
         public static TimerManager Instance { get; } = new TimerManager ();
         private List<Timer> m_Timers = new List<Timer> ();              //当前正在运行的所有计时器
         private HashSet<Timer> m_AddTimers = new HashSet<Timer> ();     //要添加的计时器数组 下一帧统一添加
@@ -35,8 +29,6 @@ namespace Scorpio.Timer {
         private TimerManager () {
             stopWatch = Stopwatch.StartNew ();
             UpdateNowTime ();
-        }
-        public void InitializeGameObject() {
             TimerBehaviour.Initialize();
         }
         public void UpdateNowTime () {
@@ -89,30 +81,13 @@ namespace Scorpio.Timer {
             }
         }
 
-        public Timer AddTimer (TimerType timerType, float length, TimerDelegate callBack) {
-            return AddTimer (timerType, length, callBack, null);
-        }
-        public Timer AddTimer (TimerType timerType, float length, TimerDelegate callBack, object args) {
-            switch (timerType) {
-                case TimerType.Game:
-                    return new GameTimer (callBack).ResetLength (length, args);
-                case TimerType.Real:
-                    return new RealTimer (callBack).ResetLength (length, args);
-                case TimerType.Clock:
-                    return new ClockTimer (callBack).ResetLength (length, args);
-                case TimerType.Watch:
-                    return new WatchTimer (callBack).ResetLength (length, args);
-                default:
-                    return null;
-            }
-        }
         /// <summary> 添加游戏时间计时器 </summary>
         public Timer AddGameTimer (float length, TimerDelegate callBack) {
             return AddGameTimer (length, callBack, null);
         }
         /// <summary> 添加游戏时间计时器 </summary>
         public Timer AddGameTimer (float length, TimerDelegate callBack, object args) {
-            return AddTimer (TimerType.Game, length, callBack, args);
+            return new GameTimer(callBack).ResetLength(length, args);
         }
         /// <summary> 添加真实时间计时器 </summary>
         public Timer AddRealTimer (float length, TimerDelegate callBack) {
@@ -120,7 +95,7 @@ namespace Scorpio.Timer {
         }
         /// <summary> 添加真实时间计时器 </summary>
         public Timer AddRealTimer (float length, TimerDelegate callBack, object args) {
-            return AddTimer (TimerType.Real, length, callBack, args);
+            return new RealTimer(callBack).ResetLength(length, args);
         }
         /// <summary> 添加本地时钟计时器 </summary>
         public Timer AddClockTimer (float length, TimerDelegate callBack) {
@@ -128,7 +103,7 @@ namespace Scorpio.Timer {
         }
         /// <summary> 添加真实时间计时器 </summary>
         public Timer AddClockTimer (float length, TimerDelegate callBack, object args) {
-            return AddTimer (TimerType.Clock, length, callBack, args);
+            return new ClockTimer(callBack).ResetLength(length, args);
         }
         /// <summary> watch计时器 </summary>
         public Timer AddWatchTimer (float length, TimerDelegate callBack) {
@@ -136,32 +111,15 @@ namespace Scorpio.Timer {
         }
         /// <summary> watch计时器 </summary>
         public Timer AddWatchTimer (float length, TimerDelegate callBack, object args) {
-            return AddTimer (TimerType.Watch, length, callBack, args);
+            return new WatchTimer(callBack).ResetLength(length, args);
         }
 
-        public Timer AddTimerMS (TimerType timerType, long length, TimerDelegate callBack) {
-            return AddTimerMS (timerType, length, callBack, null);
-        }
-        public Timer AddTimerMS (TimerType timerType, long length, TimerDelegate callBack, object args) {
-            switch (timerType) {
-                case TimerType.Game:
-                    return new GameTimer (callBack).ResetLengthMS (length, args);
-                case TimerType.Real:
-                    return new RealTimer (callBack).ResetLengthMS (length, args);
-                case TimerType.Clock:
-                    return new ClockTimer (callBack).ResetLengthMS (length, args);
-                case TimerType.Watch:
-                    return new WatchTimer (callBack).ResetLengthMS (length, args);
-                default:
-                    return null;
-            }
-        }
         public Timer AddGameTimerMS (long length, TimerDelegate callBack) {
             return AddGameTimerMS (length, callBack, null);
         }
         /// <summary> 添加游戏时间计时器 </summary>
         public Timer AddGameTimerMS (long length, TimerDelegate callBack, object args) {
-            return AddTimerMS (TimerType.Game, length, callBack, args);
+            return new GameTimer(callBack).ResetLengthMS(length, args);
         }
         /// <summary> 添加真实时间计时器 </summary>
         public Timer AddRealTimerMS (long length, TimerDelegate callBack) {
@@ -169,7 +127,7 @@ namespace Scorpio.Timer {
         }
         /// <summary> 添加真实时间计时器 </summary>
         public Timer AddRealTimerMS (long length, TimerDelegate callBack, object args) {
-            return AddTimerMS (TimerType.Real, length, callBack, args);
+            return new RealTimer(callBack).ResetLengthMS(length, args);
         }
         /// <summary> 添加本地时钟计时器 </summary>
         public Timer AddClockTimerMS (long length, TimerDelegate callBack) {
@@ -177,7 +135,7 @@ namespace Scorpio.Timer {
         }
         /// <summary> 添加真实时间计时器 </summary>
         public Timer AddClockTimerMS (long length, TimerDelegate callBack, object args) {
-            return AddTimerMS (TimerType.Clock, length, callBack, args);
+            return new ClockTimer(callBack).ResetLengthMS(length, args);
         }
         /// <summary> watch计时器 </summary>
         public Timer AddWatchTimerMS (long length, TimerDelegate callBack) {
@@ -185,24 +143,33 @@ namespace Scorpio.Timer {
         }
         /// <summary> watch计时器 </summary>
         public Timer AddWatchTimerMS (long length, TimerDelegate callBack, object args) {
-            return AddTimerMS (TimerType.Watch, length, callBack, args);
+            return new WatchTimer(callBack).ResetLengthMS(length, args);
         }
 
         /// <summary> 暂停计时器 </summary>
-        public void Pause (TimerType type) {
+        public void Pause (Func<Timer, bool> check) {
             lock (timeSync) {
                 foreach (var timer in m_Timers) {
-                    if (timer.TimerType == type)
+                    if (check(timer))
                         timer.Pause ();
                 }
             }
         }
         /// <summary> 继续计时器 </summary>
-        public void Play (TimerType type) {
+        public void Play (Func<Timer, bool> check) {
             lock (timeSync) {
                 foreach (var timer in m_Timers) {
-                    if (timer.TimerType == type)
+                    if (check(timer))
                         timer.Play ();
+                }
+            }
+        }
+        /// <summary> 清除计时器 </summary>
+        public void Shutdown(Func<Timer, bool> check) {
+            lock (timeSync) {
+                foreach (var timer in m_Timers) {
+                    if (check(timer))
+                        timer.Shutdown();
                 }
             }
         }
@@ -219,15 +186,6 @@ namespace Scorpio.Timer {
             lock (timeSync) {
                 foreach (var timer in m_Timers) {
                     timer.Play ();
-                }
-            }
-        }
-        /// <summary> 清除计时器 </summary>
-        public void Shutdown (TimerType type) {
-            lock (timeSync) {
-                foreach (var timer in m_Timers) {
-                    if (timer.TimerType == type)
-                        timer.Shutdown ();
                 }
             }
         }

@@ -2,7 +2,6 @@
 using UnityEngine;
 namespace Scorpio.Timer {
     public abstract class Timer {
-        public TimerType TimerType { get; private set; }
         /// <summary> 计时器回调 </summary>
         public TimerDelegate CallBack { get; set; }
         /// <summary> 计时器是否已经结束 </summary>
@@ -20,8 +19,7 @@ namespace Scorpio.Timer {
         private long m_PauseTime; //计时器暂停的时间
         private long m_PassTime;
 
-        protected Timer (TimerType timerType, TimerDelegate callBack, bool isLoop) {
-            this.TimerType = timerType;
+        protected Timer (TimerDelegate callBack, bool isLoop) {
             this.CallBack = callBack;
             this.IsPause = false;
             this.IsOver = true;

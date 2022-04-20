@@ -12,7 +12,7 @@ namespace Scorpio.Debugger {
         private float viewportHeight;                   //窗口高度
         private bool autoToBottom;                      //是否自动到底部
         private List<ConsoleLogItem> items = new List<ConsoleLogItem>();        //所有日志元素
-        private List<DebugLogEntry> entrys = new List<DebugLogEntry>();     //要显示的日志
+        private List<LogEntry> entrys = new List<LogEntry>();     //要显示的日志
         private int minNum = 0;
         private int maxNum = 0;
         private RectTransform rectTransform { get { return transform as RectTransform; } }
@@ -38,11 +38,11 @@ namespace Scorpio.Debugger {
                 buttonBottom.SetActive(true);
             }
         }
-        public void SetLogEntrys(List<DebugLogEntry> entrys) {
+        public void SetLogEntrys(List<LogEntry> entrys) {
             this.entrys = entrys;
             UpdateLogs(true);
         }
-        public void AddLogEntry(DebugLogEntry entry) {
+        public void AddLogEntry(LogEntry entry) {
             this.entrys.Add(entry);
             UpdateLogs(false);
         }
