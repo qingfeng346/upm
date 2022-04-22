@@ -8,17 +8,17 @@ namespace Scorpio.Debugger {
         public static int LogStringMaxLength = 256;                                 //日志显示最大字符数
         public static int StackTraceMaxLength = 1024;                               //日志堆栈最大字符数
         public static ScorpioDebugger Instance { get; } = new ScorpioDebugger();    //单例
-        private List<LogEntry> logs = new List<LogEntry>();                         //所有的日志
-        public Dictionary<string, Action<LogEntry>> operates = new Dictionary<string, Action<LogEntry>>();         //单条日志操作
-        public List<CommandEntry> commands = new List<CommandEntry>();              //常用命令列表
-        public static bool LogEnabled { get; set; } = true;                         //是否开启日志
-        public event Action<LogEntry> logMessageReceived;                      //日志回调
-        public Action<string> executeCommand;                                       //命令行执行
-        private int index = 0;                                                      //日志索引
-        public ScorpioDebugger() {
 
-        }
-        public void Initialize() {
+        private List<LogEntry> logs;                            //所有的日志
+        private List<CommandEntry> commands;                    //常用命令列表
+        private List<LogOperate> logOperates;                   //每条log的操作列表
+        public static bool LogEnabled { get; set; } = true;     //是否开启日志
+        public event Action<LogEntry> logMessageReceived;       //日志回调
+        public Action<string> executeCommand;                   //命令行执行
+        public ScorpioDebugger() {
+            logs = new List<LogEntry>();
+            commands = new List<CommandEntry>();
+            logOperates = new List<LogOperate>();
             Application.logMessageReceivedThreaded += OnLogReceived;
         }
         public void Show() {
@@ -54,42 +54,31 @@ namespace Scorpio.Debugger {
             } else if (logType == UnityEngine.LogType.Warning) {
                 debugLogType = LogType.Warn;
             }
-            var entry = new LogEntry(index++, debugLogType, logString, stackTrace);
+            var entry = new LogEntry(debugLogType, logString, stackTrace);
             logs.Add(entry);
             while (logs.Count > MaxEntryNumber) {
                 logs.RemoveAt(0);
             }
-            if (logMessageReceived != null) logMessageReceived(entry);
+            logMessageReceived?.Invoke(entry);
         }
         public List<LogEntry> All() { return new List<LogEntry>(logs); }
         public List<LogEntry> FindAll(Predicate<LogEntry> match) { return logs.FindAll(match); }
         public int Count(LogType logType) { return logs.FindAll((entry) => entry.logType == logType).Count; }
         public void Clear() { logs.Clear(); }
         public void ExecuteCommand(string command) {
-            if (executeCommand != null) { 
-                try {
-                    executeCommand(command);
-                } catch (System.Exception e) {
-                    // logger.error($"执行命令行出错 : {e.ToString()}");
-                }
-            }
+            executeCommand?.Invoke(command);
         }
-        public void AddOperate(string label, Action<LogEntry> action) {
-            operates[label] = action;
-            //if (consoleWindow != null) { consoleWindow.AddOperate(label, action); }
+        public void AddLogOperate(string label, Action<LogEntry> action) {
+            logOperates.Add(new LogOperate() { label = label, action = action });
         }
         public void AddCommand(string labelEN, string labelCN, string labelParam, string command) {
             var entry = new CommandEntry() {
-                //labelCN = labelCN,
-                //labelEN = labelEN,
+                labelCN = labelCN,
+                labelEN = labelEN,
                 labelParam = labelParam,
                 command = command
             };
             commands.Add(entry);
-            //if (consoleWindow != null) { consoleWindow.AddCommand(entry); }
-        }
-        public void ShowLogInfo(LogEntry entry) {
-            //if (consoleWindow != null) { consoleWindow.ShowLogInfo(entry); }
         }
     }
 }

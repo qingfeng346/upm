@@ -36,7 +36,7 @@ namespace Scorpio.Debugger {
             }
         }
         void OnClick() {
-            ScorpioDebugger.Instance.ShowLogInfo(entry);
+            //ScorpioDebugger.Instance.ShowLogInfo(entry);
         }
     }
 }

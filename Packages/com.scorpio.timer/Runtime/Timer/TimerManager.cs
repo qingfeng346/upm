@@ -31,7 +31,7 @@ namespace Scorpio.Timer {
             UpdateNowTime ();
             TimerBehaviour.Initialize();
         }
-        public void UpdateNowTime () {
+        void UpdateNowTime () {
             GameTime = Convert.ToInt64 (Time.time * 1000) + GameTimeOffset;
             RealTime = Convert.ToInt64 (Time.realtimeSinceStartup * 1000) + RealTimeOffset;
             ClockTime = DateTime.UtcNow.Ticks / 10000 + ClockTimeOffset;

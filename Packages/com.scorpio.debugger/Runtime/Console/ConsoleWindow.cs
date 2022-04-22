@@ -251,7 +251,7 @@ namespace Scorpio.Debugger {
             inputCommand.text = "";
             if (text.Length > 0) {
                 for (var i = 0; i < 100; ++i) {
-                    var entry = new LogEntry(0, LogType.Info, text + i, "wwww");
+                    var entry = new LogEntry(LogType.Info, text + i, "wwww");
                     listView.AddItem(entry);
                 }
                 commandHistory.AddHistory(text);

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 namespace Scorpio.Debugger {
+    /// <summary>
+    /// 命令历史记录
+    /// </summary>
     [Serializable]
     public class CommandHistory {
         private string key;
