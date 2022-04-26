@@ -1,0 +1,15 @@
+{
+    "name": "Scorpio.Unity",
+    "references": [
+        "GUID:a9926b74bd9111141a8ea154a78ce827"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
