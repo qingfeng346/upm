@@ -12,6 +12,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.scorpio.pool": {
+      "version": "file:com.scorpio.pool",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.scorpio.sco": {
       "version": "file:com.scorpio.sco",
       "depth": 0,
