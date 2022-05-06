@@ -3,17 +3,19 @@ const os = require('os')
 const { spawn } = require('child_process')
 async function main() {
     let args = process.argv.splice(2)
+    let cwd = process.cwd()
     let name = args[0]
     let version = args[1]
     let unityVersion = "2019.4.15f1"
     let unityPath = os.platform() == "win32" ? `D:/Program Files/${unityVersion}/Editor/Unity.exe` : `/Applications/${unityVersion}/Unity.app/Contents/MacOS/Unity`
+    console.log(`cwd:${cwd}  name:${name} version:${version}`)
     rmdir("./tmp")
     if (name == "sco") {
         await exec("git", ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/Scorpio-CSharp.git", "./tmp/sco"])
     } else if (name == "scov") {
         await exec("git", ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/ScorpioConversion.git", "./tmp/scov"])
     }
-    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", "./", "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-name", name, "-version", version])
+    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", cwd, "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-name", name, "-version", version])
     rmdir("./tmp")
 }
 function exec(command, args) {
