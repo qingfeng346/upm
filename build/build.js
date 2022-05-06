@@ -12,16 +12,16 @@ async function main() {
     console.log(`cwd:${cwd}  name:${name} version:${version}`)
     rmdir("./tmp")
     if (name == "sco") {
-        await exec("git", ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/Scorpio-CSharp.git", "./tmp/sco"])
+        await exec("git", cwd, ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/Scorpio-CSharp.git", "./tmp/sco"])
     } else if (name == "scov") {
-        await exec("git", ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/ScorpioConversion.git", "./tmp/scov"])
+        await exec("git", cwd, ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/ScorpioConversion.git", "./tmp/scov"])
     }
-    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", path.dirname(cwd), "-logFile", `${cwd}/unity.log`, "-executeMethod", "Command.Execute", "--args", "-name", name, "-version", version])
+    await exec(unityPath, null, ["-batchmode", "-quit", "-projectPath", path.dirname(cwd), "-logFile", `${cwd}/unity.log`, "-executeMethod", "Command.Execute", "--args", "-name", name, "-version", version])
     rmdir("./tmp")
 }
-function exec(command, args) {
+function exec(command, cwd, args) {
     return new Promise((resolve) => {
-        let sp = spawn(command, args, { cwd: process.cwd() })
+        let sp = spawn(command, args, { cwd: cwd })
         let stdout = ""
         let stderr = ""
         sp.stdout.on('data', (data) => {
