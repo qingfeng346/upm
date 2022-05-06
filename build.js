@@ -1,4 +1,5 @@
 const fs = require('fs')
+const os = require('os')
 const { spawn } = require('child_process')
 async function main() {
     let args = process.argv.splice(2)
