@@ -15,7 +15,7 @@ async function main() {
     } else if (name == "scov") {
         await exec("git", ["clone", "-b", `v${version}`, "https://github.com/qingfeng346/ScorpioConversion.git", "./tmp/scov"])
     }
-    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", cwd, "-logFile", "./unity.log", "-executeMethod", "Command.Execute", "--args", "-name", name, "-version", version])
+    await exec(unityPath, ["-batchmode", "-quit", "-projectPath", cwd, "-logFile", `${cwd}/unity.log`, "-executeMethod", "Command.Execute", "--args", "-name", name, "-version", version])
     rmdir("./tmp")
 }
 function exec(command, args) {
