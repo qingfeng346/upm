@@ -26,8 +26,8 @@ public class Command
         UnityEngine.Debug.Log("============================开始处理============================");
         try {
             var command = ParseCommand();
-            var name = command.GetValue("-name");
-            var version = command.GetValue("-version");
+            var name = command.GetValue("-libName");
+            var version = command.GetValue("-libVersion");
             if (name == "sco") {
                 ExecSco("tmp/sco", version);
             } else if (name == "scov") {
