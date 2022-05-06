@@ -26,9 +26,13 @@ public class Command
         UnityEngine.Debug.Log("============================开始处理============================");
         try {
             var command = ParseCommand();
-            var versions = command.GetValues("-version");
-            ExecSco("tmp/sco", versions[0]);
-            ExecScov("tmp/scov", versions[1]);
+            var name = command.GetValue("-name");
+            var version = command.GetValue("-version");
+            if (name == "sco") {
+                ExecSco("tmp/sco", version);
+            } else if (name == "scov") {
+                ExecScov("tmp/scov", version);
+            }
             UnityEngine.Debug.Log("============================处理完成============================");
         } catch (System.Exception e) {
             UnityEngine.Debug.LogError("============================处理失败============================:" + e.ToString());
