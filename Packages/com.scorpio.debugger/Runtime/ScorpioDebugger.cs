@@ -23,17 +23,20 @@ namespace Scorpio.Debugger {
             }
         }
         
-        public List<LogEntry> LogEntries { get; set; }          //所有的日志
-        public List<CommandEntry> CommandEntries { get; set; }  //常用命令列表
-        public List<LogOperation> LogOperations { get; set; }   //每条log的操作列表
-        public bool LogEnabled { get; set; } = true;            //是否开启日志
-        public event Action<LogEntry> logMessageReceived;       //日志回调
-        public event Action<CommandEntry> addCommandEntry;      //添加命令列表
-        public event Action<string> executeCommand;             //命令行执行
-        private CommandHistory commandHistory;                  //命令历史记录
+        public List<LogEntry> LogEntries { get; set; }                  //所有的日志
+        public List<CommandEntry> CommandEntries { get; set; }          //常用命令列表
+        public List<LogOperation> LogOperations { get; set; }           //每条log的操作列表
+        public List<OptionEntry> OptionEntries { get; set; }            //操作列表
+        public bool LogEnabled { get; set; } = true;                    //是否开启日志
+        public event Action<LogEntry> logMessageReceived;               //日志回调
+        public event Action<CommandEntry> addCommandEntry;              //添加命令列表
+        public event Action<string, OptionType, object> addOption;      //添加一个控件
+        public event Action<string> executeCommand;                     //命令行执行
+        private CommandHistory commandHistory;                          //命令历史记录
         public ScorpioDebugger() {
             LogEntries = new List<LogEntry>();
             CommandEntries = new List<CommandEntry>();
+            OptionEntries = new List<OptionEntry>();
             LogOperations = new List<LogOperation>();
             commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
             Application.logMessageReceivedThreaded += OnLogReceived;
@@ -76,6 +79,13 @@ namespace Scorpio.Debugger {
         }
         public void AddLogOperate(string label, Action<LogEntry> action) {
             LogOperations.Add(new LogOperation() { label = label, action = action });
+        }
+        public void AddOptionButton(string title, string label, Action action) {
+            AddOption(title, OptionType.Button, new OptionValueButton() { label = label, action = action });
+        }
+        internal void AddOption(string title, OptionType type, object value) {
+            OptionEntries.Add(new OptionEntry() { title = title, type = type, value = value });
+            addOption?.Invoke(title, type, value);
         }
         public CommandEntry AddCommandEntry(string labelEN, string labelCN, string labelParam, string command) {
             var commandEntry = new CommandEntry() {

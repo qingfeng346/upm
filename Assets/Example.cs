@@ -9,6 +9,20 @@ public class Example : MonoBehaviour
         for (var i = 0; i < 10; ++i) {
             ScorpioDebugger.Instance.AddCommandEntry("command : cn " + i, "command : en  " + i, "command : param " + i, "command " + i);
         }
+        for (var i = 0; i < 10; ++i) {
+            var a = i;
+            ScorpioDebugger.Instance.AddOptionButton("测试测试", "button" + i, () =>
+            {
+                Debug.Log("====== " + a);
+            });
+        }
+        for (var i = 0; i < 10; ++i) {
+            var a = i;
+            ScorpioDebugger.Instance.AddOptionButton("测试测试22", "button" + i, () =>
+            {
+                Debug.Log("======2222 " + a);
+            });
+        }
         ScorpioDebugger.Instance.executeCommand += (command) =>
         {
             Debug.Log("运行命令 : " + command);
