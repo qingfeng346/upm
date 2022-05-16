@@ -11,11 +11,11 @@ namespace Scorpio.Debugger {
         public VirtualVerticalLayoutGroup listView;
         public ConsoleLogInfo logInfo;
         public ConsoleCommands commands;
-        private Queue<LogEntry> addEntrys;
+        private Queue<LogEntry> addEntries;
         void Awake() {
             inputCommand.onValidateInput += OnValidateInput;
             ScorpioDebugger.Instance.logMessageReceived += LogMessageReceived;
-            addEntrys = new Queue<LogEntry>(ScorpioDebugger.Instance.All());
+            addEntries = new Queue<LogEntry>(ScorpioDebugger.Instance.LogEntries);
         }
         char OnValidateInput(string text, int charIndex, char addedChar) {
             if (addedChar == '\n') {
@@ -25,7 +25,7 @@ namespace Scorpio.Debugger {
             return addedChar;
         }
         void LogMessageReceived(LogEntry logEntry) {
-            addEntrys.Enqueue(logEntry);
+            addEntries.Enqueue(logEntry);
         }
         //执行命令行
         void ExecuteCommand(string text) {
@@ -54,8 +54,8 @@ namespace Scorpio.Debugger {
                     NextHistory();
                 }
             }
-            if (addEntrys.Count > 0) {
-                var entry = addEntrys.Dequeue();
+            if (addEntries.Count > 0) {
+                var entry = addEntries.Dequeue();
                 //if (entry.logType == DebugLogType.Info) {
                 //    filterInfo.AddCount();
                 //} else if (entry.logType == DebugLogType.Warn) {
@@ -68,10 +68,10 @@ namespace Scorpio.Debugger {
             }
         }
         public void OnClickClear() {
-
+            listView.ClearItems();
         }
         public void OnClickCommands() {
-
+            commands.Show();
         }
         public void OnClickNext() {
             NextHistory();

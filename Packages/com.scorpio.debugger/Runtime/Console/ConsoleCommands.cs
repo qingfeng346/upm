@@ -4,15 +4,16 @@ using UnityEngine;
 
 namespace Scorpio.Debugger {
     public class ConsoleCommands : MonoBehaviour {
-        // Start is called before the first frame update
-        void Start() {
-
+        public Transform items;
+        public GameObject itemPrefab;
+        void Awake() {
+            ScorpioDebugger.Instance.addCommandEntry += AddCommandEntry;
         }
-
-        // Update is called once per frame
-        void Update() {
-
+        void AddCommandEntry(CommandEntry commandEntry) {
+            
+        }
+        internal void Show() {
+            gameObject.SetActive(true);
         }
     }
-
 }

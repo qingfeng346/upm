@@ -8,7 +8,6 @@ namespace Scorpio.Debugger {
         public static int LogStringMaxLength = 256;                                 //日志显示最大字符数
         public static int StackTraceMaxLength = 1024;                               //日志堆栈最大字符数
         public static ScorpioDebugger Instance { get; } = new ScorpioDebugger();    //单例
-
         private static ScorpioDebuggerWindow windowInstance = null;
         public static ScorpioDebuggerWindow WindowInstance {
             get {
@@ -23,17 +22,19 @@ namespace Scorpio.Debugger {
                 return windowInstance;
             }
         }
-        private List<LogEntry> logs;                            //所有的日志
-        private List<CommandEntry> commands;                    //常用命令列表
-        private List<LogOperate> logOperates;                   //每条log的操作列表
-        public static bool LogEnabled { get; set; } = true;     //是否开启日志
+        
+        public List<LogEntry> LogEntries { get; set; }          //所有的日志
+        public List<CommandEntry> CommandEntries { get; set; }  //常用命令列表
+        public List<LogOperation> LogOperations { get; set; }   //每条log的操作列表
+        public bool LogEnabled { get; set; } = true;            //是否开启日志
         public event Action<LogEntry> logMessageReceived;       //日志回调
-        public Action<string> executeCommand;                   //命令行执行
-        private CommandHistory commandHistory;
+        public event Action<CommandEntry> addCommandEntry;      //添加命令列表
+        public event Action<string> executeCommand;             //命令行执行
+        private CommandHistory commandHistory;                  //命令历史记录
         public ScorpioDebugger() {
-            logs = new List<LogEntry>();
-            commands = new List<CommandEntry>();
-            logOperates = new List<LogOperate>();
+            LogEntries = new List<LogEntry>();
+            CommandEntries = new List<CommandEntry>();
+            LogOperations = new List<LogOperation>();
             commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
             Application.logMessageReceivedThreaded += OnLogReceived;
         }
@@ -56,17 +57,17 @@ namespace Scorpio.Debugger {
             } else if (logType == UnityEngine.LogType.Warning) {
                 debugLogType = LogType.Warn;
             }
-            var entry = new LogEntry(debugLogType, logString, stackTrace);
-            logs.Add(entry);
-            while (logs.Count > MaxEntryNumber) {
-                logs.RemoveAt(0);
+            var logEntry = new LogEntry(debugLogType, logString, stackTrace);
+            LogEntries.Add(logEntry);
+            while (LogEntries.Count > MaxEntryNumber) {
+                LogEntries.RemoveAt(0);
             }
-            logMessageReceived?.Invoke(entry);
+            logMessageReceived?.Invoke(logEntry);
         }
-        public List<LogEntry> All() { return new List<LogEntry>(logs); }
-        public List<LogEntry> FindAll(Predicate<LogEntry> match) { return logs.FindAll(match); }
-        public int Count(LogType logType) { return logs.FindAll((entry) => entry.logType == logType).Count; }
-        public void Clear() { logs.Clear(); }
+        public List<LogEntry> FindAll(Predicate<LogEntry> match) { return LogEntries.FindAll(match); }
+        public int Count(LogType logType) { return LogEntries.FindAll((entry) => entry.logType == logType).Count; }
+        public void Clear() { LogEntries.Clear(); }
+        public void ClearExecuteCommand() { executeCommand = null; }
         public string LastCommand => commandHistory.Last();
         public string NextCommand => commandHistory.Next();
         public void ExecuteCommand(string command) {
@@ -74,16 +75,18 @@ namespace Scorpio.Debugger {
             executeCommand?.Invoke(command);
         }
         public void AddLogOperate(string label, Action<LogEntry> action) {
-            logOperates.Add(new LogOperate() { label = label, action = action });
+            LogOperations.Add(new LogOperation() { label = label, action = action });
         }
-        public void AddCommand(string labelEN, string labelCN, string labelParam, string command) {
-            var entry = new CommandEntry() {
+        public CommandEntry AddCommandEntry(string labelEN, string labelCN, string labelParam, string command) {
+            var commandEntry = new CommandEntry() {
                 labelCN = labelCN,
                 labelEN = labelEN,
                 labelParam = labelParam,
                 command = command
             };
-            commands.Add(entry);
+            CommandEntries.Add(commandEntry);
+            addCommandEntry?.Invoke(commandEntry);
+            return commandEntry;
         }
     }
 }

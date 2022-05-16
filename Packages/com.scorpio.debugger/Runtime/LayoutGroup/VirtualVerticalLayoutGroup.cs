@@ -575,7 +575,6 @@ namespace Scorpio.Debugger {
             var item = new Row();
 
             var row = (RectTransform)UnityEngine.Object.Instantiate(ItemPrefab);
-            row.gameObject.SetActive(true);
             item.Rect = row;
             item.View = row.GetComponent(typeof (IVirtualView)) as IVirtualView;
 
