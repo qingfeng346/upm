@@ -6,7 +6,11 @@ using Scorpio.Debugger;
 public class Example : MonoBehaviour
 {
     void Start() {
-        ScorpioDebugger.Instance.executeCommand += (command) => {
+        for (var i = 0; i < 10; ++i) {
+            ScorpioDebugger.Instance.AddCommandEntry("command : cn " + i, "command : en  " + i, "command : param " + i, "command " + i);
+        }
+        ScorpioDebugger.Instance.executeCommand += (command) =>
+        {
             Debug.Log("运行命令 : " + command);
         };
     }

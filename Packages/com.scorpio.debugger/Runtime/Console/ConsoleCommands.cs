@@ -8,12 +8,18 @@ namespace Scorpio.Debugger {
         public GameObject itemPrefab;
         void Awake() {
             ScorpioDebugger.Instance.addCommandEntry += AddCommandEntry;
+            ScorpioDebugger.Instance.CommandEntries.ForEach((commandEntry) => {
+                AddCommandEntry(commandEntry);
+            });
         }
         void AddCommandEntry(CommandEntry commandEntry) {
-            
+            var item = GameObject.Instantiate<GameObject>(itemPrefab).GetComponent<ConsoleCommandItem>();
+            item.transform.SetParent(items);
+            item.transform.localScale = Vector3.one;
+            item.SetCommandEntry(commandEntry);
         }
-        internal void Show() {
-            gameObject.SetActive(true);
+        public void OnClickCollider() {
+            gameObject.SetActive(false);
         }
     }
 }

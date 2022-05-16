@@ -34,6 +34,10 @@ namespace Scorpio.Debugger {
                 ScorpioDebugger.Instance.ExecuteCommand(text);
             }
         }
+        internal void SelectCommand(CommandEntry commandEntry) {
+            commands.gameObject.SetActive(false);
+            inputCommand.text = commandEntry.command;
+        }
         internal void ShowLogEntry(LogEntry logEntry) {
             logInfo.gameObject.SetActive(true);
             logInfo.SetLogEntry(logEntry);
@@ -71,7 +75,7 @@ namespace Scorpio.Debugger {
             listView.ClearItems();
         }
         public void OnClickCommands() {
-            commands.Show();
+            commands.gameObject.SetActive(!commands.gameObject.activeSelf);
         }
         public void OnClickNext() {
             NextHistory();
