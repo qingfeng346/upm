@@ -49,36 +49,7 @@ namespace Scorpio.Debugger {
         public VirtualVerticalLayoutGroup listView;
         public ConsoleLogInfo logInfo;
         public ConsoleCommands commands;
-        private CommandHistory commandHistory;
-        //private const string CommandHistoryKey = "__command_history";
-        //public GameObject commandItem;                          //命令行列表元素
-        //public GameObject buttonItem;                           //日志操作Button
-
-        //public GameObject toolbar;                             //工具栏
-        //public InputField inputCommand;                        //命令行输入框
-        //public InputField inputSearch;                         //搜索输入框
-        //public VirtualVerticalLayoutGroup listView;            //
-        //public GameObject debugLogInfo;                        //日志详情界面
-        //public Text debugLogInfoText;                          //日志详情信息
-        //public GameObject logButtons;                          //日志操作列表
-        //private Dictionary<string, GameObject> logObjects;      //日志操作列表
-        //private DebugLogEntry debugLog;                         //当前查看的日志
-        //public GameObject debugLogWindow;
-        //public GameObject buttonBottom;                        //到底部按钮
-        //private List<DebugLogEntry> entrys;                     //所有日志
-        //private Queue<DebugLogEntry> addEntrys;                 //需要添加的日志
-
-        //public GameObject commandList;                          //命令行列表界面
-        //public GameObject commandGrid;                          //命令行Grid
-        //private Dictionary<string, GameObject> commandObjects;  //命令行模板
-        //private List<string> commandHistory;                    //命令行历史纪录
-        //private int commandHistoryIndex;                        //命令行历史记录位置
-        //private LogFilter filterInfo = new LogFilter();        //Info过滤
-        //private LogFilter filterWarn = new LogFilter();        //Warn过滤
-        //private LogFilter filterError = new LogFilter();       //Error过滤
-        //private bool autoToBottom;                              //是否自动到底部
         void Awake() {
-            commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
             inputCommand.onValidateInput += (text, charIndex, addedChar) => {
                 if (addedChar == '\n') {
                     ExecuteCommand(text);
@@ -254,16 +225,15 @@ namespace Scorpio.Debugger {
                     var entry = new LogEntry(LogType.Info, text + i, "wwww");
                     listView.AddItem(entry);
                 }
-                commandHistory.AddHistory(text);
-                //ScorpioDebugger.Instance.ExecuteCommand(text);
+                ScorpioDebugger.Instance.ExecuteCommand(text);
             }
         }
         void LastHistory() {
-            inputCommand.text = commandHistory.Last();
+            inputCommand.text = ScorpioDebugger.Instance.LastCommand;
             inputCommand.caretPosition = inputCommand.text.Length;
         }
         void NextHistory() {
-            inputCommand.text = commandHistory.Next();
+            inputCommand.text = ScorpioDebugger.Instance.NextCommand;
             inputCommand.caretPosition = inputCommand.text.Length;
         }
         void LateUpdate() {
@@ -298,6 +268,9 @@ namespace Scorpio.Debugger {
         }
         public void OnClickLast() {
             LastHistory();
+        }
+        public void OnClickSnapToBottom() {
+
         }
         public void OnClickEnter() {
             ExecuteCommand(inputCommand.text);
