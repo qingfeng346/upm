@@ -7,6 +7,7 @@ namespace Scorpio.Debugger {
         public Sprite spriteInfo, spriteWarn, spriteError;
         public Image imageLogType;
         public Text textLogStr;
+        public ConsoleWindow consoleWindow;
         private LogEntry entry;
         void Awake() {
             rectTransform = transform as RectTransform;

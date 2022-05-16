@@ -377,9 +377,9 @@ namespace Scorpio.Debugger {
             _itemList.Add(item);
             SetDirty();
 
-            if (StickToBottom && Mathf.Approximately(ScrollRect.verticalNormalizedPosition, 0f))
+            if (StickToBottom && Mathf.Approximately(ScrollRect.verticalNormalizedPosition, 1f))
             {
-                ScrollRect.normalizedPosition = new Vector2(0, 0);
+                ScrollRect.normalizedPosition = new Vector2(0, 1);
             }
         }
 

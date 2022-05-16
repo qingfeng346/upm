@@ -15,7 +15,7 @@ namespace Scorpio.Debugger {
                 if (!windowInstance) {
                     windowInstance = UnityEngine.Object.FindObjectOfType<ScorpioDebuggerWindow>();
                     if (windowInstance == null) {
-                        var gameObject = UnityEngine.Object.Instantiate(Resources.Load("ScorpioConsoleWindow")) as GameObject;
+                        var gameObject = UnityEngine.Object.Instantiate(Resources.Load("ScorpioDebugger")) as GameObject;
                         UnityEngine.Object.DontDestroyOnLoad(gameObject);
                         windowInstance = gameObject.GetComponent<ScorpioDebuggerWindow>();
                     }
