@@ -8,7 +8,7 @@ namespace Scorpio.Debugger {
         public Image imageLogType;
         public Text textLogStr;
         public ConsoleWindow consoleWindow;
-        private LogEntry entry;
+        private LogEntry logEntry;
         void Awake() {
             rectTransform = transform as RectTransform;
             ScorpioDebugUtil.RegisterClick(gameObject, this.OnClick);
@@ -17,12 +17,8 @@ namespace Scorpio.Debugger {
             var entry = data as LogEntry;
             SetLogEntry(entry);
         }
-        public void SetParent(Transform parent) {
-            rectTransform.SetParent(parent);
-            rectTransform.transform.localScale = Vector3.one;
-        }
         public void SetLogEntry(LogEntry entry) {
-            this.entry = entry;
+            this.logEntry = entry;
             this.textLogStr.text = entry.LogString;
             switch (entry.logType) {
                 case LogType.Error:
@@ -37,7 +33,7 @@ namespace Scorpio.Debugger {
             }
         }
         void OnClick() {
-            //ScorpioDebugger.Instance.ShowLogInfo(entry);
+            consoleWindow.ShowLogEntry(logEntry);
         }
     }
 }

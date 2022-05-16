@@ -60,7 +60,7 @@ namespace Scorpio.Debugger {
                 ConsoleLogItem item;
                 if (itemNum >= items.Count) {
                     item = GameObject.Instantiate(debugLogItem).GetComponent<ConsoleLogItem>();
-                    item.SetParent(transform);
+                    // item.SetParent(transform);
                     item.rectTransform.sizeDelta = ItemSize;
                     items.Add(item);
                     itemNum++;

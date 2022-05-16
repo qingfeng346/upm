@@ -34,6 +34,10 @@ namespace Scorpio.Debugger {
                 ScorpioDebugger.Instance.ExecuteCommand(text);
             }
         }
+        internal void ShowLogEntry(LogEntry logEntry) {
+            logInfo.gameObject.SetActive(true);
+            logInfo.SetLogEntry(logEntry);
+        }
         void LastHistory() {
             inputCommand.text = ScorpioDebugger.Instance.LastCommand;
             inputCommand.caretPosition = inputCommand.text.Length;

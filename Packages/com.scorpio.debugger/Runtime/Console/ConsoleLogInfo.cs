@@ -1,17 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 namespace Scorpio.Debugger {
     public class ConsoleLogInfo : MonoBehaviour {
-        // Start is called before the first frame update
-        void Start() {
-
+        public Text text;
+        public GameObject buttons;
+        private LogEntry logEntry;
+        internal void SetLogEntry(LogEntry logEntry) {
+            this.logEntry = logEntry;
+            this.text.text = $"[{logEntry.logType}]{logEntry.logString}";
         }
-
-        // Update is called once per frame
-        void Update() {
-
+        public void OnClickCollider() {
+            gameObject.SetActive(false);
         }
     }
 }
