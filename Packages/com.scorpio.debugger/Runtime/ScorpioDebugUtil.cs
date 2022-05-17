@@ -33,14 +33,14 @@ public class ScorpioDebugUtil {
         buttonEvent.AddListener(action);
         button.onClick = buttonEvent;
     }
-    public static void RegisterSubmit(UnityEngine.Object obj, UnityAction<string> submit) {
-        RegisterSubmit(obj, null, submit);
-    }
-    public static void RegisterSubmit(UnityEngine.Object obj, string path, UnityAction<string> submit) {
-        var input = FindChild<InputField>(obj, path);
-        if (input == null) { return; }
-        var inputEvent = new InputField.SubmitEvent();
-        inputEvent.AddListener(submit);
-        input.onEndEdit = inputEvent;
-    }
+    // public static void RegisterSubmit(UnityEngine.Object obj, UnityAction<string> submit) {
+    //     RegisterSubmit(obj, null, submit);
+    // }
+    // public static void RegisterSubmit(UnityEngine.Object obj, string path, UnityAction<string> submit) {
+    //     var input = FindChild<InputField>(obj, path);
+    //     if (input == null) { return; }
+    //     var inputEvent = new InputField.SubmitEvent();
+    //     inputEvent.AddListener(submit);
+    //     input.onEndEdit = inputEvent;
+    // }
 }
