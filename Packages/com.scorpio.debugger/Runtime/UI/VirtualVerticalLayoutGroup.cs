@@ -143,6 +143,9 @@ namespace Scorpio.Debugger {
             {
                 _scrollRect.verticalNormalizedPosition = Mathf.Clamp01(d.y);
             }
+            if (d.y > 0.05) {
+                StickToBottom = false;
+            }
 
             //CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
             SetDirty();
@@ -177,6 +180,9 @@ namespace Scorpio.Debugger {
             {
                 _isDirty = false;
                 ScrollUpdate();
+                if (StickToBottom) {
+                    ScrollRect.verticalNormalizedPosition = 0;
+                }
             }
         }
 
@@ -376,11 +382,6 @@ namespace Scorpio.Debugger {
         {
             _itemList.Add(item);
             SetDirty();
-
-            if (StickToBottom && Mathf.Approximately(ScrollRect.verticalNormalizedPosition, 1f))
-            {
-                ScrollRect.normalizedPosition = new Vector2(0, 1);
-            }
         }
 
         public void RemoveItem(object item)
@@ -415,7 +416,7 @@ namespace Scorpio.Debugger {
 
         #region Internal Properties
 
-        private ScrollRect ScrollRect
+        public ScrollRect ScrollRect
         {
             get
             {

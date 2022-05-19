@@ -9,6 +9,9 @@ public class ScorpioDebuggerWindow : MonoBehaviour
     public GameObject minimize;
     public GameObject maximize;
     public bool visiable = true;
+    void Awake() {
+        OnClickMinimize();
+    }
     public void OnClickShowHide() {
         SetVisiable(!visiable);
     }

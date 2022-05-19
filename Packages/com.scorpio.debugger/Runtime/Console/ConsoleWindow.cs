@@ -83,8 +83,9 @@ namespace Scorpio.Debugger {
         public void OnClickLast() {
             LastHistory();
         }
-        public void OnClickSnapToBottom() {
-
+        public void OnClickStickToBottom() {
+            listView.StickToBottom = true;
+            listView.ScrollRect.verticalNormalizedPosition = 0;
         }
         public void OnClickEnter() {
             ExecuteCommand(inputCommand.text);
