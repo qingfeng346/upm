@@ -9,8 +9,10 @@ public class ScorpioDebuggerWindow : MonoBehaviour
     public GameObject minimize;
     public GameObject maximize;
     public bool visiable = true;
+    public AutoEdge autoEdge;
     void Awake() {
         OnClickMinimize();
+        autoEdge.onClick = OnClickMaximize;
     }
     public void OnClickShowHide() {
         SetVisiable(!visiable);
