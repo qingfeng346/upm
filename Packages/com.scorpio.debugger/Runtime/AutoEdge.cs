@@ -61,10 +61,9 @@ public class AutoEdge : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
             index = 3;
         }
         switch (index) {
-            case 0: {
+            case 0:
                 position.x = screen.xMin;
                 break;
-            }
             case 1:
                 position.x = screen.xMax;
                 break;
