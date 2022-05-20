@@ -23,6 +23,11 @@ public class Example : MonoBehaviour
                 Debug.Log("======2222 " + a);
             });
         }
+        for (var i = 0; i < 5; ++i) {
+            ScorpioDebugger.Instance.AddLogOperation("单条日志:" + i, (logEntry) => {
+                Debug.Log("------- " + logEntry.logString);
+            });
+        }
         ScorpioDebugger.Instance.executeCommand += (command) =>
         {
             Debug.Log("运行命令 : " + command);

@@ -1,12 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 namespace Scorpio.Debugger {
     public class ConsoleLogInfo : MonoBehaviour {
         public Text text;
-        public GameObject buttons;
+        public Transform buttons;
+        public GameObject itemPrefab;
         private LogEntry logEntry;
+        void Awake() {
+            ScorpioDebugger.Instance.addLogOperation += AddLogOperation;
+            ScorpioDebugger.Instance.LogOperations.ForEach((logOperation) => AddLogOperation(logOperation));
+        }
+        void AddLogOperation(LogOperation logOperation) {
+            var item = Instantiate(itemPrefab);
+            item.transform.SetParent(buttons);
+            item.transform.localScale = Vector3.one;
+            item.GetComponentInChildren<Text>().text = logOperation.label;
+            item.GetComponent<Button>().onClick.AddListener(() => {
+                logOperation.action?.Invoke(logEntry);
+            });
+        }
         internal void SetLogEntry(LogEntry logEntry) {
             this.logEntry = logEntry;
             this.text.text = $"[{logEntry.logType}]{logEntry.logString}";

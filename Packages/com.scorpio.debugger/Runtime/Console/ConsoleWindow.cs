@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-// using SuperScrollView;
-using System;
 
 namespace Scorpio.Debugger {
     public class ConsoleWindow : MonoBehaviour {
@@ -11,11 +10,15 @@ namespace Scorpio.Debugger {
         public VirtualVerticalLayoutGroup listView;
         public ConsoleLogInfo logInfo;
         public ConsoleCommands commands;
+        public ConsoleLogFilter infoFilter, warnFilter, errorFilter;
         private Queue<LogEntry> addEntries;
+        private string search = null;
         void Awake() {
             inputCommand.onValidateInput += OnValidateInput;
+            inputSearch.onEndEdit.AddListener(OnSearchChanged);
+            addEntries = new Queue<LogEntry>();
             ScorpioDebugger.Instance.logMessageReceived += LogMessageReceived;
-            addEntries = new Queue<LogEntry>(ScorpioDebugger.Instance.LogEntries);
+            UpdateAllLogs();
         }
         char OnValidateInput(string text, int charIndex, char addedChar) {
             if (addedChar == '\n') {
@@ -24,8 +27,44 @@ namespace Scorpio.Debugger {
             }
             return addedChar;
         }
+        void OnSearchChanged(string text) {
+            search = text;
+            UpdateAllLogs();
+        }
+        public void UpdateAllLogs() {
+            listView.ClearItems();
+            addEntries.Clear();
+            infoFilter.Count = 0;
+            warnFilter.Count = 0;
+            errorFilter.Count = 0;
+            IEnumerable<LogEntry> entries = string.IsNullOrEmpty(search) ? ScorpioDebugger.Instance.LogEntries : ScorpioDebugger.Instance.LogEntries.Where(_ => _.logString.Contains(search));
+            foreach (var entry in entries) {
+                if (IsMatch(entry)) {
+                    addEntries.Enqueue(entry);
+                }
+            }
+        }
+        bool IsMatch(LogEntry logEntry) {
+            switch (logEntry.logType) {
+                case LogType.Error: {
+                    return errorFilter.isOn;
+                }
+                case LogType.Warn: {
+                    return warnFilter.isOn;
+                }
+                case LogType.Info: {
+                    return infoFilter.isOn;
+                }
+            }
+            return false;
+        }
         void LogMessageReceived(LogEntry logEntry) {
-            addEntries.Enqueue(logEntry);
+            if (!string.IsNullOrEmpty(search) && !logEntry.logString.Contains(search)) {
+                return;
+            }
+            if (IsMatch(logEntry)) {
+                addEntries.Enqueue(logEntry);
+            }
         }
         //执行命令行
         void ExecuteCommand(string text) {
@@ -60,19 +99,22 @@ namespace Scorpio.Debugger {
             }
             if (addEntries.Count > 0) {
                 var entry = addEntries.Dequeue();
-                //if (entry.logType == DebugLogType.Info) {
-                //    filterInfo.AddCount();
-                //} else if (entry.logType == DebugLogType.Warn) {
-                //    filterWarn.AddCount();
-                //} else if (entry.logType == DebugLogType.Error) {
-                //    filterError.AddCount();
-                //}
+                if (entry.logType == LogType.Info) {
+                    infoFilter.Count += 1;
+                } else if (entry.logType == LogType.Warn) {
+                    warnFilter.Count += 1;
+                } else if (entry.logType == LogType.Error) {
+                    errorFilter.Count += 1;
+                }
                 listView.AddItem(entry);
-                // UpdateListView();
             }
         }
         public void OnClickClear() {
             listView.ClearItems();
+            addEntries.Clear();
+            infoFilter.Count = 0;
+            warnFilter.Count = 0;
+            errorFilter.Count = 0;
         }
         public void OnClickCommands() {
             commands.gameObject.SetActive(!commands.gameObject.activeSelf);

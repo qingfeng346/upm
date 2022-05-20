@@ -25,12 +25,13 @@ namespace Scorpio.Debugger {
         
         public List<LogEntry> LogEntries { get; set; }                  //所有的日志
         public List<CommandEntry> CommandEntries { get; set; }          //常用命令列表
-        public List<LogOperation> LogOperations { get; set; }           //每条log的操作列表
         public List<OptionEntry> OptionEntries { get; set; }            //操作列表
+        public List<LogOperation> LogOperations { get; set; }           //每条log的操作列表
         public bool LogEnabled { get; set; } = true;                    //是否开启日志
-        public event Action<LogEntry> logMessageReceived;               //日志回调
-        public event Action<CommandEntry> addCommandEntry;              //添加命令列表
-        public event Action<string, OptionType, object> addOption;      //添加一个控件
+        internal event Action<LogEntry> logMessageReceived;             //日志回调
+        internal event Action<CommandEntry> addCommandEntry;            //添加命令列表
+        internal event Action<OptionEntry> addOption;                   //添加一个控件
+        internal event Action<LogOperation> addLogOperation;            //添加单条日志操作
         public event Action<string> executeCommand;                     //命令行执行
         private CommandHistory commandHistory;                          //命令历史记录
         public ScorpioDebugger() {
@@ -77,15 +78,18 @@ namespace Scorpio.Debugger {
             commandHistory.AddHistory(command);
             executeCommand?.Invoke(command);
         }
-        public void AddLogOperate(string label, Action<LogEntry> action) {
-            LogOperations.Add(new LogOperation() { label = label, action = action });
+        public void AddLogOperation(string label, Action<LogEntry> action) {
+            var entry = new LogOperation() { label = label, action = action };
+            LogOperations.Add(entry);
+            addLogOperation?.Invoke(entry);
         }
         public void AddOptionButton(string title, string label, Action action) {
             AddOption(title, OptionType.Button, new OptionValueButton() { label = label, action = action });
         }
         internal void AddOption(string title, OptionType type, object value) {
-            OptionEntries.Add(new OptionEntry() { title = title, type = type, value = value });
-            addOption?.Invoke(title, type, value);
+            var entry = new OptionEntry() { title = title, type = type, value = value };
+            OptionEntries.Add(entry);
+            addOption?.Invoke(entry);
         }
         public CommandEntry AddCommandEntry(string labelEN, string labelCN, string labelParam, string command) {
             var commandEntry = new CommandEntry() {

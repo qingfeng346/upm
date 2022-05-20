@@ -8,9 +8,7 @@ namespace Scorpio.Debugger {
         public GameObject itemPrefab;
         void Awake() {
             ScorpioDebugger.Instance.addCommandEntry += AddCommandEntry;
-            ScorpioDebugger.Instance.CommandEntries.ForEach((commandEntry) => {
-                AddCommandEntry(commandEntry);
-            });
+            ScorpioDebugger.Instance.CommandEntries.ForEach((commandEntry) => AddCommandEntry(commandEntry) );
         }
         void AddCommandEntry(CommandEntry commandEntry) {
             var item = GameObject.Instantiate<GameObject>(itemPrefab).GetComponent<ConsoleCommandItem>();
