@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 
 namespace Scorpio.Debugger {
@@ -29,9 +30,17 @@ namespace Scorpio.Debugger {
                 groupItem.transform.localScale = Vector3.one;
             }
             var item = Instantiate(prefabDic[optionEntry.type]).GetComponent<OptionItemBase>();
+            optionEntry.optionItem = item;
             item.transform.SetParent(groupItem.transform);
             item.transform.localScale = Vector3.one;
-            item.SetValue(optionEntry.value);
+            var layoutElement = item.GetComponent<LayoutElement>();
+            if (optionEntry.value.width > 0) {
+                layoutElement.preferredWidth = optionEntry.value.width;
+            }
+            if (optionEntry.value.height > 0) {
+                layoutElement.preferredHeight = optionEntry.value.height;
+            }
+            item.SetEntry(optionEntry.value);
         }
     }               
 }

@@ -53,7 +53,7 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: 1300
-  m_PreferredHeight: 60
+  m_PreferredHeight: 40
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -123,7 +123,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 40
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -134,7 +134,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Title
+  m_Text: Title1111111111111111111111111111111111111111111111111111111111111111111111
 --- !u!1 &5428460864168901576
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,5 +222,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title: {fileID: 1625649099131419792}
-  buttonPrefab: {fileID: 8685554522926143605, guid: fede3990553b02f418b261ed766139f0,
-    type: 3}

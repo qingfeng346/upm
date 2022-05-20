@@ -83,13 +83,51 @@ namespace Scorpio.Debugger {
             LogOperationEntries.Add(entry);
             addLogOperation?.Invoke(entry);
         }
-        public void AddOptionButton(string title, string label, Action action) {
-            AddOption(title, OptionType.Button, new OptionValueButton() { label = label, action = action });
+        /// <summary> Button </summary>
+        public OptionEntry AddOptionButton(string title, string label, Action action) {
+            return AddOptionButton(title, 0, 0, label, action);
         }
-        internal void AddOption(string title, OptionType type, object value) {
+        public OptionEntry AddOptionButton(string title, int width, int height, string label, Action action) {
+            return AddOptionButton(title, new OptionValueButton() { width = width, height = height, label = label, action = action });
+        }
+        public OptionEntry AddOptionButton(string title, OptionValueButton value) {
+            return AddOption(title, OptionType.Button, value);
+        }
+        /// <summary> Toggle </summary>
+        public OptionEntry AddOptionToggle(string title, string label, bool isOn, Action<bool> action) {
+            return AddOptionToggle(title, 0, 0, label, isOn, action);
+        }
+        public OptionEntry AddOptionToggle(string title, int width, int height, string label, bool isOn, Action<bool> action) {
+            return AddOptionToggle(title, new OptionValueToggle() { width = width, height = height, label = label, isOn = isOn, action = action });
+        }
+        public OptionEntry AddOptionToggle(string title, OptionValueToggle value) {
+            return AddOption(title, OptionType.Toggle, value);
+        }
+        /// <summary> Dropdown </summary>
+        public OptionEntry AddOptionDropdown(string title, IEnumerable<string> options, int value, Action<int> action) {
+            return AddOptionDropdown(title, 0, 0, options, value, action);
+        }
+        public OptionEntry AddOptionDropdown(string title, int width, int height, IEnumerable<string> options, int value, Action<int> action) {
+            return AddOptionDropdown(title, new OptionValueDropdown() { width = width, height = height, options = options, value = value, action = action });
+        }
+        public OptionEntry AddOptionDropdown(string title, OptionValueDropdown value) {
+            return AddOption(title, OptionType.Dropdown, value);
+        }
+        /// <summary> Input </summary>
+        public OptionEntry AddOptionInput(string title, string value, Action<string> action) {
+            return AddOptionInput(title, 0, 0, value, action);
+        }
+        public OptionEntry AddOptionInput(string title, int width, int height, string value, Action<string> action) {
+            return AddOptionInput(title, new OptionValueInput() { width = width, height = height, value = value, action = action });
+        }
+        public OptionEntry AddOptionInput(string title, OptionValueInput value) {
+            return AddOption(title, OptionType.Input, value);
+        }
+        internal OptionEntry AddOption(string title, OptionType type, OptionValueBase value) {
             var entry = new OptionEntry() { title = title, type = type, value = value };
             OptionEntries.Add(entry);
             addOption?.Invoke(entry);
+            return entry;
         }
         public CommandEntry AddCommandEntry(string labelEN, string labelCN, string labelParam, string command) {
             var commandEntry = new CommandEntry() {

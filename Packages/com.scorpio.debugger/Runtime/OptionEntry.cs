@@ -5,6 +5,7 @@
     public class OptionEntry {
         public string title;
         public OptionType type;
-        public object value;
+        public OptionValueBase value;
+        public OptionItemBase optionItem;
     }
 }

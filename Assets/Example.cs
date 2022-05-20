@@ -16,6 +16,21 @@ public class Example : MonoBehaviour
                 Debug.Log("====== " + a);
             });
         }
+        for (var i = 0; i <2; ++i) {
+            ScorpioDebugger.Instance.AddOptionToggle("测试Toggle", 100,100,"label " + i, true, (isOn) => {
+                Debug.Log("isOn : " + isOn);
+            });
+        }
+        for (var i = 0; i < 2; ++i) {
+            ScorpioDebugger.Instance.AddOptionDropdown("测试Dropdown", new string[] {"111","222","3333"}, 1, (value) => {
+                Debug.Log("dropdown : " + value);
+            });
+        }
+        for (var i = 0; i < 2; ++i) {
+            ScorpioDebugger.Instance.AddOptionInput("测试input", i.ToString(), (value) => {
+                Debug.Log("input : " + value);
+            });
+        }
         for (var i = 0; i < 10; ++i) {
             var a = i;
             ScorpioDebugger.Instance.AddOptionButton("测试测试22", "button" + i, () =>

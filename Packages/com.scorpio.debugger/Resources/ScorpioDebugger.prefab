@@ -5650,6 +5650,13 @@ MonoBehaviour:
   - type: 0
     prefab: {fileID: 8685554522926143605, guid: fede3990553b02f418b261ed766139f0,
       type: 3}
+  - type: 1
+    prefab: {fileID: 507840488575394284, guid: a1f82aec163f55b409d2d1e76eade74d, type: 3}
+  - type: 2
+    prefab: {fileID: 306229939984874706, guid: c6b8aff7e2164794f87f576d25b3d777, type: 3}
+  - type: 3
+    prefab: {fileID: 1887240820869237261, guid: 2db356e7ead38714298740de16491ecd,
+      type: 3}
 --- !u!1 &6568946574792531153
 GameObject:
   m_ObjectHideFlags: 0
