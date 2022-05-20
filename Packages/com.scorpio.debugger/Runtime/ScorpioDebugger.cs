@@ -23,22 +23,22 @@ namespace Scorpio.Debugger {
             }
         }
         
-        public List<LogEntry> LogEntries { get; set; }                  //所有的日志
-        public List<CommandEntry> CommandEntries { get; set; }          //常用命令列表
-        public List<OptionEntry> OptionEntries { get; set; }            //操作列表
-        public List<LogOperation> LogOperations { get; set; }           //每条log的操作列表
-        public bool LogEnabled { get; set; } = true;                    //是否开启日志
-        internal event Action<LogEntry> logMessageReceived;             //日志回调
-        internal event Action<CommandEntry> addCommandEntry;            //添加命令列表
-        internal event Action<OptionEntry> addOption;                   //添加一个控件
-        internal event Action<LogOperation> addLogOperation;            //添加单条日志操作
-        public event Action<string> executeCommand;                     //命令行执行
-        private CommandHistory commandHistory;                          //命令历史记录
+        public List<LogEntry> LogEntries { get; set; }                      //所有的日志
+        public List<CommandEntry> CommandEntries { get; set; }              //常用命令列表
+        public List<OptionEntry> OptionEntries { get; set; }                //操作列表
+        public List<LogOperationEntry> LogOperationEntries { get; set; }    //每条log的操作列表
+        public bool LogEnabled { get; set; } = true;                        //是否开启日志
+        internal event Action<LogEntry> logMessageReceived;                 //日志回调
+        internal event Action<CommandEntry> addCommandEntry;                //添加命令列表
+        internal event Action<OptionEntry> addOption;                       //添加一个控件
+        internal event Action<LogOperationEntry> addLogOperation;           //添加单条日志操作
+        public event Action<string> executeCommand;                         //命令行执行
+        private CommandHistory commandHistory;                              //命令历史记录
         public ScorpioDebugger() {
             LogEntries = new List<LogEntry>();
             CommandEntries = new List<CommandEntry>();
             OptionEntries = new List<OptionEntry>();
-            LogOperations = new List<LogOperation>();
+            LogOperationEntries = new List<LogOperationEntry>();
             commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
             Application.logMessageReceivedThreaded += OnLogReceived;
         }
@@ -79,8 +79,8 @@ namespace Scorpio.Debugger {
             executeCommand?.Invoke(command);
         }
         public void AddLogOperation(string label, Action<LogEntry> action) {
-            var entry = new LogOperation() { label = label, action = action };
-            LogOperations.Add(entry);
+            var entry = new LogOperationEntry() { label = label, action = action };
+            LogOperationEntries.Add(entry);
             addLogOperation?.Invoke(entry);
         }
         public void AddOptionButton(string title, string label, Action action) {

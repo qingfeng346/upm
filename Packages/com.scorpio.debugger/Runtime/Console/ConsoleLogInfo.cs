@@ -8,9 +8,9 @@ namespace Scorpio.Debugger {
         private LogEntry logEntry;
         void Awake() {
             ScorpioDebugger.Instance.addLogOperation += AddLogOperation;
-            ScorpioDebugger.Instance.LogOperations.ForEach((logOperation) => AddLogOperation(logOperation));
+            ScorpioDebugger.Instance.LogOperationEntries.ForEach((logOperation) => AddLogOperation(logOperation));
         }
-        void AddLogOperation(LogOperation logOperation) {
+        void AddLogOperation(LogOperationEntry logOperation) {
             var item = Instantiate(itemPrefab);
             item.transform.SetParent(buttons);
             item.transform.localScale = Vector3.one;
