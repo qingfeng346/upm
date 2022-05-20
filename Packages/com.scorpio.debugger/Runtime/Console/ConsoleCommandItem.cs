@@ -9,7 +9,7 @@ namespace Scorpio.Debugger {
         public ConsoleWindow consoleWindow;
         private CommandEntry commandEntry;
         void Awake() {
-            ScorpioDebugUtil.RegisterClick(this, OnClick);
+            gameObject.GetComponent<Button>().onClick.AddListener(OnClick);
         }
         public void SetCommandEntry(CommandEntry commandEntry) {
             this.commandEntry = commandEntry;

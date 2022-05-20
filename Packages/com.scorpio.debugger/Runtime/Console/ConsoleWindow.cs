@@ -76,6 +76,7 @@ namespace Scorpio.Debugger {
         internal void SelectCommand(CommandEntry commandEntry) {
             commands.gameObject.SetActive(false);
             inputCommand.text = commandEntry.command;
+            inputCommand.Select();
         }
         internal void ShowLogEntry(LogEntry logEntry) {
             logInfo.gameObject.SetActive(true);

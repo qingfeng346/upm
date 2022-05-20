@@ -21,7 +21,7 @@ namespace Scorpio.Debugger {
         }
         internal void SetLogEntry(LogEntry logEntry) {
             this.logEntry = logEntry;
-            this.text.text = $"[{logEntry.logType}]{logEntry.logString}";
+            this.text.text = logEntry.LogInfo;
         }
         public void OnClickCollider() {
             gameObject.SetActive(false);

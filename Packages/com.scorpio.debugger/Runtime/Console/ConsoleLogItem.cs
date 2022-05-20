@@ -11,7 +11,7 @@ namespace Scorpio.Debugger {
         private LogEntry logEntry;
         void Awake() {
             rectTransform = transform as RectTransform;
-            ScorpioDebugUtil.RegisterClick(gameObject, this.OnClick);
+            gameObject.GetComponent<Button>().onClick.AddListener(OnClick);
         }
         public void SetDataContext(object data) {
             var entry = data as LogEntry;
