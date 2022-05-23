@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using UnityEngine;
 namespace Scorpio.Debugger {
     public class OptionValueBase {
         public int width;
@@ -8,6 +8,13 @@ namespace Scorpio.Debugger {
     }
     public class OptionValueLabel : OptionValueBase {
         public string label;
+    }
+    public class OptionValueImage : OptionValueBase {
+        public Sprite sprite;
+    }
+    public class OptionValueRawImage : OptionValueBase {
+        public Texture texture;
+        public Rect uvRect;
     }
     public class OptionValueButton : OptionValueBase {
         public string label;
@@ -29,6 +36,9 @@ namespace Scorpio.Debugger {
     }
     public class OptionValueSlider : OptionValueBase {
         public string format;
+        public float min;
+        public float max;
         public float value;
+        public Action<float> action;
     }
 }

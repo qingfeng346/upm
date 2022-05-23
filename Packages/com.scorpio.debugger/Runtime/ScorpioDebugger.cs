@@ -83,6 +83,36 @@ namespace Scorpio.Debugger {
             LogOperationEntries.Add(entry);
             addLogOperation?.Invoke(entry);
         }
+        /// <summary> Label </summary>
+        public OptionEntry AddOptionLabel(string title, string label) {
+            return AddOptionLabel(title, 0, 0, label);
+        }
+        public OptionEntry AddOptionLabel(string title, int width, int height, string label) {
+            return AddOptionLabel(title, new OptionValueLabel() { width = width, height = height, label = label });
+        }
+        public OptionEntry AddOptionLabel(string title, OptionValueLabel value) {
+            return AddOption(title, OptionType.Label, value);
+        }
+        /// <summary> Image </summary>
+        public OptionEntry AddOptionImage(string title, Sprite sprite) {
+            return AddOptionImage(title, 0, 0, sprite);
+        }
+        public OptionEntry AddOptionImage(string title, int width, int height, Sprite sprite) {
+            return AddOptionImage(title, new OptionValueImage() { width = width, height = height, sprite = sprite });
+        }
+        public OptionEntry AddOptionImage(string title, OptionValueImage value) {
+            return AddOption(title, OptionType.Image, value);
+        }
+        /// <summary> RawImage </summary>
+        public OptionEntry AddOptionRawImage(string title, Texture texture, Rect uvRect) {
+            return AddOptionRawImage(title, 0, 0, texture, uvRect);
+        }
+        public OptionEntry AddOptionRawImage(string title, int width, int height, Texture texture, Rect uvRect) {
+            return AddOptionRawImage(title, new OptionValueRawImage() { width = width, height = height, texture = texture, uvRect = uvRect });
+        }
+        public OptionEntry AddOptionRawImage(string title, OptionValueRawImage value) {
+            return AddOption(title, OptionType.RawImage, value);
+        }
         /// <summary> Button </summary>
         public OptionEntry AddOptionButton(string title, string label, Action action) {
             return AddOptionButton(title, 0, 0, label, action);
@@ -122,6 +152,16 @@ namespace Scorpio.Debugger {
         }
         public OptionEntry AddOptionInput(string title, OptionValueInput value) {
             return AddOption(title, OptionType.Input, value);
+        }
+        /// <summary> Slider </summary>
+        public OptionEntry AddOptionSlider(string title, float value, float min, float max, string format, Action<float> action) {
+            return AddOptionSlider(title, 0, 0, value, min, max, format, action);
+        }
+        public OptionEntry AddOptionSlider(string title, int width, int height, float value, float min, float max, string format, Action<float> action) {
+            return AddOptionSlider(title, new OptionValueSlider() { width = width, height = height, value = value, min = min, max = max, format = format, action = action });
+        }
+        public OptionEntry AddOptionSlider(string title, OptionValueSlider value) {
+            return AddOption(title, OptionType.Slider, value);
         }
         internal OptionEntry AddOption(string title, OptionType type, OptionValueBase value) {
             var entry = new OptionEntry() { title = title, type = type, value = value };

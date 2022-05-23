@@ -5,6 +5,8 @@ using Scorpio.Timer;
 using Scorpio.Debugger;
 public class Example : MonoBehaviour
 {
+    public Sprite sprite;
+    public Texture texture;
     void Start() {
         for (var i = 0; i < 10; ++i) {
             ScorpioDebugger.Instance.AddCommandEntry("command : cn " + i, "command : en  " + i, "command : param " + i, "command " + i);
@@ -16,28 +18,35 @@ public class Example : MonoBehaviour
                 Debug.Log("====== " + a);
             });
         }
+        var title = "控件测试";
         for (var i = 0; i <2; ++i) {
-            ScorpioDebugger.Instance.AddOptionToggle("测试Toggle", 100,100,"label " + i, true, (isOn) => {
-                Debug.Log("isOn : " + isOn);
+            ScorpioDebugger.Instance.AddOptionToggle(title, 0, 0, "label " + i, true, (isOn) => {
+                Debug.Log("toggle : " + isOn);
             });
         }
         for (var i = 0; i < 2; ++i) {
-            ScorpioDebugger.Instance.AddOptionDropdown("测试Dropdown", new string[] {"111","222","3333"}, 1, (value) => {
+            ScorpioDebugger.Instance.AddOptionDropdown(title, new string[] {"111","222","3333"}, 1, (value) => {
                 Debug.Log("dropdown : " + value);
             });
         }
         for (var i = 0; i < 2; ++i) {
-            ScorpioDebugger.Instance.AddOptionInput("测试input", i.ToString(), (value) => {
+            ScorpioDebugger.Instance.AddOptionInput(title, i.ToString(), (value) => {
                 Debug.Log("input : " + value);
             });
         }
-        for (var i = 0; i < 10; ++i) {
+        for (var i = 0; i < 2; ++i) {
             var a = i;
-            ScorpioDebugger.Instance.AddOptionButton("测试测试22", "button" + i, () =>
+            ScorpioDebugger.Instance.AddOptionButton(title, "button" + i, () =>
             {
-                Debug.Log("======2222 " + a);
+                Debug.Log("button : " + a);
             });
         }
+        ScorpioDebugger.Instance.AddOptionLabel(title, "labellabe");
+        ScorpioDebugger.Instance.AddOptionSlider(title, 0.5f, 10, 100, null, (value) => {
+            Debug.Log("slider : " + value);
+        });
+        ScorpioDebugger.Instance.AddOptionImage(title, sprite);
+        ScorpioDebugger.Instance.AddOptionRawImage(title, texture, new Rect(0, 0, 1, 1));
         for (var i = 0; i < 5; ++i) {
             ScorpioDebugger.Instance.AddLogOperation("单条日志:" + i, (logEntry) => {
                 Debug.Log("------- " + logEntry.logString);

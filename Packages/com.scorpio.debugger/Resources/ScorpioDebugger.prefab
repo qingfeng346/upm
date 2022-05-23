@@ -4223,7 +4223,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7317435264268603153}
-        m_MethodName: OnClickMinimize
+        m_MethodName: OnClickClose
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5649,14 +5649,26 @@ MonoBehaviour:
   items: {fileID: 8496310291469949707}
   prefabs:
   - type: 0
-    prefab: {fileID: 8685554522926143605, guid: fede3990553b02f418b261ed766139f0,
+    prefab: {fileID: 6429022734300755435, guid: 94ef8affd35a84b888a08870747aabca,
       type: 3}
   - type: 1
-    prefab: {fileID: 507840488575394284, guid: a1f82aec163f55b409d2d1e76eade74d, type: 3}
+    prefab: {fileID: 8685554522926143605, guid: fede3990553b02f418b261ed766139f0,
+      type: 3}
   - type: 2
-    prefab: {fileID: 306229939984874706, guid: c6b8aff7e2164794f87f576d25b3d777, type: 3}
+    prefab: {fileID: 507840488575394284, guid: a1f82aec163f55b409d2d1e76eade74d, type: 3}
   - type: 3
+    prefab: {fileID: 306229939984874706, guid: c6b8aff7e2164794f87f576d25b3d777, type: 3}
+  - type: 4
     prefab: {fileID: 1887240820869237261, guid: 2db356e7ead38714298740de16491ecd,
+      type: 3}
+  - type: 5
+    prefab: {fileID: 2610485251730895990, guid: 36bc2643b48ba4695bf3fee4c9a2bfb7,
+      type: 3}
+  - type: 6
+    prefab: {fileID: 1316055665767704263, guid: 81d96f0e67aa64aee9cf5a7402afef32,
+      type: 3}
+  - type: 7
+    prefab: {fileID: 7374631045397790341, guid: b1d62075a916147b2abe3d677b728348,
       type: 3}
 --- !u!1 &6568946574792531153
 GameObject:
