@@ -6,6 +6,9 @@ namespace Scorpio.Debugger {
         public int width;
         public int height;
     }
+    public class OptionValueLabel : OptionValueBase {
+        public string label;
+    }
     public class OptionValueButton : OptionValueBase {
         public string label;
         public Action action;
@@ -23,5 +26,9 @@ namespace Scorpio.Debugger {
     public class OptionValueInput : OptionValueBase {
         public string value;
         public Action<string> action;
+    }
+    public class OptionValueSlider : OptionValueBase {
+        public string format;
+        public float value;
     }
 }
