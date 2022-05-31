@@ -19,9 +19,9 @@ namespace Scorpio.Debugger
         }
         public void OnClickShowHide()
         {
-            SetVisiable(!visiable);
+            SetTabVisiable(!visiable);
         }
-        void SetVisiable(bool visiable)
+        public void SetTabVisiable(bool visiable)
         {
             if (this.visiable == visiable) { return; }
             this.visiable = visiable;

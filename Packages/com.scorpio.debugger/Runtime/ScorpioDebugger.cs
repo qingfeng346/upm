@@ -55,6 +55,22 @@ namespace Scorpio.Debugger {
         public bool IsShow() {
             return windowInstance != null && windowInstance.gameObject.activeSelf;
         }
+        public void SetVisiable(bool visiable) {
+            if (visiable) {
+                Show();
+            } else {
+                Hide();
+            }
+        }
+        public void SetTabVisiable(bool visiable) {
+            WindowInstance.SetTabVisiable(visiable);
+        }
+        public void Minimize() {
+            WindowInstance.OnClickMinimize();
+        }
+        public void Maximize() {
+            WindowInstance.OnClickMaximize();
+        }
         public void OnLogReceived(string logString, string stackTrace, UnityEngine.LogType logType) {
             if (!LogEnabled) { return; }
             var debugLogType = LogType.Info;
