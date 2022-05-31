@@ -24,7 +24,7 @@ namespace Scorpio.Debugger {
             var index = commands.IndexOf(command);
             if (index >= 0) { commands.RemoveAt(index); }
             commands.Add(command);
-            if (commands.Count > ScorpioDebugger.MaxHistoryNumber) { commands.RemoveAt(0); }
+            if (commands.Count > ScorpioDebugger.Instance.MaxHistoryNumber) { commands.RemoveAt(0); }
             selected = commands.Count;
             Save();
         }

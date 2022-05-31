@@ -99,15 +99,19 @@ namespace Scorpio.Debugger {
                 }
             }
             if (addEntries.Count > 0) {
-                var entry = addEntries.Dequeue();
-                if (entry.logType == LogType.Info) {
-                    infoFilter.Count += 1;
-                } else if (entry.logType == LogType.Warn) {
-                    warnFilter.Count += 1;
-                } else if (entry.logType == LogType.Error) {
-                    errorFilter.Count += 1;
+                int count = 0;
+                while (addEntries.Count > 0 && count < 20) {
+                    var entry = addEntries.Dequeue();
+                    if (entry.logType == LogType.Info) {
+                        infoFilter.Count += 1;
+                    } else if (entry.logType == LogType.Warn) {
+                        warnFilter.Count += 1;
+                    } else if (entry.logType == LogType.Error) {
+                        errorFilter.Count += 1;
+                    }
+                    listView.AddItem(entry);
+                    count++;
                 }
-                listView.AddItem(entry);
             }
         }
         public void OnClickClear() {

@@ -16,8 +16,8 @@
             this.logString = logString;
             this.stackTrace = stackTrace;
         }
-        public string LogString => logString.Length > ScorpioDebugger.LogStringMaxLength ? logString.Substring(0, ScorpioDebugger.LogStringMaxLength) : logString;
-        public string StackTrace => stackTrace.Length > ScorpioDebugger.StackTraceMaxLength ? stackTrace.Substring(0, ScorpioDebugger.StackTraceMaxLength) : stackTrace;
+        public string LogString => logString.Length > ScorpioDebugger.Instance.LogStringMaxLength ? logString.Substring(0, ScorpioDebugger.Instance.LogStringMaxLength) : logString;
+        public string StackTrace => stackTrace.Length > ScorpioDebugger.Instance.StackTraceMaxLength ? stackTrace.Substring(0, ScorpioDebugger.Instance.StackTraceMaxLength) : stackTrace;
         public string LogInfo => $@"[{logType}] : {LogString}
     {StackTrace}";
     }

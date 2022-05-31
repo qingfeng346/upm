@@ -3,10 +3,7 @@ using System;
 using System.Collections.Generic;
 namespace Scorpio.Debugger {
     public class ScorpioDebugger {
-        public static int MaxEntryNumber = 20000;                                   //保存的最大日志条数 默认 20000 条
-        public static int MaxHistoryNumber = 20;                                    //命令行历史纪录最大条数
-        public static int LogStringMaxLength = 256;                                 //日志显示最大字符数
-        public static int StackTraceMaxLength = 1024;                               //日志堆栈最大字符数
+
         public static ScorpioDebugger Instance { get; } = new ScorpioDebugger();    //单例
         private static ScorpioDebuggerWindow windowInstance = null;
         public static ScorpioDebuggerWindow WindowInstance {
@@ -22,7 +19,11 @@ namespace Scorpio.Debugger {
                 return windowInstance;
             }
         }
-        
+
+        public int MaxEntryNumber { get; set; } = 20000;                    //保存的最大日志条数 默认 20000 条
+        public int MaxHistoryNumber { get; set; } = 20;                     //命令行历史纪录最大条数
+        public int LogStringMaxLength { get; set; } = 256;                  //日志显示最大字符数
+        public int StackTraceMaxLength { get; set; } = 1024;                //日志堆栈最大字符数
         public List<LogEntry> LogEntries { get; set; }                      //所有的日志
         public List<CommandEntry> CommandEntries { get; set; }              //常用命令列表
         public List<OptionEntry> OptionEntries { get; set; }                //操作列表
@@ -40,6 +41,8 @@ namespace Scorpio.Debugger {
             OptionEntries = new List<OptionEntry>();
             LogOperationEntries = new List<LogOperationEntry>();
             commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
+        }
+        public void Initialize() {
             Application.logMessageReceivedThreaded += OnLogReceived;
         }
         public void Show() {
