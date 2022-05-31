@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 namespace Scorpio.Debugger {
     public class ScorpioDebugger {
-
         public static ScorpioDebugger Instance { get; } = new ScorpioDebugger();    //单例
         private static ScorpioDebuggerWindow windowInstance = null;
         public static ScorpioDebuggerWindow WindowInstance {
