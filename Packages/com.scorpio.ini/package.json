@@ -1,0 +1,15 @@
+{
+  "name": "com.scorpio.ini",
+  "version": "1.0.0",
+  "unity": "2018.1",
+  "displayName": "ScorpioIni",
+  "description": "\u8bfb\u53d6ini",
+  "hideInEditor": false,
+  "type": "library",
+  "author": {
+    "name": "while",
+    "email": "qingfeng346@fengyuezhu.com",
+    "url": "https://github.com/qingfeng346/"
+  },
+  "keywords": []
+}
