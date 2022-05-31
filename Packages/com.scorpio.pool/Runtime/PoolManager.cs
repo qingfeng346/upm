@@ -24,6 +24,12 @@ namespace Scorpio.Pool {
                 return m_PoolObject;
             }
         }
+        GameObject Instantiate(object value) {
+            return UnityEngine.Object.Instantiate((GameObject)value);
+        }
+        public PoolItem CreatePrefabPool(string name, GameObject gameObject) {
+            return CreatePrefabPool(name, Instantiate, gameObject);
+        }
         public PoolItem CreatePrefabPool(string name, ItemCreate action) {
             return CreatePrefabPool(name, action, null);
         }
