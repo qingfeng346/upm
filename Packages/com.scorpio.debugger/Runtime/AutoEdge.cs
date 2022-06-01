@@ -11,15 +11,14 @@ namespace Scorpio.Debugger
         private RectTransform parent;
         private RectTransform rectTransform;
         private bool isDrag = false;
+        private RectTransform canvasTransform;
+        private Rect lastSafeArea = Rect.zero;
         public Action onClick;
         void Start()
         {
-            var screenSize = (GetComponentInParent<Canvas>().transform as RectTransform).sizeDelta;
-            screen = new Rect(0, 0, screenSize.x, screenSize.y);
+            canvasTransform = GetComponentInParent<Canvas>().transform as RectTransform;
             rectTransform = transform as RectTransform;
-            size = rectTransform.sizeDelta;
             parent = rectTransform.parent as RectTransform;
-            screen = new Rect(-screenSize.x / 2 + size.x / 2, -screenSize.y / 2 + size.y / 2, screenSize.x - size.x, screenSize.y - size.y);
             CalcEdge();
         }
         public void OnBeginDrag(PointerEventData eventData)
@@ -49,8 +48,19 @@ namespace Scorpio.Debugger
                 rectTransform.anchoredPosition = localPoint;
             }
         }
+        void LateUpdate() {
+            if (lastSafeArea != Screen.safeArea) {
+                lastSafeArea = Screen.safeArea;
+                CalcEdge();
+            }
+        }
         void CalcEdge()
         {
+            var screenSize = canvasTransform.sizeDelta;
+            screen = new Rect(0, 0, screenSize.x, screenSize.y);
+            size = rectTransform.sizeDelta;
+            screen = new Rect(-screenSize.x / 2 + size.x / 2, -screenSize.y / 2 + size.y / 2, screenSize.x - size.x, screenSize.y - size.y);
+
             var position = rectTransform.anchoredPosition;
             position.x = Mathf.Clamp(position.x, screen.xMin, screen.xMax);
             position.y = Mathf.Clamp(position.y, screen.yMin, screen.yMax);
