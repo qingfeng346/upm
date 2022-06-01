@@ -1,0 +1,15 @@
+{
+  "name": "com.scorpio.unity.commons",
+  "version": "1.0.0",
+  "unity": "2018.1",
+  "displayName": "ScorpioUnityCommons",
+  "description": "sco\u811a\u672c\u5728Unity\u4e2d\u7684\u4e00\u4e9b\u57fa\u7840\u7ec4\u4ef6",
+  "hideInEditor": false,
+  "type": "library",
+  "author": {
+    "name": "while",
+    "email": "qingfeng346@fengyuezhu.com",
+    "url": "https://github.com/qingfeng346/"
+  },
+  "keywords": []
+}
