@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
-using System.Linq;
+
 namespace Scorpio.Debugger.Editor {
     public class ConsoleEditorWindow : EditorWindow {
         [MenuItem("Scorpio/DebuggerConsole")]
