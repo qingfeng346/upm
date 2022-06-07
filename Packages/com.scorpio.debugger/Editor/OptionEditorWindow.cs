@@ -4,7 +4,7 @@ using UnityEditor;
 using System;
 namespace Scorpio.Debugger.Editor {
     public class OptionEditorWindow : EditorWindow {
-        [MenuItem("Scorpio/DebuggerOptions")]
+        [MenuItem("Debugger/DebuggerOptions")]
         static void Open() {
             GetWindow<OptionEditorWindow>("DebuggerOptions").Show();
         }

@@ -131,7 +131,7 @@ namespace Scorpio.Debugger {
             LastHistory();
         }
         public void OnClickStickToBottom() {
-            listView.StickToBottom = true;
+            //listView.StickToBottom = true;
             listView.ScrollRect.verticalNormalizedPosition = 0;
         }
         public void OnClickEnter() {

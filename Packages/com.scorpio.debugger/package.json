@@ -1,6 +1,6 @@
 {
   "name": "com.scorpio.debugger",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "unity": "2019.1",
   "displayName": "Scorpio.Debugger",
   "hideInEditor": false,

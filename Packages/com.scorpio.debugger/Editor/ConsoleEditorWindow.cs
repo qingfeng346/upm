@@ -3,13 +3,12 @@ using UnityEditor;
 
 namespace Scorpio.Debugger.Editor {
     public class ConsoleEditorWindow : EditorWindow {
-        [MenuItem("Scorpio/DebuggerConsole")]
+        [MenuItem("Debugger/DebuggerConsole")]
         static void Open() {
             GetWindow<ConsoleEditorWindow>("DebuggerConsole").Show();
         }
         private string text = "";
         private bool historyFoldout = true;
-        private Vector2 historyScroll = Vector2.zero;
 
         private bool commandFoldout = true;
         private Vector2 commandScroll = Vector2.zero;
@@ -40,7 +39,6 @@ namespace Scorpio.Debugger.Editor {
                 text = newText;
             }
             if (historyFoldout = EditorGUILayout.Foldout(historyFoldout, "历史记录", true)) {
-                historyScroll = GUILayout.BeginScrollView(historyScroll);
                 var commands = ScorpioDebugger.Instance.CommandHistory.commands;
                 for (var i = commands.Count - 1; i >= 0; i--) {
                     GUILayout.BeginHorizontal();
@@ -52,7 +50,6 @@ namespace Scorpio.Debugger.Editor {
                     }
                     GUILayout.EndHorizontal();
                 }
-                GUILayout.EndScrollView();
             }
             if (commandFoldout = EditorGUILayout.Foldout(commandFoldout, "命令列表", true)) {
                 commandScroll = GUILayout.BeginScrollView(commandScroll);
