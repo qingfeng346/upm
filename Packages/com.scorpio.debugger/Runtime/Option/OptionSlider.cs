@@ -9,7 +9,7 @@ namespace Scorpio.Debugger {
         void Awake() {
             slider.onValueChanged.AddListener((value) => {
                 optionValue.value = value;
-                OnValueChanged(value);
+                OnValueChanged();
                 optionValue.action?.Invoke(value);
             });
         }
@@ -17,12 +17,10 @@ namespace Scorpio.Debugger {
             optionValue = value as OptionValueSlider;
             format = string.IsNullOrEmpty(optionValue.format) ? "{0:0.##}" : optionValue.format;
             slider.value = optionValue.value;
-            OnValueChanged(optionValue.value);
+            OnValueChanged();
         }
-        float length => optionValue.max - optionValue.min;
-        void OnValueChanged(float value) {
-            var v = optionValue.min + length * value;
-            this.label.text = string.Format(format, v);
+        void OnValueChanged() {
+            this.label.text = string.Format(format, optionValue.Value);
         }
     }
 }

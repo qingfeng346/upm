@@ -9,7 +9,6 @@ namespace Scorpio.Debugger.Editor {
             GetWindow<OptionEditorWindow>("DebuggerOptions").Show();
         }
         Vector2 scroll = Vector2.zero;
-        Dictionary<OptionEntry, object> values = new Dictionary<OptionEntry, object>();
         void OnGUI() {
             var options = new List<Tuple<string, List<OptionEntry>>>();
             ScorpioDebugger.Instance.OptionEntries.ForEach(entry => {
@@ -71,16 +70,6 @@ namespace Scorpio.Debugger.Editor {
             GUILayout.Space(y);
             GUILayout.EndScrollView();
         }
-        T GetValue<T>(OptionEntry entry, T def) {
-            if (values.TryGetValue(entry, out var value)) {
-                return (T)value;
-            }
-            values[entry] = def;
-            return def;
-        }
-        void SetValue(OptionEntry entry, object value) {
-            values[entry] = value;
-        }
         void DrawButton(Rect rect, OptionEntry entry) {
             var value = entry.value as OptionValueButton;
             if (GUI.Button(rect, value.label)) {
@@ -118,8 +107,7 @@ namespace Scorpio.Debugger.Editor {
         void DrawSlider(Rect rect, OptionEntry entry) {
             var value = entry.value as OptionValueSlider;
             var format = string.IsNullOrEmpty(value.format) ? "{0:0.##}" : value.format;
-            var v = value.min + (value.max - value.min) * value.value;
-            GUI.Label(rect, string.Format(format, v));
+            GUI.Label(rect, string.Format(format, value.Value));
             rect.x += 30;
             rect.width -= 30;
             var newValue = GUI.HorizontalSlider(rect, value.value, 0f, 1f);

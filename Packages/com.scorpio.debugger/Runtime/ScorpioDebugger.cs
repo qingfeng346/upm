@@ -90,6 +90,7 @@ namespace Scorpio.Debugger {
         public int Count(LogType logType) { return LogEntries.FindAll((entry) => entry.logType == logType).Count; }
         public void Clear() { LogEntries.Clear(); }
         public void ClearExecuteCommand() { executeCommand = null; }
+        public CommandHistory CommandHistory => commandHistory;
         public string LastCommand => commandHistory.Last();
         public string NextCommand => commandHistory.Next();
         public void ExecuteCommand(string command) {

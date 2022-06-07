@@ -41,5 +41,6 @@ namespace Scorpio.Debugger {
         public float max;
         public float value;
         public Action<float> action;
+        public float Value => min + (max - min) * value;
     }
 }
