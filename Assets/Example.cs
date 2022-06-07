@@ -9,13 +9,14 @@ public class Example : MonoBehaviour
     public Sprite sprite;
     public Texture texture;
     void Start() {
-//        var ini = new ScorpioIni();
-//        ini.Set("aaa", @"111
-//222
-//333");
-//        System.IO.File.WriteAllText(@"C:\Users\while\Desktop\test.ini", ini.BuilderString());
-//        ini.InitFormFile(@"C:\Users\while\Desktop\test.ini", System.Text.Encoding.UTF8);
-//        Debug.Log(ini.Get("aaa"));
+        //        var ini = new ScorpioIni();
+        //        ini.Set("aaa", @"111
+        //222
+        //333");
+        //        System.IO.File.WriteAllText(@"C:\Users\while\Desktop\test.ini", ini.BuilderString());
+        //        ini.InitFormFile(@"C:\Users\while\Desktop\test.ini", System.Text.Encoding.UTF8);
+        //        Debug.Log(ini.Get("aaa"));
+        ScorpioDebugger.Instance.Initialize();
         for (var i = 0; i < 10; ++i) {
             ScorpioDebugger.Instance.AddCommandEntry("command : cn " + i, "command : en  " + i, "command : param " + i, "command " + i);
         }

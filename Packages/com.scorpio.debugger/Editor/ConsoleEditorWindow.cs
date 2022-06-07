@@ -49,7 +49,6 @@ namespace Scorpio.Debugger.Editor {
                     }
                     if (GUILayout.Button("执行", GUILayout.Width(100))) {
                         ScorpioDebugger.Instance.ExecuteCommand(commands[i]);
-                        return;
                     }
                     GUILayout.EndHorizontal();
                 }
