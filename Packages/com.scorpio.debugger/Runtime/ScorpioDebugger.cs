@@ -152,10 +152,10 @@ namespace Scorpio.Debugger {
             return AddOption(title, OptionType.Toggle, value);
         }
         /// <summary> Dropdown </summary>
-        public OptionEntry AddOptionDropdown(string title, IEnumerable<string> options, int value, Action<int> action) {
+        public OptionEntry AddOptionDropdown(string title, string[] options, int value, Action<int> action) {
             return AddOptionDropdown(title, 0, 0, options, value, action);
         }
-        public OptionEntry AddOptionDropdown(string title, int width, int height, IEnumerable<string> options, int value, Action<int> action) {
+        public OptionEntry AddOptionDropdown(string title, int width, int height, string[] options, int value, Action<int> action) {
             return AddOptionDropdown(title, new OptionValueDropdown() { width = width, height = height, options = options, value = value, action = action });
         }
         public OptionEntry AddOptionDropdown(string title, OptionValueDropdown value) {

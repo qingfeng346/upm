@@ -1,0 +1,17 @@
+{
+    "name": "Scorpio.Debugger.Editor",
+    "references": [
+        "GUID:7bfee6d979b1cc44891f54b298768006"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

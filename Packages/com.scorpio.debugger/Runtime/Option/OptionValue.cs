@@ -1,10 +1,11 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 namespace Scorpio.Debugger {
     public class OptionValueBase {
         public int width;
         public int height;
+        public int preferredWidth => width > 0 ? width : 100;
+        public int preferredHeight => height > 0 ? height : 35;
     }
     public class OptionValueLabel : OptionValueBase {
         public string label;
@@ -21,7 +22,7 @@ namespace Scorpio.Debugger {
         public Action action;
     }
     public class OptionValueDropdown : OptionValueBase {
-        public IEnumerable<string> options;
+        public string[] options;
         public int value;
         public Action<int> action;
     }

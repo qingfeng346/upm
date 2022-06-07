@@ -1,5 +1,4 @@
 using UnityEngine.UI;
-using System;
 
 namespace Scorpio.Debugger {
     public class OptionRawImage : OptionItemBase {

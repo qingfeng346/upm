@@ -1,31 +1,27 @@
 using UnityEngine.UI;
-using System;
 
 namespace Scorpio.Debugger {
     public class OptionSlider : OptionItemBase {
         public Text label;
         public Slider slider;
-        public float min, max;
         public string format;
-        public Action<float> action;
+        public OptionValueSlider optionValue;
         void Awake() {
             slider.onValueChanged.AddListener((value) => {
+                optionValue.value = value;
                 OnValueChanged(value);
-                action?.Invoke(value);
+                optionValue.action?.Invoke(value);
             });
         }
         internal override void SetEntry(object value) {
-            var v = value as OptionValueSlider;
-            format = string.IsNullOrEmpty(v.format) ? "{0:#.##}" : v.format;
-            min = v.min;
-            max = v.max;
-            slider.value = v.value;
-            action = v.action;
-            OnValueChanged(v.value);
+            optionValue = value as OptionValueSlider;
+            format = string.IsNullOrEmpty(optionValue.format) ? "{0:0.##}" : optionValue.format;
+            slider.value = optionValue.value;
+            OnValueChanged(optionValue.value);
         }
-        float length => max - min;
-        public void OnValueChanged(float value) {
-            var v = min + length * value;
+        float length => optionValue.max - optionValue.min;
+        void OnValueChanged(float value) {
+            var v = optionValue.min + length * value;
             this.label.text = string.Format(format, v);
         }
     }

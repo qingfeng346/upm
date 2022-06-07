@@ -1,17 +1,15 @@
 using UnityEngine.UI;
-using System;
 
 namespace Scorpio.Debugger {
     public class OptionButton : OptionItemBase {
         public Text text;
-        public Action action;
+        public OptionValueButton optionValue;
         internal override void SetEntry(object value) {
-            var v = value as OptionValueButton;
-            text.text = v.label;
-            action = v.action;
+            optionValue = value as OptionValueButton;
+            text.text = optionValue.label;
         }
         public void OnClick() {
-            action?.Invoke();
+            optionValue.action?.Invoke();
         }
     }
 }

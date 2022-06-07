@@ -1,25 +1,24 @@
 using UnityEngine.UI;
-using System;
 
 namespace Scorpio.Debugger {
     public class OptionDropdown : OptionItemBase {
         public Dropdown dropdown;
-        public Action<int> onValueChanged;
+        public OptionValueDropdown optionValue;
         void Awake() {
             dropdown.onValueChanged.AddListener((value) => {
-                onValueChanged?.Invoke(value);
+                optionValue.value = value;
+                optionValue.action?.Invoke(value);
             });
         }
         internal override void SetEntry(object value) {
-            var v = value as OptionValueDropdown;
-            onValueChanged = v.action;
-            if (v.options != null) {
+            optionValue = value as OptionValueDropdown;
+            if (optionValue.options != null) {
                 dropdown.options.Clear();
-                foreach (var option in v.options) {
+                foreach (var option in optionValue.options) {
                     dropdown.options.Add(new Dropdown.OptionData(option));
                 }
             }
-            dropdown.SetValueWithoutNotify(v.value);
+            dropdown.SetValueWithoutNotify(optionValue.value);
         }
     }
 }
