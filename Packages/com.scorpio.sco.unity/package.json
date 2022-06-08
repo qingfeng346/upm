@@ -13,6 +13,6 @@
   },
   "keywords": [],
   "dependencies": {
-    "com.scorpio.sco": ""
+    "com.scorpio.sco": "2.3.8"
   }
 }

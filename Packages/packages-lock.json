@@ -43,7 +43,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.scorpio.sco": ""
+        "com.scorpio.sco": "2.3.8"
       }
     },
     "com.scorpio.timer": {
