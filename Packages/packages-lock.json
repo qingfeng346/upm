@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.scorpio.config": {
+      "version": "file:com.scorpio.config",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.scorpio.conversion.runtime": {
       "version": "file:com.scorpio.conversion.runtime",
       "depth": 0,

@@ -1,20 +1,10 @@
 using UnityEngine;
-using Scorpio.Unity.Logger;
-using Scorpio.Unity.Commons;
 namespace Scorpio.Config {
     public class LocalGlobalConfig {
         public static readonly string ConfigFile = Application.persistentDataPath + "/LocalConfig.ini";
-        static LocalGlobalConfig() {
-            try {
-                Initialize();
-            } catch (System.Exception e) {
-                FileUtil.DeleteFile(ConfigFile);
-                Initialize();
-                logger.error("LocalGlobalConfig init error : " + e.ToString());
-            }
-        }
         public static void Initialize() {
-            Config = new StorageConfig(ConfigFile);
+            Config = new StorageConfig();
+            Config.InitFormFile(ConfigFile, System.Text.Encoding.UTF8);
         }
         public static StorageConfig Config { get; private set; }
         public static float GetFloat(string key) { return Config.GetFloat(key); }
