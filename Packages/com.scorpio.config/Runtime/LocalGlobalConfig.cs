@@ -1,7 +1,7 @@
 using UnityEngine;
 namespace Scorpio.Config {
     public class LocalGlobalConfig {
-        public static readonly string ConfigFile = Application.persistentDataPath + "/LocalConfig.ini";
+        public static string ConfigFile = Application.persistentDataPath + "/LocalConfig.ini";
         public static void Initialize() {
             Config = new StorageConfig();
             Config.InitFormFile(ConfigFile, System.Text.Encoding.UTF8);

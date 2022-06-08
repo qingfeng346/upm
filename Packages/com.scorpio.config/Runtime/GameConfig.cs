@@ -7,21 +7,37 @@ namespace Scorpio.Config {
         static GameConfig() {
             var text = Resources.Load("GameConfig") as TextAsset;
             if (text != null) {
-                Config = new ScorpioIni(text.bytes, Encoding.UTF8);
+                Config = new StorageConfig();
+                Config.InitFormBuffer(text.bytes, Encoding.UTF8);
             } else {
-                Config = new ScorpioIni();
+                Config = new StorageConfig();
             }
         }
-        public static ScorpioIni Config { get; private set; }
+        public static StorageConfig Config { get; private set; }
+
+        public static float GetFloat(string key) { return Config.GetFloat(key); }
+        public static float GetFloat(string key, float defaultValue) { return Config.GetFloat(key, defaultValue); }
+
+        public static int GetInt(string key) { return Config.GetInt(key); }
+        public static int GetInt(string key, int defaultValue) { return Config.GetInt(key, defaultValue); }
+
+        public static bool GetBool(string key) { return Config.GetBool(key); }
+        public static bool GetBool(string key, bool defaultValue) { return Config.GetBool(key, defaultValue); }
+
+        public static string GetString(string key) { return Config.GetString(key); }
+        public static string GetString(string key, string defaultValue) { return Config.GetString(key, defaultValue); }
+
+        public static bool HasKey(string key) { return Config.HasKey(key); }
+
         public static string Get(string key) {
-            return Get(key, null);
+            return GetString(key);
         }
         public static string Get(string key, string def) {
-            return Config.GetDef(key, def);
+            return GetString(key, def);
         }
 #if UNITY_EDITOR
         public static void Set(string key, string value) {
-            Config.Set(key, value);
+            Config.SetString(key, value);
             Save();
         }
         public static void Save() {

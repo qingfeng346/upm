@@ -1,13 +1,12 @@
 {
-    "name": "Scorpio.Unity.Commons",
+    "name": "Scorpio.Config.Editor",
     "references": [
-        "GUID:a9926b74bd9111141a8ea154a78ce827",
-        "GUID:343136c4674736440b27fb69216d655b",
         "GUID:cb752b973ee31a44b8a56c8b4562c2e2",
-        "GUID:119427be8e941a74992151293c0b89a2",
         "GUID:a7e5c9019a09ba94794f7dca3086500b"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
