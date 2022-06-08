@@ -11,5 +11,8 @@
     "email": "qingfeng346@fengyuezhu.com",
     "url": "https://github.com/qingfeng346/"
   },
-  "keywords": []
+  "keywords": [],
+  "dependencies": {
+    "com.scorpio.ini": "1.0.0"
+  }
 }

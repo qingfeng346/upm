@@ -1,6 +1,6 @@
 {
   "name": "com.scorpio.sco.unity",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2018.1",
   "displayName": "Scorpio.Unity",
   "description": "sco\u811a\u672c\u5728Unity\u4e2d\u7684\u4e00\u4e9b\u57fa\u7840\u7ec4\u4ef6",
@@ -11,5 +11,8 @@
     "email": "qingfeng346@fengyuezhu.com",
     "url": "https://github.com/qingfeng346/"
   },
-  "keywords": []
+  "keywords": [],
+  "dependencies": {
+    "com.scorpio.sco": ""
+  }
 }

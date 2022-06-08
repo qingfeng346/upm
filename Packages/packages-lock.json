@@ -4,7 +4,9 @@
       "version": "file:com.scorpio.config",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.scorpio.ini": "1.0.0"
+      }
     },
     "com.scorpio.conversion.runtime": {
       "version": "file:com.scorpio.conversion.runtime",
@@ -40,7 +42,9 @@
       "version": "file:com.scorpio.sco.unity",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.scorpio.sco": ""
+      }
     },
     "com.scorpio.timer": {
       "version": "file:com.scorpio.timer",
