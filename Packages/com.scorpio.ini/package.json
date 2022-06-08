@@ -2,7 +2,7 @@
   "name": "com.scorpio.ini",
   "version": "1.0.0",
   "unity": "2018.1",
-  "displayName": "ScorpioIni",
+  "displayName": "Scorpio.Ini",
   "description": "\u8bfb\u53d6ini",
   "hideInEditor": false,
   "type": "library",

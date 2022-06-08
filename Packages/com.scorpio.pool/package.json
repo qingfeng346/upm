@@ -2,7 +2,7 @@
   "name": "com.scorpio.pool",
   "version": "1.0.1",
   "unity": "2018.1",
-  "displayName": "ScorpioPool",
+  "displayName": "Scorpio.Pool",
   "description": "\u8d44\u6e90\u6c60",
   "hideInEditor": false,
   "type": "library",
