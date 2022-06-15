@@ -32,6 +32,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.scorpio.prompt": {
+      "version": "file:com.scorpio.prompt",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.scorpio.sco": {
       "version": "file:com.scorpio.sco",
       "depth": 0,

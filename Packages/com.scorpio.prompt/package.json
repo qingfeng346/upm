@@ -1,0 +1,15 @@
+{
+  "name": "com.scorpio.prompt",
+  "version": "1.0.0",
+  "unity": "2018.1",
+  "displayName": "Scorpio.Prompt",
+  "description": "Prompt",
+  "hideInEditor": false,
+  "type": "library",
+  "author": {
+    "name": "while",
+    "email": "qingfeng346@fengyuezhu.com",
+    "url": "https://github.com/qingfeng346/"
+  },
+  "keywords": []
+}

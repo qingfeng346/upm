@@ -34,6 +34,7 @@ namespace Scorpio.Debugger {
         internal event Action<LogOperationEntry> addLogOperation;           //添加单条日志操作
         public event Action<string> executeCommand;                         //命令行执行
         private CommandHistory commandHistory;                              //命令历史记录
+        private bool isInitialize = false;
         public ScorpioDebugger() {
             LogEntries = new List<LogEntry>();
             CommandEntries = new List<CommandEntry>();
@@ -42,7 +43,26 @@ namespace Scorpio.Debugger {
             commandHistory = new CommandHistory("Scorpio.Debugger.CommandHistory");
         }
         public void Initialize() {
+            if (isInitialize) { return; }
+            isInitialize = true;
             Application.logMessageReceivedThreaded += OnLogReceived;
+        }
+        public void Shutdown() {
+            isInitialize = false;
+            Application.logMessageReceivedThreaded -= OnLogReceived;
+            LogEntries.Clear();
+            CommandEntries.Clear();
+            OptionEntries.Clear();
+            LogOperationEntries.Clear();
+            logMessageReceived = null;
+            addCommandEntry = null;
+            addOption = null;
+            addLogOperation = null;
+            executeCommand = null;
+            if (windowInstance != null) {
+                GameObject.Destroy(windowInstance.gameObject);
+                windowInstance = null;
+            }
         }
         public void Show() {
             WindowInstance.gameObject.SetActive(true);

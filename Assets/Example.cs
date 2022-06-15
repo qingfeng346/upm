@@ -16,7 +16,6 @@ public class Example : MonoBehaviour
         //        System.IO.File.WriteAllText(@"C:\Users\while\Desktop\test.ini", ini.BuilderString());
         //        ini.InitFormFile(@"C:\Users\while\Desktop\test.ini", System.Text.Encoding.UTF8);
         //        Debug.Log(ini.Get("aaa"));
-        ScorpioDebugger.Instance.Initialize();
         for (var i = 0; i < 10; ++i) {
             ScorpioDebugger.Instance.AddCommandEntry("command : cn " + i, "command : en  " + i, "command : param " + i, "command " + i);
         }
@@ -67,10 +66,14 @@ public class Example : MonoBehaviour
         };
     }
     void OnGUI() {
-        if (GUI.Button(new Rect(100,100,100,100), "打开Debug")) {
+        if (GUI.Button(new Rect(100, 100, 100, 100), "打开Debug")) {
+            ScorpioDebugger.Instance.Initialize();
             ScorpioDebugger.Instance.Show();
         }
-        if (GUI.Button(new Rect(100,200,100,100), "测试Timer")) {
+        if (GUI.Button(new Rect(100, 200, 100, 100), "Debug Shutdown")) {
+            ScorpioDebugger.Instance.Shutdown();
+        }
+        if (GUI.Button(new Rect(100, 300, 100, 100), "测试Timer")) {
             Debug.Log("start : " + Time.time);
             TimerManager.Instance.AddGameTimerMS(2000, (timer, args, fixedArgs) => {
                 Debug.Log("end : " + Time.time);

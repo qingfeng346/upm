@@ -73,7 +73,7 @@ namespace Scorpio.Debugger.Editor {
         void DrawButton(Rect rect, OptionEntry entry) {
             var value = entry.value as OptionValueButton;
             if (GUI.Button(rect, value.label)) {
-                value.action();
+                value.action?.Invoke();
             }
         }
         void DrawLabel(Rect rect, OptionEntry entry) {
@@ -85,7 +85,7 @@ namespace Scorpio.Debugger.Editor {
             var newIsOn = GUI.Toggle(rect, value.isOn, value.label);
             if (newIsOn != value.isOn) {
                 value.isOn = newIsOn;
-                value.action(newIsOn);
+                value.action?.Invoke(newIsOn);
             }
         }
         void DrawDropdown(Rect rect, OptionEntry entry) {
@@ -93,7 +93,7 @@ namespace Scorpio.Debugger.Editor {
             var newSelect = EditorGUI.Popup(rect, value.value, value.options);
             if (newSelect != value.value) {
                 value.value = newSelect;
-                value.action(newSelect);
+                value.action?.Invoke(newSelect);
             }
         }
         void DrawInput(Rect rect, OptionEntry entry) {
@@ -101,7 +101,7 @@ namespace Scorpio.Debugger.Editor {
             var newText = EditorGUI.TextField(rect, value.value);
             if (newText != value.value) {
                 value.value = newText;
-                value.action(newText);
+                value.action?.Invoke(newText);
             }
         }
         void DrawSlider(Rect rect, OptionEntry entry) {
@@ -113,7 +113,7 @@ namespace Scorpio.Debugger.Editor {
             var newValue = GUI.HorizontalSlider(rect, value.value, 0f, 1f);
             if (newValue != value.value) {
                 value.value = newValue;
-                value.action(newValue);
+                value.action?.Invoke(newValue);
             }
         }
         void DrawImage(Rect rect, OptionEntry entry) {
