@@ -54,8 +54,8 @@ namespace Scorpio.Debugger.Editor {
             if (commandFoldout = EditorGUILayout.Foldout(commandFoldout, "命令列表", true)) {
                 commandScroll = GUILayout.BeginScrollView(commandScroll);
                 foreach (var command in ScorpioDebugger.Instance.CommandEntries) {
-                    if (GUILayout.Button(command.labelEN + "(" + command.labelParam + ")")) {
-                        text = command.labelParam;
+                    if (GUILayout.Button($"{command.labelCN}({command.labelParam})")) {
+                        text = command.command;
                     }
                 }
                 GUILayout.EndScrollView();
