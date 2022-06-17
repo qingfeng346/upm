@@ -82,7 +82,7 @@ public class Example : MonoBehaviour
         }
         if (GUI.Button(new Rect(100, 400, 100, 100), "测试PromptLabel")) {
             //PromptManager.Instance.ShowLabel("fawefawefw");
-            PromptManager.Instance.ShowToast("fawefawefw");
+            PromptManager.Instance.ShowToast("feawfawwwwwwwwwwwwwwwwefawefawef");
         }
     }
 }
