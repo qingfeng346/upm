@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d0fa1fa7b585f47b581fe18e9d942f, type: 3}
   m_Name: PromptToastSetting
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 5397614285918059433, guid: f2e7ae8c13e38254e90df169303b547e, type: 3}
   life: 3

@@ -28,6 +28,9 @@ namespace Scorpio.Prompt {
                 return promptToast;
             }
         }
+        public void ShowLabel(string label) {
+            PromptLabel.Show(label);
+        }
         public void ShowToast(string label) {
             PromptToast.Show(label);
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using Scorpio.Timer;
 using Scorpio.Debugger;
 using Scorpio.Ini;
+using Scorpio.Prompt;
 public class Example : MonoBehaviour
 {
     public Sprite sprite;
@@ -78,6 +79,10 @@ public class Example : MonoBehaviour
             TimerManager.Instance.AddGameTimerMS(2000, (timer, args, fixedArgs) => {
                 Debug.Log("end : " + Time.time);
             });
+        }
+        if (GUI.Button(new Rect(100, 400, 100, 100), "测试PromptLabel")) {
+            //PromptManager.Instance.ShowLabel("fawefawefw");
+            PromptManager.Instance.ShowToast("fawefawefw");
         }
     }
 }

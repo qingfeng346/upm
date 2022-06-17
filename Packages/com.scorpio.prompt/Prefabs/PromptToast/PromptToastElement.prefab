@@ -89,6 +89,8 @@ GameObject:
   - component: {fileID: 7109029224022381601}
   - component: {fileID: 7109029224022381606}
   - component: {fileID: 7109029224022381607}
+  - component: {fileID: 4084541180171125488}
+  - component: {fileID: 1978272268008041317}
   - component: {fileID: 7109029224022381600}
   m_Layer: 0
   m_Name: PromptToastElement
@@ -154,6 +156,35 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &4084541180171125488
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7109029224022381602}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!111 &1978272268008041317
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7109029224022381602}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 0}
+  m_Animations:
+  - {fileID: 7400000, guid: a9f1a06bf3f7d5941b5f71005a001d2e, type: 2}
+  - {fileID: 7400000, guid: f42ab0089afcaa946885a9b712ebc0d0, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!114 &7109029224022381600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,3 +198,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 7109029222279661726}
+  anima: {fileID: 1978272268008041317}
