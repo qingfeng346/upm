@@ -43,17 +43,21 @@ namespace Scorpio.Timer {
                 m_LooperDatas.Add (new LooperData () { Call = call, key = key, number = number, Args = args });
             }
         }
+        void RemoveDatas() {
+            lock (sync) {
+                if (m_RemoveDatas.Count > 0) {
+                    for (var i = 0; i < m_RemoveDatas.Count; ++i) {
+                        m_LooperDatas.Remove(m_RemoveDatas[i]);
+                    }
+                    m_RemoveDatas.Clear();
+                }
+            }
+        }
         public void OnUpdate () {
             if (m_LooperDatas.Count <= 0) { return; }
-            LooperData[] datas = null;
-            lock (sync) {
-                foreach (var data in m_RemoveDatas) {
-                    m_LooperDatas.Remove (data);
-                }
-                m_RemoveDatas.Clear ();
-                datas = m_LooperDatas.ToArray ();
-            }
-            foreach (var data in datas) {
+            RemoveDatas();
+            for (var i = 0; i < m_LooperDatas.Count; ++i) {
+                var data = m_LooperDatas[i];
                 if ((--data.number) > 0) { continue; }
                 m_RemoveDatas.Add (data);
                 try {
@@ -68,6 +72,7 @@ namespace Scorpio.Timer {
 #endif
                 }
             }
+            RemoveDatas();
         }
         public void Shutdown() {
             lock (sync) {
