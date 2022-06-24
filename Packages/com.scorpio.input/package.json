@@ -1,0 +1,15 @@
+{
+  "name": "com.scorpio.input",
+  "version": "1.0.1",
+  "unity": "2018.1",
+  "displayName": "Scorpio.Input",
+  "description": "Input",
+  "hideInEditor": false,
+  "type": "library",
+  "author": {
+    "name": "while",
+    "email": "qingfeng346@fengyuezhu.com",
+    "url": "https://github.com/qingfeng346/"
+  },
+  "keywords": []
+}

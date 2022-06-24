@@ -6,7 +6,7 @@ namespace Scorpio.Debugger {
         public Text labelEN;
         public Text lableCN;
         public Text labelParam;
-        public ConsoleWindow consoleWindow;
+        public ConsoleInputPart consoleInputPart;
         private CommandEntry commandEntry;
         void Awake() {
             gameObject.GetComponent<Button>().onClick.AddListener(OnClick);
@@ -18,7 +18,7 @@ namespace Scorpio.Debugger {
             labelParam.text = commandEntry.labelParam;
         }
         void OnClick() {
-            consoleWindow.SelectCommand(commandEntry);
+            consoleInputPart.SelectCommand(commandEntry);
         }
     }
 }

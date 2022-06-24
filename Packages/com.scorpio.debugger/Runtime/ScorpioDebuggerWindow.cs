@@ -12,6 +12,8 @@ namespace Scorpio.Debugger
         public GameObject maximize;
         public bool visiable = true;
         public AutoEdge autoEdge;
+        public GameObject[] minimizeObjects;
+        private Rect lastSafeArea = Rect.zero;
         void Awake()
         {
             OnClickMinimize();
@@ -42,6 +44,11 @@ namespace Scorpio.Debugger
         {
             minimize.SetActive(true);
             maximize.SetActive(false);
+            System.Array.ForEach(minimizeObjects, _ => _.gameObject.SetActive(false));
+            var type = ScorpioDebugger.Instance.MinimizeType;
+            if (type >= 0 && type < minimizeObjects.Length) {
+                minimizeObjects[type].gameObject.SetActive(true);
+            }
         }
         public void OnClickMaximize()
         {
@@ -51,6 +58,12 @@ namespace Scorpio.Debugger
         public void OnClickClose()
         {
             ScorpioDebugger.Instance.Hide();
+        }
+        void LateUpdate() {
+            if (lastSafeArea != Screen.safeArea) {
+                lastSafeArea = Screen.safeArea;
+                ScorpioDebugger.Instance.SafeAreaChanged(lastSafeArea);
+            }
         }
     }
 }

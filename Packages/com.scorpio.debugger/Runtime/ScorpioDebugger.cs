@@ -23,6 +23,7 @@ namespace Scorpio.Debugger {
         public int MaxHistoryNumber { get; set; } = 20;                     //命令行历史纪录最大条数
         public int LogStringMaxLength { get; set; } = 256;                  //日志显示最大字符数
         public int StackTraceMaxLength { get; set; } = 1024;                //日志堆栈最大字符数
+        public int MinimizeType { get; set; } = 0;                          //最小化类型
         public List<LogEntry> LogEntries { get; set; }                      //所有的日志
         public List<CommandEntry> CommandEntries { get; set; }              //常用命令列表
         public List<OptionEntry> OptionEntries { get; set; }                //操作列表
@@ -32,6 +33,7 @@ namespace Scorpio.Debugger {
         internal event Action<CommandEntry> addCommandEntry;                //添加命令列表
         internal event Action<OptionEntry> addOption;                       //添加一个控件
         internal event Action<LogOperationEntry> addLogOperation;           //添加单条日志操作
+        internal event Action<Rect> safeAreaChanged;                        //屏幕安全区域改变
         public event Action<string> executeCommand;                         //命令行执行
         private CommandHistory commandHistory;                              //命令历史记录
         private bool isInitialize = false;
@@ -58,6 +60,7 @@ namespace Scorpio.Debugger {
             addCommandEntry = null;
             addOption = null;
             addLogOperation = null;
+            safeAreaChanged = null;
             executeCommand = null;
             if (windowInstance != null) {
                 GameObject.Destroy(windowInstance.gameObject);
@@ -116,6 +119,9 @@ namespace Scorpio.Debugger {
         public void ExecuteCommand(string command) {
             commandHistory.AddHistory(command);
             executeCommand?.Invoke(command);
+        }
+        public void SafeAreaChanged(Rect safeArea) {
+            safeAreaChanged?.Invoke(safeArea);
         }
         public void AddLogOperation(string label, Action<LogEntry> action) {
             var entry = new LogOperationEntry() { label = label, action = action };

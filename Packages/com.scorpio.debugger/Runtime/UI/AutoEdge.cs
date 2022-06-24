@@ -14,12 +14,14 @@ namespace Scorpio.Debugger
         private RectTransform canvasTransform;
         private Rect lastSafeArea = Rect.zero;
         public Action onClick;
-        void Start()
-        {
+        void Start() {
             canvasTransform = GetComponentInParent<Canvas>().transform as RectTransform;
             rectTransform = transform as RectTransform;
             parent = rectTransform.parent as RectTransform;
             CalcEdge();
+            ScorpioDebugger.Instance.safeAreaChanged += (safeArea) => {
+                CalcEdge();
+            };
         }
         public void OnBeginDrag(PointerEventData eventData)
         {
@@ -46,12 +48,6 @@ namespace Scorpio.Debugger
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, position, null, out var localPoint))
             {
                 rectTransform.anchoredPosition = localPoint;
-            }
-        }
-        void LateUpdate() {
-            if (lastSafeArea != Screen.safeArea) {
-                lastSafeArea = Screen.safeArea;
-                CalcEdge();
             }
         }
         void CalcEdge()

@@ -4,28 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Scorpio.Debugger {
-    public class ConsoleWindow : MonoBehaviour {
-        public InputField inputCommand;
+    public class ConsoleWindow : ConsoleInputPart {
         public InputField inputSearch;
         public VirtualVerticalLayoutGroup listView;
         public ConsoleLogInfo logInfo;
-        public ConsoleCommands commands;
         public ConsoleLogFilter infoFilter, warnFilter, errorFilter;
         private Queue<LogEntry> addEntries;
         private string search = null;
-        void Awake() {
-            inputCommand.onValidateInput += OnValidateInput;
+        protected override void Awake() {
+            base.Awake();
             inputSearch.onEndEdit.AddListener(OnSearchChanged);
             addEntries = new Queue<LogEntry>();
             ScorpioDebugger.Instance.logMessageReceived += LogMessageReceived;
             UpdateAllLogs();
-        }
-        char OnValidateInput(string text, int charIndex, char addedChar) {
-            if (addedChar == '\n') {
-                ExecuteCommand(text);
-                return '\0';
-            }
-            return addedChar;
         }
         void OnSearchChanged(string text) {
             search = text;
@@ -66,38 +57,12 @@ namespace Scorpio.Debugger {
                 addEntries.Enqueue(logEntry);
             }
         }
-        //执行命令行
-        void ExecuteCommand(string text) {
-            inputCommand.text = "";
-            if (text.Length > 0) {
-                ScorpioDebugger.Instance.ExecuteCommand(text);
-            }
-        }
-        internal void SelectCommand(CommandEntry commandEntry) {
-            commands.gameObject.SetActive(false);
-            inputCommand.text = commandEntry.command;
-            inputCommand.Select();
-        }
         internal void ShowLogEntry(LogEntry logEntry) {
             logInfo.gameObject.SetActive(true);
             logInfo.SetLogEntry(logEntry);
         }
-        void LastHistory() {
-            inputCommand.text = ScorpioDebugger.Instance.LastCommand;
-            inputCommand.caretPosition = inputCommand.text.Length;
-        }
-        void NextHistory() {
-            inputCommand.text = ScorpioDebugger.Instance.NextCommand;
-            inputCommand.caretPosition = inputCommand.text.Length;
-        }
-        void LateUpdate() {
-            if (inputCommand.isFocused) {
-                if (Input.GetKeyDown(KeyCode.UpArrow)) {
-                    LastHistory();
-                } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
-                    NextHistory();
-                }
-            }
+        protected override void LateUpdate() {
+            base.LateUpdate();
             if (addEntries.Count > 0) {
                 int count = 0;
                 while (addEntries.Count > 0 && count < 20) {
@@ -121,21 +86,9 @@ namespace Scorpio.Debugger {
             warnFilter.Count = 0;
             errorFilter.Count = 0;
         }
-        public void OnClickCommands() {
-            commands.gameObject.SetActive(!commands.gameObject.activeSelf);
-        }
-        public void OnClickNext() {
-            NextHistory();
-        }
-        public void OnClickLast() {
-            LastHistory();
-        }
         public void OnClickStickToBottom() {
             //listView.StickToBottom = true;
             listView.ScrollRect.verticalNormalizedPosition = 0;
-        }
-        public void OnClickEnter() {
-            ExecuteCommand(inputCommand.text);
         }
     }
 }

@@ -26,6 +26,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.scorpio.input": {
+      "version": "file:com.scorpio.input",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.scorpio.pool": {
       "version": "file:com.scorpio.pool",
       "depth": 0,
@@ -69,6 +75,13 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
+    },
+    "com.unity.device-simulator": {
+      "version": "3.0.3-preview",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
     },
     "com.unity.ide.vscode": {
       "version": "1.2.5",
