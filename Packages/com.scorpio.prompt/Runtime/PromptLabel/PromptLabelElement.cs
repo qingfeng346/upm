@@ -10,7 +10,7 @@ namespace Scorpio.Prompt {
             anima.Play("show");
             yield return new WaitForSeconds(PromptManager.Instance.LabelSetting.life);
             anima.Play("hide");
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(anima.GetClip("hide").length);
         }
     }
 }

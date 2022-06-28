@@ -11,7 +11,7 @@ namespace Scorpio.Prompt {
             anima.Play("show");
             yield return new WaitForSeconds(PromptManager.Instance.ToastSetting.life);
             anima.Play("hide");
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(anima.GetClip("hide").length);
         }
     }
 }

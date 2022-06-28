@@ -13,5 +13,6 @@ namespace Scorpio.Prompt {
         public float space = 40;
         [Header("每条提示最小时间间隔")]
         public float wait = 0.5f;
+        public AnimationCurve curve;
     }
 }
