@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Text;
-using Scorpio.Ini;
 namespace Scorpio.Config {
     //保存在Resource 的只读配置
     public class GameConfig {
@@ -11,6 +10,23 @@ namespace Scorpio.Config {
                 Config.InitFormBuffer(text.bytes, Encoding.UTF8);
             } else {
                 Config = new StorageConfig();
+            }
+        }
+        private static string internalDataPath = null;
+        public static string InternalDataPath {
+            get {
+                if (string.IsNullOrEmpty(internalDataPath)) {
+#if UNITY_ANDROID && !UNITY_EDITOR
+                    using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+                        using (var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
+                            internalDataPath = currentActivity.Call<AndroidJavaObject>("getFilesDir").Call<string>("getAbsolutePath");
+                        }
+                    }
+#else
+                    internalDataPath = Application.persistentDataPath;
+#endif
+                }
+                return internalDataPath;
             }
         }
         public static StorageConfig Config { get; private set; }

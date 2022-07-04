@@ -2,7 +2,7 @@ using UnityEngine;
 using System.IO;
 namespace Scorpio.Config {
     public class LocalPlayerConfig {
-        public static string ConfigPath = Application.persistentDataPath + "/PlayerConfig/";
+        public static string ConfigPath = GameConfig.InternalDataPath + "/PlayerConfig/";
         public static void Initialize(string playerId) {
             PlayerId = playerId;
             if (!Directory.Exists(ConfigPath)) { Directory.CreateDirectory(ConfigPath); }
