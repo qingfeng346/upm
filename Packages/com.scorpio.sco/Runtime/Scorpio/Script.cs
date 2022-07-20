@@ -109,6 +109,7 @@ namespace Scorpio {
             PushAssembly(GetType());                             //当前所在的程序集
 
             LibraryBasis.Load(this);
+            LibraryType.Load(this);
             LibraryJson.Load(this);
             LibraryMath.Load(this);
             LibraryUserdata.Load(this);
@@ -138,7 +139,7 @@ namespace Scorpio {
                 m_SearchPaths[m_SearchPaths.Length - 1] = path;
             }
         }
-        public string SearchFile(string fileName) {
+        public string SearchFile(string fileName, CompileOption option) {
             if (File.Exists(fileName)) { 
                 return fileName;
             }
@@ -146,6 +147,14 @@ namespace Scorpio {
                 string file = Path.Combine(m_SearchPaths[i], fileName);
                 if (File.Exists(file)) {
                     return file;
+                }
+            }
+            if (option != null) {
+                foreach (var path in option.searchPaths) {
+                    string file = Path.Combine(path, fileName);
+                    if (File.Exists(file)) {
+                        return file;
+                    }
                 }
             }
             return null;
@@ -247,7 +256,7 @@ namespace Scorpio {
         }
         /// <summary> 使用字符串方式加载文件 </summary>
         public ScriptValue LoadFileByString(string fileName, CompileOption compileOption) {
-            var fullFileName = SearchFile(fileName);
+            var fullFileName = SearchFile(fileName, compileOption);
             if (fullFileName == null) {
                 throw new System.Exception($"can't found file : {fileName}");
             }
@@ -255,9 +264,12 @@ namespace Scorpio {
                 return LoadStreamByString(fileName, stream, (int)stream.Length, compileOption);
             }
         }
-        /// <summary> 使用字节码方式加载文件 </summary>
         public ScriptValue LoadFileByIL(string fileName) {
-            var fullFileName = SearchFile(fileName);
+            return LoadFileByIL(fileName, null);
+        }
+        /// <summary> 使用字节码方式加载文件 </summary>
+        public ScriptValue LoadFileByIL(string fileName, CompileOption compileOption) {
+            var fullFileName = SearchFile(fileName, compileOption);
             if (fullFileName == null) {
                 throw new System.Exception($"can't found file : {fileName}");
             }
@@ -329,7 +341,7 @@ namespace Scorpio {
         }
         /// <summary> 加载一个文件 </summary>
         public ScriptValue LoadFile(string fileName, CompileOption compileOption) {
-            var fullFileName = SearchFile(fileName);
+            var fullFileName = SearchFile(fileName, compileOption);
             if (fullFileName == null) {
                 throw new System.Exception($"can't found file : {fileName}");
             }
@@ -366,10 +378,6 @@ namespace Scorpio {
             } else if (count > 6 && buffer[index] == 0 && BitConverter.ToInt32(buffer, index + 1) == int.MaxValue) {
                 using (var stream = new MemoryStream(buffer, index, count)) {
                     return Execute(Deserializer.Deserialize(stream));
-                }
-            } else if (buffer[index] == 0) {
-                using (var stream = new MemoryStream(buffer, index, count)) {
-                    return Execute(Deserializer.DeserializeV1(breviary, stream));
                 }
             } else {
                 return Execute(Serializer.Serialize(breviary, Encoding.GetString(buffer, index, count), m_SearchPaths, compileOption));
@@ -451,7 +459,6 @@ namespace Scorpio {
                     throw new ExecutionException($"变量{key}不是基础常量:{value.ValueTypeName}");
             }
         }
-        #if SCORPIO_DEBUG || SCORPIO_STACK
         private StackInfo[] m_StackInfos = new StackInfo[128];          //堆栈信息
         private StackInfo m_Stack = new StackInfo();
         private int m_StackLength = 0;
@@ -476,16 +483,5 @@ namespace Scorpio {
             }
             return stackInfos;
         }
-        #else
-        private readonly static StackInfo[] EmptyStackInfos = new StackInfo[0];
-        /// <summary> 最近的堆栈调用 </summary>
-        public StackInfo GetStackInfo() {
-            return default;
-        }
-        /// <summary> 调用堆栈 </summary>
-        public StackInfo[] GetStackInfos() {
-            return EmptyStackInfos;
-        }
-        #endif
     }
 }
