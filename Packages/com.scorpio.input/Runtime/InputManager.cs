@@ -5,8 +5,7 @@ using System.Collections.Generic;
 namespace Scorpio.Input {
     public class InputManager {
         private static readonly List<RaycastResult> RaycastResults = new List<RaycastResult>();
-        private static InputManager instance;
-        public static InputManager Instance => instance ?? (instance = new InputManager());
+        public static InputManager Instance { get; } = new InputManager();
         //移动多大距离算移动屏幕
         public static float MinMoveDistance = 20;
 
