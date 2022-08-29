@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Scorpio.Exception;
@@ -111,12 +112,16 @@ namespace Scorpio.Library {
         }
         private class UserdataPairs : ScorpioHandle {
             readonly ScriptMap m_ItorResult;
-            readonly System.Collections.IEnumerator m_Enumerator;
+            readonly IEnumerator m_Enumerator;
             public UserdataPairs(ScriptUserdata userdata, ScriptMap itorResult) {
-                var ienumerable = userdata.Value as System.Collections.IEnumerable;
-                if (ienumerable == null) throw new ExecutionException("pairs 只支持继承 IEnumerable 的类");
-                m_Enumerator = ienumerable.GetEnumerator();
                 m_ItorResult = itorResult;
+                if (userdata.Value is IEnumerator) {
+                    m_Enumerator = (IEnumerator)userdata.Value;
+                } else if (userdata.Value is IEnumerable)  {
+                    m_Enumerator = ((IEnumerable)userdata.Value).GetEnumerator();
+                } else {
+                    throw new ExecutionException("pairs 只支持继承 IEnumerable 的类 或 IEnumerator");
+                }
             }
             public ScriptValue Call(ScriptValue thisObject, ScriptValue[] args, int length) {
                 if (m_Enumerator.MoveNext()) {
@@ -151,6 +156,7 @@ namespace Scorpio.Library {
 
             script.SetGlobal("isNull", script.CreateFunction(new isNull()));
             script.SetGlobal("isBoolean", script.CreateFunction(new isBoolean()));
+            script.SetGlobal("isBool", script.CreateFunction(new isBoolean()));
             script.SetGlobal("isNumber", script.CreateFunction(new isNumber()));
             script.SetGlobal("isDouble", script.CreateFunction(new isDouble()));
             script.SetGlobal("isLong", script.CreateFunction(new isLong()));
@@ -180,6 +186,8 @@ namespace Scorpio.Library {
             script.SetGlobal("toLong", script.CreateFunction(new toInt64()));
             script.SetGlobal("toUlong", script.CreateFunction(new toUint64()));
 
+            script.SetGlobal("toBool", script.CreateFunction(new toBoolean()));
+            script.SetGlobal("toBoolean", script.CreateFunction(new toBoolean()));
             script.SetGlobal("toChar", script.CreateFunction(new toChar()));
 
             script.SetGlobal("toFloat", script.CreateFunction(new toFloat()));
@@ -292,6 +300,7 @@ namespace Scorpio.Library {
                     Array.Clear(ScriptContext.VariableValues[i], 0, ScriptContext.VariableValues[i].Length);
                     Array.Clear(ScriptContext.StackValues[i], 0, ScriptContext.StackValues[i].Length);
                 }
+                ScriptContext.AsyncValueQueue.Clear();
                 GC.Collect();
                 return ScriptValue.Null;
             }
@@ -431,6 +440,11 @@ namespace Scorpio.Library {
                     case ScriptValue.longValueType: return new ScriptValue((ulong)args[0].longValue);
                     default: return new ScriptValue(Convert.ToUInt64(args[0].Value));
                 }
+            }
+        }
+        private class toBoolean : ScorpioHandle {
+            public ScriptValue Call(ScriptValue thisObject, ScriptValue[] args, int length) {
+                return new ScriptValue(Convert.ToBoolean(args[0].Value));
             }
         }
         private class toChar : ScorpioHandle {

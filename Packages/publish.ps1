@@ -1,7 +1,6 @@
-$folders = Get-ChildItem . | ?{$_.PsIsContainer -eq $true}
-foreach ($folder in $folders) {
-    cd $folder
-    npm publish --registry http://dragonscapes.diandian.info:4000/
+
+foreach ($arg in $args) {
+    Set-Location $arg
     npm publish
-    cd ..
+    Set-Location ..
 }

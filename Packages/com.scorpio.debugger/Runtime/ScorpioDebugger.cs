@@ -94,6 +94,9 @@ namespace Scorpio.Debugger {
         public void Maximize() {
             WindowInstance.OnClickMaximize();
         }
+        public void SetAutoSafeArea(bool minimizeWidth, bool minimizeHeight, bool maximizeWidth, bool maximizeHeight) {
+            WindowInstance.SetAutoSafeArea(minimizeWidth, minimizeHeight, maximizeWidth, maximizeHeight);
+        }
         public void OnLogReceived(string logString, string stackTrace, UnityEngine.LogType logType) {
             if (!LogEnabled) { return; }
             var debugLogType = LogType.Info;

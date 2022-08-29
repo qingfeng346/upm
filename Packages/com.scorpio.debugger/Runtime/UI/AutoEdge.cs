@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
+using System.Collections;
 
 namespace Scorpio.Debugger
 {
@@ -14,14 +15,15 @@ namespace Scorpio.Debugger
         private RectTransform canvasTransform;
         private Rect lastSafeArea = Rect.zero;
         public Action onClick;
-        void Start() {
+        IEnumerator Start() {
             canvasTransform = GetComponentInParent<Canvas>().transform as RectTransform;
             rectTransform = transform as RectTransform;
             parent = rectTransform.parent as RectTransform;
-            CalcEdge();
             ScorpioDebugger.Instance.safeAreaChanged += (safeArea) => {
                 CalcEdge();
             };
+            yield return new WaitForEndOfFrame();
+            CalcEdge();
         }
         public void OnBeginDrag(PointerEventData eventData)
         {

@@ -14,9 +14,7 @@ namespace Scorpio.Debugger
         public AutoEdge autoEdge;
         public GameObject[] minimizeObjects;
         private Rect lastSafeArea = Rect.zero;
-        void Awake()
-        {
-            OnClickMinimize();
+        void Start() {
             autoEdge.onClick = OnClickMaximize;
         }
         public void OnClickShowHide()
@@ -39,6 +37,16 @@ namespace Scorpio.Debugger
                 items.offsetMin = new Vector2(0, 0);
                 hideText.text = "▷";
             }
+        }
+        public void SetAutoSafeArea(bool minimizeWidth, bool minimizeHeight, bool maximizeWidth, bool maximizeHeight) {
+            var minimizeSafeArea = minimize.GetComponent<AutoSafeArea>();
+            minimizeSafeArea.width = minimizeWidth;
+            minimizeSafeArea.height = minimizeHeight;
+            minimizeSafeArea.Calc();
+            var maximizeSafeArea = minimize.GetComponent<AutoSafeArea>();
+            maximizeSafeArea.width = maximizeWidth;
+            maximizeSafeArea.height = maximizeHeight;
+            maximizeSafeArea.Calc();
         }
         public void OnClickMinimize()
         {

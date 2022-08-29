@@ -171,12 +171,12 @@ namespace Scorpio.Timer {
 #if UNITY_EDITOR
                     string target = CallBack.Target != null ? CallBack.Target.GetType ().Name : "";
                     string method = CallBack.Method != null ? CallBack.Method.ToString () : "";
-                    Debug.LogError (string.Format ("TimeCallBack is error {0} - {1} stack : {2}", target, method, e.ToString ()));
+                    Debug.LogError ($"TimeCallBack is error {target} - {method} stack : {e}");
 #else
-                    Debug.LogError (string.Format ("TimeCallBack is error stack : {0}", e.ToString ()));
+                    Debug.LogError ($"TimeCallBack is error stack : {e}");
 #endif
                 } else {
-                    Debug.LogError (string.Format ("TimeCallBack is error : {0}", e.ToString ()));
+                    Debug.LogError ($"TimeCallBack is error : {e}");
                 }
             }
         }
