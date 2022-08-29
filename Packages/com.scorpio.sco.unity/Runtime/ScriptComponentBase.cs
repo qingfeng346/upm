@@ -11,10 +11,25 @@ namespace Scorpio.Unity {
             return table;
         }
         public void Call(string funcName, params object[] args) {
-            Table.GetValue(funcName).call(Value, args);
+            var func = Table == null ? ScriptValue.Null : Table.GetValue(funcName);
+            if (func.valueType == ScriptValue.scriptValueType) {
+                try {
+                    Table.GetValue(funcName).call(Value, args);
+                } catch (System.Exception e) {
+                    Debug.LogError($"{name}({Name})[{funcName}] is error func:{e}");
+                }
+            }
         }
         public object CallRet(string funcName, params object[] args) {
-            return Table.GetValue(funcName).call(Value, args).Value;
+            var func = Table == null ? ScriptValue.Null : Table.GetValue(funcName);
+            if (func.valueType == ScriptValue.scriptValueType) {
+                try {
+                    return Table.GetValue(funcName).call(Value, args).Value;
+                } catch (System.Exception e) {
+                    Debug.LogError($"{name}({Name})[{funcName}] is error func:{e}");
+                }
+            }
+            return null;
         }
     }
 }

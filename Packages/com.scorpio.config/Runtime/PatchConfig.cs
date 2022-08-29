@@ -1,8 +1,7 @@
-using UnityEngine;
 using System.IO;
 namespace Scorpio.Config {
     public class PatchConfig {
-        public static string ConfigPath = GameConfig.InternalDataPath + "/PatchConfig/";
+        public readonly static string ConfigPath = GameConfig.InternalDataPath + "/PatchConfig/";
         public PatchConfig(string patch) {
             Patch = patch;
             if (!Directory.Exists(ConfigPath)) { Directory.CreateDirectory(ConfigPath); }

@@ -9,13 +9,14 @@
     /// <summary> 日志类 </summary>
     public static class logger {
         static logger() {
-            SetLogger(new UnityLogger());
+            ILogger = new UnityLogger();
         }
-        private static ILogger log = null;
         public static int loggerLevel = (int)LoggerLevel.All;
+        private static ILogger log = null;
         /// <summary> 设置日志对象 </summary>
-        public static void SetLogger(ILogger ilog) {
-            log = ilog;
+        public static ILogger ILogger {
+            get { return log; }
+            set { log = value; }
         }
         /// <summary> debug输出 </summary>
         public static void debug(object format) {

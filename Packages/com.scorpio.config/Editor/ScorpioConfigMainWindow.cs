@@ -9,9 +9,9 @@ namespace Scorpio.Config {
 	public class MainWindow : EditorWindow {
         private readonly GUILayoutOption ButtonWidth = GUILayout.Width(100);
         private readonly GUILayoutOption KeyWidth = GUILayout.Width(200);
-        [MenuItem("Window/配置管理")]
+        [MenuItem("Scorpio/Config")]
 		public static void ShowMainWindow() {
-			EditorWindow.GetWindow<MainWindow>("配置编辑器");
+			EditorWindow.GetWindow<MainWindow>("Config编辑器");
 		}
 		ConfigType configType = ConfigType.Game;
 		string newKey = "", newValue = "";
