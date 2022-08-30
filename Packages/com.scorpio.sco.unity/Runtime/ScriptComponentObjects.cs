@@ -41,14 +41,14 @@ namespace Scorpio.Unity {
                 while (true) {
                     var key = name[0];
                     index = name.IndexOfAny(Keyword, 1);
-                    var value = name.Substring(1, (index > 0 ? index : name.Length) - 1);
                     if (key == '@') {
+                        var value = name.Substring(1, (index > 0 ? index : name.Length) - 1);
                         var result = ParseComponent == null ? DefaultParseComponent(transform, value) : ParseComponent(transform, value);
                         if (result?.Item1 != null) {
                             values.Add(new Value() { name = $"{result.Item2}{objName}", value = result.Item1 });
                         }
                     } else if (key == '#') {
-                        clicks.Add(new Click() { button = transform.gameObject, click = $"OnClick{value}" });
+                        clicks.Add(new Click() { button = transform.gameObject, click = $"OnClick{objName}" });
                     }
                     if (index > 0) {
                         name = name.Substring(index);
