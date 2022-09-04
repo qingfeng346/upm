@@ -43,7 +43,7 @@ namespace Scorpio.Pool {
             if (parent == null) {
                 gameObject.transform.SetParent(null);
             } else {
-                gameObject.transform.SetParent(gameObject.transform);
+                gameObject.transform.SetParent(parent.transform);
             }
             gameObject.SetActive(true);
             SpawnAction?.Invoke(gameObject);

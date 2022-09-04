@@ -1,0 +1,19 @@
+{
+  "name": "com.scorpio.resource",
+  "version": "1.0.0",
+  "unity": "2018.1",
+  "displayName": "Scorpio.Resource",
+  "hideInEditor": false,
+  "type": "tool",
+  "author": {
+    "name": "while",
+    "email": "qingfeng346@126.com",
+    "url": "https://github.com/qingfeng346/"
+  },
+  "keywords": [
+    "scorpio",
+    "resource"
+  ],
+  "samples": [],
+  "description": "\u8ba1\u65f6\u5668"
+}
