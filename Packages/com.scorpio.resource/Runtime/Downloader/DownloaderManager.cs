@@ -22,7 +22,7 @@ namespace Scorpio.Resource {
         }
         public static int MaxDownloadQueue = 8;
         private List<Downloader> downloaders = new List<Downloader>();
-        private List<Timer> timers = new();
+        private List<Timer> timers = new List<Timer>();
         private int version = 0;
         private int downloadCount = 0;          //正在下载的数量
         public void Shutdown() {
