@@ -4,54 +4,91 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using Scorpio.Commons;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FileUtil = Scorpio.Commons.FileUtil;
+using Scorpio.Unity.Command;
+using System.IO;
+
+[InitializeOnLoad]
 public class Command
 {
-    static CommandLine ParseCommand () {
-        var args = new List<string> ();
-        var first = false;
-        Array.ForEach (Environment.GetCommandLineArgs (), (value) => {
-            if (value == "--args") {
-                first = true;
-            } else if (first) {
-                args.Add (value);
-            }
-        });
-        return CommandLine.Parse (args.ToArray ());
+    static Command() {
+        CommandBuild.AddCommand<string>("SyncScorpio", SyncScorpio);
     }
-    [MenuItem("Assets/Execute")]
-    static void Execute() {
-        UnityEngine.Debug.Log("============================开始处理============================");
+    public static int StartProcess(string fileName, string arguments, string workingDirectory = null) {
         try {
-            var command = ParseCommand();
-            var name = command.GetValue("-libName");
-            var version = command.GetValue("-libVersion");
-            if (name == "sco") {
-                ExecSco("tmp/sco", version);
-            } else if (name == "scov") {
-                ExecScov("tmp/scov", version);
+            using (var process = new Process()) {
+                process.StartInfo.FileName = fileName;
+                if (!string.IsNullOrEmpty(workingDirectory)) {
+                    process.StartInfo.WorkingDirectory = workingDirectory;
+                } else {
+                    process.StartInfo.WorkingDirectory = Path.GetFullPath("./");
+                }
+                if (arguments != null) {
+                    process.StartInfo.Arguments = arguments;
+                }
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.EnableRaisingEvents = true;
+                logger.info($"StartProcess {fileName} {arguments}");
+                process.Start();
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                if (!string.IsNullOrEmpty(output)) {
+                    logger.info(output);
+                }
+                if (!string.IsNullOrEmpty(error)) {
+                    logger.error(error);
+                }
+                return process.ExitCode;
             }
-            UnityEngine.Debug.Log("============================处理完成============================");
-        } catch (System.Exception e) {
-            UnityEngine.Debug.LogError("============================处理失败============================:" + e.ToString());
+        } catch (Exception e) {
+            logger.error("StartProcess Error : " + e.ToString());
+        } finally {
+            EditorUtility.ClearProgressBar();
         }
-        
+        return -1;
     }
-    static void ExecSco(string path, string version) {
-        var packagePath = "Packages/com.scorpio.sco";
-        FileUtil.SyncFolder($"./{path}/Scorpio/src",           $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
-        FileUtil.SyncFolder($"./{path}/ScorpioFastReflect/src",$"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
-        FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/Documentation~/index.md", true);
-        FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/README.md", true);
-        FileUtil.CopyFile($"./{path}/ReleaseNotes.md",         $"{packagePath}/CHANGELOG.md", true);
-        FileUtil.CopyFile($"./{path}/LICENSE",                 $"{packagePath}/LICENSE.md", true);
-        AssetDatabase.Refresh();
-        var file = $"{packagePath}/package.json";
-        var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
-        package["version"] = version;
-        FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
+    static string GetTempPath() {
+        return Path.GetTempPath() + Guid.NewGuid().ToString();
+    }
+    static void SyncScorpio(string version) {
+        var path = GetTempPath();
+        try {
+            StartProcess("git", $"clone -b v{version} https://github.com/qingfeng346/Scorpio-CSharp.git {path}");
+            var packagePath = "Packages/com.scorpio.sco";
+            FileUtil.SyncFolder($"./{path}/Scorpio/src", $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
+            FileUtil.SyncFolder($"./{path}/ScorpioFastReflect/src", $"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+            FileUtil.CopyFile($"./{path}/README.md", $"{packagePath}/Documentation~/index.md", true);
+            FileUtil.CopyFile($"./{path}/README.md", $"{packagePath}/README.md", true);
+            FileUtil.CopyFile($"./{path}/ReleaseNotes.md", $"{packagePath}/CHANGELOG.md", true);
+            FileUtil.CopyFile($"./{path}/LICENSE", $"{packagePath}/LICENSE.md", true);
+            AssetDatabase.Refresh();
+            var file = $"{packagePath}/package.json";
+            var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+            package["version"] = version;
+            FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
+        } finally {
+            //FileUtil.DeleteFolder(tempPath, null, true);
+        }
+        //var packagePath = "Packages/com.scorpio.sco";
+        //FileUtil.SyncFolder($"./{path}/Scorpio/src",           $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
+        //FileUtil.SyncFolder($"./{path}/ScorpioFastReflect/src",$"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        //FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/Documentation~/index.md", true);
+        //FileUtil.CopyFile($"./{path}/README.md",               $"{packagePath}/README.md", true);
+        //FileUtil.CopyFile($"./{path}/ReleaseNotes.md",         $"{packagePath}/CHANGELOG.md", true);
+        //FileUtil.CopyFile($"./{path}/LICENSE",                 $"{packagePath}/LICENSE.md", true);
+        //AssetDatabase.Refresh();
+        //var file = $"{packagePath}/package.json";
+        //var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+        //package["version"] = version;
+        //FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
     }
     static void ExecScov(string path, string version) {
         var packagePath = "Packages/com.scorpio.conversion.runtime";

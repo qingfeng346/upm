@@ -17,6 +17,7 @@ public class Example : MonoBehaviour
         //        System.IO.File.WriteAllText(@"C:\Users\while\Desktop\test.ini", ini.BuilderString());
         //        ini.InitFormFile(@"C:\Users\while\Desktop\test.ini", System.Text.Encoding.UTF8);
         //        Debug.Log(ini.Get("aaa"));
+        System.IO.Compression.ZipFile.CreateFromDirectory("aw", "ef");
         for (var i = 0; i < 10; ++i) {
             ScorpioDebugger.Instance.AddCommandEntry("command : cn " + i, "command : en  " + i, "command : param " + i, "command " + i);
         }
