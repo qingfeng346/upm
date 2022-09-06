@@ -20,7 +20,7 @@ namespace Scorpio.Resource {
         public static readonly string DownloadBlueprintsPath = $"{AssetBundleDownloadPath}blueprints/";
         public static ResourceManager Instance { get; } = new ResourceManager();
 
-        private Dictionary<string, WebAssetBundle> m_WebAssetBundles = new Dictionary<string, WebAssetBundle>();        //WebAB资源
+        private Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();     //AB信息
         private Dictionary<string, IAssetBundleLoader> m_AssetBundles = new Dictionary<string, IAssetBundleLoader>();   //所有的AssetBundle
         private Dictionary<string, FileList.Asset> assetBundleUsage = new Dictionary<string, FileList.Asset>();         //AssetBundle 是否使用硬盘资源
         private Dictionary<string, FileList.Asset> blueprintsUsage = new Dictionary<string, FileList.Asset>();          //Blueprints 是否使用硬盘资源
@@ -96,7 +96,7 @@ namespace Scorpio.Resource {
         }
         public void Shutdown() {
             Shutdown(true);
-            m_WebAssetBundles.Clear();
+            m_AssetBundleInfos.Clear();
         }
         public void Shutdown(bool unloadAllLoadedObjects) {
             foreach (var pair in m_AssetBundles)
@@ -147,8 +147,12 @@ namespace Scorpio.Resource {
             AddWebAssetBundle(assetBundleName, filePath, new[] { url }, version, queue);
         }
         public void AddWebAssetBundle(string assetBundleName, string filePath, string[] urls, string version, bool queue) {
-            m_WebAssetBundles[GetABName(assetBundleName)] = new WebAssetBundle() { filePath = filePath, urls = urls, version = version, queue = queue };
+            m_AssetBundleInfos[GetABName(assetBundleName)] = new AssetBundleInfo(AssetBundleType.Web) { filePath = filePath, urls = urls, version = version, queue = queue };
         }
+        public void AddStorageAssetBundle(string assetBundleName, string filePath) {
+            m_AssetBundleInfos[GetABName(assetBundleName)] = new AssetBundleInfo(AssetBundleType.Storage) { filePath = filePath };
+        }
+        
         public IAssetBundleLoader GetAssetBundleLoader(string assetBundleName) {
             if (m_AssetBundles.TryGetValue(GetABName(assetBundleName), out var loader)) {
                 return loader;
@@ -169,11 +173,15 @@ namespace Scorpio.Resource {
             if (m_AssetBundles.TryGetValue(assetBundleName, out var loader)) {
                 return loader;
             }
-            if (m_WebAssetBundles.TryGetValue(assetBundleName, out var webAB)) {
-                if (webAB.queue) {
-                    return m_AssetBundles[assetBundleName] = new AssetBundleLoaderWebQueue(webAB.urls, webAB.filePath, webAB.version);
+            if (m_AssetBundleInfos.TryGetValue(assetBundleName, out var assetBundleInfo)) {
+                if (assetBundleInfo.type == AssetBundleType.Storage) {
+                    return m_AssetBundles[assetBundleName] = new AssetBundleLoaderABFile(assetBundleInfo.filePath);
                 } else {
-                    return m_AssetBundles[assetBundleName] = new AssetBundleLoaderWebSingle(webAB.urls, webAB.filePath, webAB.version);
+                    if (assetBundleInfo.queue) {
+                        return m_AssetBundles[assetBundleName] = new AssetBundleLoaderWebQueue(assetBundleInfo.urls, assetBundleInfo.filePath, assetBundleInfo.version);
+                    } else {
+                        return m_AssetBundles[assetBundleName] = new AssetBundleLoaderWebSingle(assetBundleInfo.urls, assetBundleInfo.filePath, assetBundleInfo.version);
+                    }
                 }
             }
             var patch = assetBundleName.StartsWith("patches/");

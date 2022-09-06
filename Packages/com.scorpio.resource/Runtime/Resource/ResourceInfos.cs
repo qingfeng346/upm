@@ -19,11 +19,19 @@ namespace Scorpio.Resource {
         }
         public Dictionary<string, Asset> Assets = new Dictionary<string, Asset>();
     }
+    public enum AssetBundleType {
+        Storage,        //本地文件
+        Web,            //网络文件
+    }
     //网络AssetBundle
-    public class WebAssetBundle {
-        public string[] urls;       //下载链接
-        public string filePath;     //本地目录
-        public string version;      //文件版本号
-        public bool queue;          //是否是队列下载
+    public class AssetBundleInfo {
+        public AssetBundleInfo(AssetBundleType type) {
+            this.type = type;
+        }
+        public AssetBundleType type;    //AB类型
+        public string filePath;         //本地目录
+        public string[] urls;           //下载链接
+        public string version;          //文件版本号
+        public bool queue;              //是否是队列下载
     }
 }
