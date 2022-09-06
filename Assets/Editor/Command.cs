@@ -1,16 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
 using System;
-using Scorpio.Commons;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using FileUtil = Scorpio.Commons.FileUtil;
 using Scorpio.Unity.Command;
 using System.IO;
-
+using FileUtil = Scorpio.Unity.Util.FileUtil;
 [InitializeOnLoad]
 public class Command
 {
