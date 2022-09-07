@@ -1,0 +1,19 @@
+{
+    "name": "Scorpio.Resource.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2db6dfe93400e274cbfaeccc546bd20b",
+        "GUID:1bf60849bb6302d4a8b93899af4b8401"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
