@@ -3,7 +3,7 @@
   "version": "1.0.7",
   "unity": "2018.1",
   "displayName": "Scorpio.Unity.Command",
-  "description": "Command\u547d\u4ee4,\u9700\u8981\u5f15\u7528 Newtonsoft.Json",
+  "description": "Command\u547d\u4ee4\n\u9700\u8981\u5f15\u7528 Newtonsoft.Json \u548c System.IO.Compression.FileSystem",
   "hideInEditor": false,
   "type": "library",
   "author": {

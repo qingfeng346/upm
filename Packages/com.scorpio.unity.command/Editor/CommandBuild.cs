@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
+using System.IO.Compression;
 
 namespace Scorpio.Unity.Command {
     public static class CommandBuild {
@@ -140,6 +141,11 @@ namespace Scorpio.Unity.Command {
         }
         public static void AddResultFile(string name, string file) {
             BuildResult.AddFile(name, file);
+        }
+        public static void AddResultPath(string name, string path) {
+            var zipFile = $"{Path.GetDirectoryName(path)}/{name}.zip";
+            ZipFile.CreateFromDirectory(path, zipFile, System.IO.Compression.CompressionLevel.Optimal, true);
+            CommandBuild.AddResultFile(name, zipFile);
         }
         public static void AddCommand(string name, Action commandAction) {
             AddCommandDelegate(name, commandAction);
