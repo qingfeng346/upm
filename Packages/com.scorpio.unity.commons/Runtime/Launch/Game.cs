@@ -5,6 +5,9 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Scorpio.Timer;
 using Scorpio.Pool;
+using Scorpio.Config;
+using Scorpio.Unity.Util;
+using Scorpio.Resource;
 public static class Game
 {
     public const string CACHE_VERSION_KEY = "__CacheVersionKey";
@@ -14,17 +17,18 @@ public static class Game
     public static Dictionary<string, object> GlobalValues = new Dictionary<string, object>(); //全局变量,本地启动不清空
 
     //以下event重启时会清除掉
-    public static event UnityAction<Scene, LoadSceneMode> sceneLoaded;
-    public static event UnityAction<Scene> sceneUnloaded;
-    public static event UnityAction<Scene, Scene> activeSceneChanged;
-    public static event Application.LogCallback logMessageReceived;
-    public static event Application.LowMemoryCallback lowMemory;
-    public static event Func<bool> wantsToQuit;
-    public static event Action<Rect, Rect> safeAreaChanged;
-    public static event Action escape;    //点击esc键
-    public static event Action<bool> applicationPause;
-    public static event Action<bool> applicationFocus;
-    public static event Action<ScreenOrientation, ScreenOrientation> screenRotated;
+    public static event UnityAction<Scene, LoadSceneMode> sceneLoaded;                  //场景切换
+    public static event UnityAction<Scene> sceneUnloaded;                               //场景卸载
+    public static event UnityAction<Scene, Scene> activeSceneChanged;                   //场景切换
+    public static event Application.LogCallback logMessageReceived;                     //日志回调
+    public static event Application.LowMemoryCallback lowMemory;                        //内存不足
+    public static event Func<bool> wantsToQuit;                                         //即将关闭
+    public static event Action<Rect, Rect> safeAreaChanged;                             //屏幕显示区域改变
+    public static event Action escape;                                                  //按下 esc（Android 返回）键
+    public static event Action<bool> applicationPause;                                  //程序暂停
+    public static event Action<bool> applicationFocus;                                  //程序焦点切换
+    public static event Action<ScreenOrientation, ScreenOrientation> screenRotated;     //横竖屏切换
+    public static event Action<string, string> logCompressed;                           //log文件压缩完成
 
     public static Rect lastSafeArea = Rect.zero;
     public static ScreenOrientation lastScreenOrientation = ScreenOrientation.AutoRotation;
@@ -38,35 +42,34 @@ public static class Game
                 PoolManager.Instance.Shutdown();
                 PoolManager.Instance.Initialize();
             }
-            if (sceneLoaded != null) { sceneLoaded(scene, mode); }
+            sceneLoaded?.Invoke(scene, mode);
         };
         SceneManager.sceneUnloaded += (scene) => {
-            if (sceneUnloaded != null) {
-                sceneUnloaded(scene);
-            }
+            sceneUnloaded?.Invoke(scene);
         };
         SceneManager.activeSceneChanged += (scene1, scene2) => {
-            if (activeSceneChanged != null) {
-                activeSceneChanged(scene1, scene2);
-            }
+            activeSceneChanged?.Invoke(scene1, scene2);
         };
         Application.logMessageReceived += (condition, stackTrace, type) => { 
-            if (logMessageReceived != null) { 
-                logMessageReceived(condition, stackTrace, type); 
-            }
+            logMessageReceived?.Invoke(condition, stackTrace, type); 
         };
         Application.lowMemory += () => { 
-            if (lowMemory != null) {
-                lowMemory();
-            }
+            lowMemory?.Invoke();
         };
         Application.wantsToQuit += () => { 
-            return (wantsToQuit != null) ? wantsToQuit() : true; 
+            return (wantsToQuit != null) ? wantsToQuit() : true;
         };
         Application.quitting += () => {
             logger.info("====================================游戏退出====================================");
             ScriptManager.Instance.OnQuit();
         };
+        if (logger.ILogger is UnityLogger) {
+            (logger.ILogger as UnityLogger).compressFinished += (error, file) => {
+                LooperManager.Instance.Run((_) => {
+                    logCompressed?.Invoke(error, file);
+                });
+            };
+        }
         LaunchArgs = args;
         lastSafeArea = Screen.safeArea;
         StartGame();
@@ -83,6 +86,7 @@ public static class Game
         applicationPause = null;
         applicationFocus = null;
         screenRotated = null;
+        logCompressed = null;
     }
     //新版本首次启动
     static void InitializeNewGame() {
@@ -104,6 +108,7 @@ public static class Game
         ScriptManager.Instance.Shutdown();
         LooperManager.Instance.Shutdown();
         TimerManager.Instance.Shutdown();
+        LocalGlobalConfig.Initialize();
         SoundManager.Instance.Initialize();
         ResourceManager.Instance.Initialize();
         PoolManager.Instance.Initialize();
@@ -163,28 +168,24 @@ public static class Game
         if (Input.GetKeyDown (KeyCode.Escape) && Input.touchCount == 0)
 #endif
         {
-            if (escape != null) { escape(); }
+            escape?.Invoke();
         }
         if (lastScreenOrientation != Screen.orientation) {
             var last = lastScreenOrientation;
             lastScreenOrientation = Screen.orientation;
-            if (screenRotated != null) { screenRotated(last, lastScreenOrientation); }
+            screenRotated?.Invoke(last, lastScreenOrientation);
         }
         if (lastSafeArea != Screen.safeArea) {
             var last = lastSafeArea;
             lastSafeArea = Screen.safeArea;
-            if (safeAreaChanged != null) { safeAreaChanged(last, lastSafeArea); }
+            safeAreaChanged?.Invoke(last, lastSafeArea);
         }
         ScriptManager.Instance.Update();
     }
     public static void OnApplicationPause(bool pause) {
-        if (applicationPause != null) {
-            applicationPause(pause);
-        }
+        applicationPause?.Invoke(pause);
     }
     public static void OnApplicationFocus(bool focus) {
-        if (applicationFocus != null) {
-            applicationFocus(focus);
-        }
+        applicationFocus?.Invoke(focus);
     }
 }

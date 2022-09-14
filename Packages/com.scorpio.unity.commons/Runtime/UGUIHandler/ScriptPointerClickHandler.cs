@@ -1,11 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-public class ScriptPointerClickHandler : MonoBehaviour, IPointerClickHandler {
-	static public void Register(UnityEngine.Object obj, ScriptEventHandlerDelegate onEvent) {
-		EngineUtil.GetComponent<ScriptPointerClickHandler> (obj).onEvent = onEvent;
-	}
-	public ScriptEventHandlerDelegate onEvent;
+﻿using UnityEngine.EventSystems;
+public class ScriptPointerClickHandler : IScriptEventHandler<ScriptPointerClickHandler>, IPointerClickHandler {
     public void OnPointerClick(PointerEventData eventData) {
-		if (onEvent != null) onEvent(gameObject, eventData);
+		onEvent?.Invoke(gameObject, eventData);
     }
 }

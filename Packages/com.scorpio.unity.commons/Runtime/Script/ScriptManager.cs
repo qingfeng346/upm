@@ -8,11 +8,14 @@ using Scorpio.Coroutine;
 using UnityEngine;
 using Scorpio.Serialize;
 using Scorpio.Compile.Compiler;
-using Scorpio.Unity.Commons;
-using System.IO;
+using Scorpio.Unity.Util;
+using System.Linq;
+using System;
+using Scorpio.Resource;
 
-public class ScriptManager : Singleton<ScriptManager> {
-    public const string ScriptPath = "Assets/Sco";
+public class ScriptManager {
+    public static ScriptManager Instance { get; } = new ScriptManager();
+    public const string ScriptPath = "Sco/Game";
     private abstract class output {
         private Script script;
         public output (Script script) {
@@ -87,6 +90,7 @@ public class ScriptManager : Singleton<ScriptManager> {
         object current;
         ICoroutine coroutine;
         AsyncOperation asyncOperation;
+        IAssetBundleLoaderAsync bundleLoaderAsync;
         public void SetCurrent(object current) {
             if (this.current == current) { return; }
             this.current = current;
@@ -94,28 +98,51 @@ public class ScriptManager : Singleton<ScriptManager> {
                 coroutine = current as ICoroutine;
             } else if (current is AsyncOperation) {
                 asyncOperation = current as AsyncOperation;
+            } else if (current is IAssetBundleLoaderAsync) {
+                bundleLoaderAsync = current as IAssetBundleLoaderAsync;
             }
         }
-        public bool MoveNext(IEnumerator enumerator) {
+        public bool MoveNext(out object result) {
+            result = null;
             if (coroutine != null) {
-                if (!coroutine.IsDone) {
+                if (coroutine.IsDone) {
+                    result = coroutine.Result;
+                    return false;
+                } else {
                     return true;
                 }
             } else if (asyncOperation != null) {
                 if (!asyncOperation.isDone) {
                     return true;
                 }
+            } else if (bundleLoaderAsync != null) {
+                if (bundleLoaderAsync.isDone) {
+                    result = bundleLoaderAsync.asset;
+                    return false;
+                } else {
+                    return true;
+                }
             }
-            return enumerator.MoveNext();
+            return false;
         }
     }
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     public static CompileOption LoadCompileOption(bool editor) {
         var defines = new List<string>(new string[] {
-#if UNITY_ANDROID
+#if UNITY_STANDALONE_WIN
+            "UNITY_STANDALONE_WIN",
+#elif UNITY_STANDALONE_OSX
+            "UNITY_STANDALONE_OSX",
+#elif UNITY_STANDALONE_LINUX
+            "UNITY_STANDALONE_LINUX",
+#elif UNITY_ANDROID
             "UNITY_ANDROID",
 #elif UNITY_IOS
             "UNITY_IOS",
+#elif UNITY_WEBGL
+            "UNITY_WEBGL",
+#elif UNITY_WSA
+            "UNITY_WSA",
 #endif
         });
         if (editor) {
@@ -123,11 +150,16 @@ public class ScriptManager : Singleton<ScriptManager> {
         }
         var script = new Script();
         script.LoadLibraryV1();
-        script.PushSearchPath("Assets/ScriptScorpio/Constant");
+        script.PushSearchPath("Sco/Constant");
+        var searchPaths = new List<string>();
         var path = CommonScorpioPath;
-        var searchPaths = string.IsNullOrEmpty(path) ? null : new [] { path };
-        return new CompileOption() { 
-            defines = defines, 
+        if (!string.IsNullOrEmpty(path)) {
+            searchPaths.Add(path);
+        }
+        searchPaths.Add("Sco/Game/Tables");
+        searchPaths.Add("Sco/Game");
+        return new CompileOption() {
+            defines = defines,
             searchPaths = searchPaths,
             scriptConst = script.LoadConst("Constant.sco"),
             preprocessImportFile = (parser, fileName) => {
@@ -137,84 +169,89 @@ public class ScriptManager : Singleton<ScriptManager> {
             }
         };
     }
-#endif
     public static string CommonScorpioPath {
         get {
-            if (FileUtil.PathExist("Packages/com.scorpio.common"))
-                return "Packages/com.scorpio.common/ScriptScorpio";
-            foreach (var dir in Directory.GetDirectories("Library/PackageCache")) {
-                var name = Path.GetFileName(dir);
-                if (name.StartsWith("com.scorpio.common")) {
-                    return dir + "/ScriptScorpio";
-                }
-            }
-            return null;
+#if UNITY_2021_1_OR_NEWER
+            var packageInfo = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Single(_ => _.name == "com.scorpio.unity.commons");
+            if (packageInfo == null) { return null; }
+            return packageInfo.resolvedPath + "/Sco";
+#else
+            return "";
+#endif
         }
     }
+#endif
 
     public Script Script { get; private set; } //脚本引擎
     public bool Started { get; private set; } //是否已经启动脚本
     public bool Ended { get; private set; } //是否已经释放脚本
     private HashSet<string> LoadedFiles = new HashSet<string> (); //已经加载的文件列表
     public ScriptManager() {
-        ScorpioTypeManager.PushAssembly (GetType ().Assembly);
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.AI.NavMesh).Assembly); //UnityEngine.AIModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Animation).Assembly); //UnityEngine.AnimationModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.AssetBundle).Assembly); //UnityEngine.AssetBundleModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.AudioClip).Assembly); //UnityEngine.AudioModule.dll
+        //ScorpioTypeManager.PushAssembly (GetType ().Assembly);
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.AI.NavMesh).Assembly); //UnityEngine.AIModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Animation).Assembly); //UnityEngine.AnimationModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.AssetBundle).Assembly); //UnityEngine.AssetBundleModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.AudioClip).Assembly); //UnityEngine.AudioModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.GameObject).Assembly); //UnityEngine.CoreModule.dll (已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.CrashReportHandler.CrashReportHandler).Assembly); //UnityEngine.CrashReportingModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.GameObject).Assembly); //UnityEngine.CoreModule.dll (已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.CrashReportHandler.CrashReportHandler).Assembly); //UnityEngine.CrashReportingModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Playables.PlayableDirector).Assembly); //UnityEngine.DirectorModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Playables.PlayableDirector).Assembly); //UnityEngine.DirectorModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Social).Assembly); //UnityEngine.GameCenterModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Grid).Assembly); //UnityEngine.GridModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Social).Assembly); //UnityEngine.GameCenterModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Grid).Assembly); //UnityEngine.GridModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.ImageConversion).Assembly); //UnityEngine.ImageConversionModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.GUI).Assembly); //UnityEngine.IMGUIModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.ImageConversion).Assembly); //UnityEngine.ImageConversionModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.GUI).Assembly); //UnityEngine.IMGUIModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Input).Assembly); //UnityEngine.InputLegacyModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Input).Assembly); //UnityEngine.InputLegacyModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.JsonUtility).Assembly); //UnityEngine.JSONSerializeModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.JsonUtility).Assembly); //UnityEngine.JSONSerializeModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.LocalizationAsset).Assembly); //UnityEngine.LocalizationModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.LocalizationAsset).Assembly); //UnityEngine.LocalizationModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.ParticleSystem).Assembly); //UnityEngine.ParticleSystemModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.BoxCollider2D).Assembly); //UnityEngine.Physics2DModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.BoxCollider).Assembly); //UnityEngine.PhysicsModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.ScreenCapture).Assembly); //UnityEngine.ScreenCaptureModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.SpriteMask).Assembly); //UnityEngine.SpriteMaskModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.U2D.SpriteShapeUtility).Assembly); //UnityEngine.SpriteShapeModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.ParticleSystem).Assembly); //UnityEngine.ParticleSystemModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.BoxCollider2D).Assembly); //UnityEngine.Physics2DModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.BoxCollider).Assembly); //UnityEngine.PhysicsModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.ScreenCapture).Assembly); //UnityEngine.ScreenCaptureModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.SpriteMask).Assembly); //UnityEngine.SpriteMaskModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.U2D.SpriteShapeUtility).Assembly); //UnityEngine.SpriteShapeModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Terrain).Assembly); //UnityEngine.TerrainModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.TerrainCollider).Assembly); //UnityEngine.TerrainPhysicsModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Terrain).Assembly); //UnityEngine.TerrainModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.TerrainCollider).Assembly); //UnityEngine.TerrainPhysicsModule.dll(已设置非裁剪)
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.TextCore.FaceInfo).Assembly); //UnityEngine.TextCoreModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Font).Assembly); //UnityEngine.TextRenderingModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Tilemaps.Tilemap).Assembly); //UnityEngine.TilemapModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.TextCore.FaceInfo).Assembly); //UnityEngine.TextCoreModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Font).Assembly); //UnityEngine.TextRenderingModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Tilemaps.Tilemap).Assembly); //UnityEngine.TilemapModule.dll(已设置非裁剪)
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.UIElements.TextElement).Assembly); //UnityEngine.UIElementsModule.dll
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Canvas).Assembly); //UnityEngine.UIModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.NetworkError).Assembly); //UnityEngine.UNETModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.UIElements.TextElement).Assembly); //UnityEngine.UIElementsModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Canvas).Assembly); //UnityEngine.UIModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.NetworkError).Assembly); //UnityEngine.UNETModule.dll
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.UnityWebRequestAssetBundle).Assembly); //UnityEngine.UnityWebRequestAssetBundleModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.DownloadHandlerAudioClip).Assembly); //UnityEngine.UnityWebRequestAudioModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.WWWForm).Assembly); //UnityEngine.UnityWebRequestModule.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.DownloadHandlerTexture).Assembly); //UnityEngine.UnityWebRequestTextureModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.UnityWebRequestAssetBundle).Assembly); //UnityEngine.UnityWebRequestAssetBundleModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.DownloadHandlerAudioClip).Assembly); //UnityEngine.UnityWebRequestAudioModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.WWWForm).Assembly); //UnityEngine.UnityWebRequestModule.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Networking.DownloadHandlerTexture).Assembly); //UnityEngine.UnityWebRequestTextureModule.dll(已设置非裁剪)
 
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Video.VideoClip).Assembly); //UnityEngine.VideoModule.dll
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.Video.VideoClip).Assembly); //UnityEngine.VideoModule.dll
 
-        //Package Manager
-        ScorpioTypeManager.PushAssembly (typeof (UnityEngine.UI.CanvasScaler).Assembly); //UnityEngine.UI.dll(已设置非裁剪)
-        ScorpioTypeManager.PushAssembly (typeof (System.IO.Compression.ZipFile).Assembly); //System.IO.Compression.FileSystem.dll
+        ////Package Manager
+        //ScorpioTypeManager.PushAssembly (typeof (UnityEngine.UI.CanvasScaler).Assembly);    //UnityEngine.UI.dll(已设置非裁剪)
+        //ScorpioTypeManager.PushAssembly (typeof (System.IO.Compression.ZipFile).Assembly);  //System.IO.Compression.FileSystem.dll
 
-        foreach (var assemblyName in GetType ().Assembly.GetReferencedAssemblies ()) {
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Timer.TimerManager).Assembly);           //Scorpio.Timer.dll
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Pool.PoolManager).Assembly);             //Scorpio.Pool.dll
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Ini.ScorpioIni).Assembly);               //Scorpio.Ini.dll
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Config.GameConfig).Assembly);            //Scorpio.Config.dll
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Debugger.ScorpioDebugger).Assembly);     //Scorpio.Debugger.dll
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Conversion.Runtime.IData).Assembly);     //Scorpio.Conversion.Runtime.dll
+        //ScorpioTypeManager.PushAssembly(typeof(Scorpio.Unity.ScorpioUnityUtil).Assembly);       //Scorpio.Unity.dll
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
             try {
-                ScorpioTypeManager.PushAssembly (Assembly.Load (assemblyName));
-                // logger.info($"加载程序集成功 : {assemblyName.FullName}");
+                ScorpioTypeManager.PushAssembly(assembly);
+                 logger.info($"加载程序集成功 : {assembly.FullName}");
             } catch (System.Exception) {
-                logger.error ($"加载程序集失败 : {assemblyName.FullName}");
+                logger.error($"加载程序集失败 : {assembly.FullName}");
             }
         }
     }
@@ -229,6 +266,7 @@ public class ScriptManager : Singleton<ScriptManager> {
         Script.SetGlobal ("logWarn", Script.CreateFunction (new logWarn (Script)));
         Script.SetGlobal ("logError", Script.CreateFunction (new logError (Script)));
         Script.SetGlobal ("require", Script.CreateFunction (new require ()));
+        Script.LoadExtension(typeof(Scorpio.Unity.ScorpioUnityUtil));
         LoadedFiles.Clear ();
         Started = true;
         LoadFileInternal("Start.sco");
@@ -283,36 +321,23 @@ public class ScriptManager : Singleton<ScriptManager> {
     }
     private ScriptValue LoadFileInternal(string file) {
 #if UNITY_EDITOR && !UNITY_WEB_ASSETS
-        var filePath = $"{ScriptPath}/{file}";
         if (file.EndsWith(".im.sco")) {
             throw new System.Exception($"{file} is import file, 只能使用 #import 引入");
         }
+        var filePath = $"{ScriptPath}/{file}";
         if (!FileUtil.FileExist(filePath)) {
             filePath = $"{CommonScorpioPath}/{file}";
             if (!FileUtil.FileExist(filePath)) {
                 throw new System.Exception($"{file} not found");
             }
         }
-        return Script.Execute(Serializer.Serialize(filePath, 
-            FileUtil.GetFileString(filePath, Encoding.UTF8), 
-            new string[] { ScriptPath }, 
+        return Script.Execute(Serializer.Serialize(filePath,
+            FileUtil.GetFileString(filePath, Encoding.UTF8),
+            null,
             LoadCompileOption(true)));
 #else
         return Script.LoadBuffer (file, ResourceManager.Instance.LoadBlueprints ($"scripts/{file}.bytes"));
 #endif
-    }
-    public byte[] GetTableBuffer (string file) {
-
-        try {
-#if UNITY_EDITOR && !UNITY_WEB_ASSETS
-            return ResourceManager.Instance.LoadResource<TextAsset> ("blueprints", $"tables/{file}").bytes;
-#else
-            return ResourceManager.Instance.LoadBlueprints ($"tables/{file}.bytes");
-#endif
-        } catch (System.Exception e) {
-            logger.error ($"LoadTableFile [{file}] is error : {e}");
-        }
-        return null;
     }
     //程序退出
     public void OnQuit () {

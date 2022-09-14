@@ -1,11 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-public class ScriptDragHandler : MonoBehaviour, IDragHandler {
-	static public void Register(UnityEngine.Object obj, ScriptEventHandlerDelegate onEvent) {
-		EngineUtil.GetComponent<ScriptDragHandler> (obj).onEvent = onEvent;
-	}
-    public ScriptEventHandlerDelegate onEvent;
+﻿using UnityEngine.EventSystems;
+public class ScriptDragHandler : IScriptEventHandler<ScriptDragHandler>, IDragHandler {
 	public void OnDrag(PointerEventData eventData) {
-		if (onEvent != null) onEvent(gameObject, eventData);
+		onEvent?.Invoke(gameObject, eventData);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 [ExecuteInEditMode]
 [AddComponentMenu ("UIAnchor")]
@@ -24,9 +23,9 @@ public class UIAnchor : MonoBehaviour {
         Bottom,
         Center,
     }
-
-    [SerializeField] Side side = Side.Center;
-    [SerializeField] Vector2 offset = Vector2.zero;
+    [SerializeField] public Side side = Side.Center;
+    [SerializeField] public Vector2 offset = Vector2.zero;
+    [SerializeField] public bool ignoreScale = true;
     RectTransform mRectTransform;
     RectTransform rectTransform => mRectTransform ?? (mRectTransform = transform as RectTransform);
     void Start () {
@@ -88,26 +87,34 @@ public class UIAnchor : MonoBehaviour {
                 screenPoint = safeArea.center;
                 break;
         }
-        var index = 0;
-        var trans = transform;
-        while (true) {
-            ParentScale[index++] = trans.localScale;
-            // trans.localScale = new Vector3(trans.localScale.x, 1, 1);
-            trans.localScale = Vector3.one;
-            trans = trans.parent;
-            if (trans == null || trans.GetComponent<Canvas> () != null) { break; }
-        }
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle (parent, screenPoint, canvas.worldCamera, out var localPoint)) {
-            rectTransform.anchorMin = new Vector2 (0.5f, 0.5f);
-            rectTransform.anchorMax = new Vector2 (0.5f, 0.5f);
-            rectTransform.anchoredPosition = localPoint + offset;
-        }
-        index = 0;
-        trans = transform;
-        while (true) {
-            trans.localScale = ParentScale[index++];
-            trans = trans.parent;
-            if (trans == null || trans.GetComponent<Canvas> () != null) { break; }
+        if (ignoreScale) {
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screenPoint, canvas.worldCamera, out var localPoint)) {
+                rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                rectTransform.anchoredPosition = localPoint + offset;
+            }
+        } else {
+            //先把父级缩放全部置为0,再计算锚点
+            var index = 0;
+            var trans = transform;
+            while (true) {
+                ParentScale[index++] = trans.localScale;
+                trans.localScale = Vector3.one;
+                trans = trans.parent;
+                if (trans == null || trans.GetComponent<Canvas>() != null) { break; }
+            }
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screenPoint, canvas.worldCamera, out var localPoint)) {
+                rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                rectTransform.anchoredPosition = localPoint + offset;
+            }
+            index = 0;
+            trans = transform;
+            while (true) {
+                trans.localScale = ParentScale[index++];
+                trans = trans.parent;
+                if (trans == null || trans.GetComponent<Canvas>() != null) { break; }
+            }
         }
     }
     void OnTransformParentChanged () {

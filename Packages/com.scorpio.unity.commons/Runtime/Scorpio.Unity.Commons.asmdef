@@ -1,11 +1,17 @@
 {
     "name": "Scorpio.Unity.Commons",
+    "rootNamespace": "",
     "references": [
         "GUID:a9926b74bd9111141a8ea154a78ce827",
         "GUID:343136c4674736440b27fb69216d655b",
         "GUID:cb752b973ee31a44b8a56c8b4562c2e2",
         "GUID:119427be8e941a74992151293c0b89a2",
-        "GUID:a7e5c9019a09ba94794f7dca3086500b"
+        "GUID:7bfee6d979b1cc44891f54b298768006",
+        "GUID:5fe5d8b0c749c4f4380e57d414df538a",
+        "GUID:a7e5c9019a09ba94794f7dca3086500b",
+        "GUID:f3d1285283484a74b9e7e821589a639d",
+        "GUID:2db6dfe93400e274cbfaeccc546bd20b",
+        "GUID:1bf60849bb6302d4a8b93899af4b8401"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

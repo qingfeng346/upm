@@ -1,12 +1,45 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public static partial class EngineUtil {
+using Scorpio.Config;
+using System.Globalization;
+using System.Threading;
 
+public static partial class EngineUtil {
+    public static int SortByName(Transform a, Transform b) { return string.Compare(a.name, b.name); } //transform 名字排序
+    public static int ReverseSortByName(Transform a, Transform b) { return string.Compare(b.name, a.name); } //transform 名字倒序
+    public static string BuildVersion { get; } = GameConfig.Get("BuildID");
+    //
+    public static void InvariantCulture() {
+        var culture = CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        Thread.CurrentThread.CurrentCulture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
+    }
     //下面的函数是为IL2CPP准备的  IL2CPP中 引擎类大部分反射不能使用 例如 Application SystemInfo GameObject 等类中的函数和变量
-    public static GameObject NewGameObject (string name) { return new GameObject (name); }
-    public static GameObject GetGameObject (UnityEngine.Object obj) { return obj is Component ? (obj as Component).gameObject : obj as GameObject; }
-    public static Transform GetTransform (UnityEngine.Object obj) { return obj == null ? null : (obj is Component ? (obj as Component).transform : (obj as GameObject).transform); }
+    public static GameObject NewGameObject (string name) { 
+        return new GameObject (name); 
+    }
+    public static GameObject GetGameObject (UnityEngine.Object obj) {
+        if (obj == null) {
+            return null;
+        } else if (obj is Component) {
+            return ((Component)obj).gameObject;
+        } else {
+            return (GameObject)obj;
+        }
+    }
+    public static Transform GetTransform (UnityEngine.Object obj) {
+        if (obj == null) {
+            return null;
+        } else if (obj is Component) {
+            return ((Component)obj).transform;
+        } else {
+            return ((GameObject)obj).transform;
+        }
+    }
     public static string GetGameObjectFullName (UnityEngine.Object obj) {
         var gameObject = GetGameObject (obj);
         if (gameObject == null) { return null; }
@@ -18,15 +51,10 @@ public static partial class EngineUtil {
         }
         return name;
     }
-    public static void SetGameObjectName (UnityEngine.Object obj, string name) { if (obj == null) { return; } obj.name = name; }
-    public static int GetSiblingIndex (UnityEngine.Object obj) {
-        var transform = GetTransform (obj);
-        return transform == null ? 0 : transform.GetSiblingIndex ();
-    }
-    public static void SetSiblingIndex (UnityEngine.Object obj, int index) {
-        var transform = GetTransform (obj);
-        if (transform == null) { return; }
-        transform.SetSiblingIndex (index);
+    public static void SetGameObjectName (UnityEngine.Object obj, string name) { 
+        if (obj != null) {
+            obj.name = name;
+        }
     }
     public static void SetComponentEnable (Behaviour com, bool enable) {
         if (com == null) return;
@@ -229,6 +257,40 @@ public static partial class EngineUtil {
             UnityEngine.Object.DestroyImmediate (trans[i].gameObject);
         transform.DetachChildren ();
     }
+    //transform 子节点排序
+    public static void SortTransform(UnityEngine.Object obj) {
+        SortTransform(obj, SortByName);
+    }
+    //transform 子节点排序
+    public static void SortTransform(UnityEngine.Object obj, Comparison<Transform> comparison) {
+        var transform = GetTransform(obj);
+        if (transform == null) { return; }
+        var list = new List<Transform>();
+        for (int i = 0; i < transform.childCount; ++i)
+            list.Add(transform.GetChild(i));
+        list.Sort(comparison);
+        for (int i = 0; i < list.Count; ++i)
+            list[i].SetAsLastSibling();
+    }
+    public static void SetObjectValue(UnityEngine.Object obj, object value) {
+        GetComponent<ObjectValue>(obj).value = value;
+    }
+    public static object GetObjectValue(UnityEngine.Object obj) {
+        return GetComponent<ObjectValue>(obj).value;
+    }
+    public static T GetObjectValue<T>(UnityEngine.Object obj) {
+        var value = GetComponent<ObjectValue>(obj).value;
+        if (value is T) { return (T)value; }
+        return (T)Convert.ChangeType(value, typeof(T));
+    }
+    public static string GetObjectStringValue(UnityEngine.Object obj) {
+        return GetObjectValue<string>(obj);
+    }
+    public static int GetObjectIntValue(UnityEngine.Object obj) {
+        return GetObjectValue<int>(obj);
+    }
+
+
     public static void SetLayer(UnityEngine.Object obj, string layer, bool includeChild) {
         SetLayer(obj, LayerMask.NameToLayer(layer), includeChild);
     }
@@ -252,6 +314,15 @@ public static partial class EngineUtil {
         var transform = GetTransform(obj);
         if (transform == null) return;
         transform.SetAsLastSibling();
+    }
+    public static int GetSiblingIndex(UnityEngine.Object obj) {
+        var transform = GetTransform(obj);
+        return transform == null ? 0 : transform.GetSiblingIndex();
+    }
+    public static void SetSiblingIndex(UnityEngine.Object obj, int index) {
+        var transform = GetTransform(obj);
+        if (transform == null) { return; }
+        transform.SetSiblingIndex(index);
     }
 
     public static void SetPosition (UnityEngine.Object obj, float x, float y, float z) {
@@ -436,8 +507,12 @@ public static partial class EngineUtil {
     }
 
     //Unity UI
-    public static void SetAnchoredPosition (UnityEngine.Object obj, float x, float y) { SetAnchoredPosition (obj, new Vector2 (x, y)); }
-    public static void SetAnchoredPosition (UnityEngine.Object obj, float x, float y, float z) { SetAnchoredPosition (obj, new Vector3 (x, y, z)); }
+    public static void SetAnchoredPosition (UnityEngine.Object obj, float x, float y) { 
+        SetAnchoredPosition (obj, new Vector2 (x, y)); 
+    }
+    public static void SetAnchoredPosition (UnityEngine.Object obj, float x, float y, float z) { 
+        SetAnchoredPosition (obj, new Vector3 (x, y, z)); 
+    }
     public static void SetAnchoredPosition (UnityEngine.Object obj, Vector2 position) {
         var transform = GetComponent<RectTransform> (obj, false);
         if (transform == null) return;
@@ -592,9 +667,6 @@ public static partial class EngineUtil {
         transform.pivot = value;
     }
 
-    public static void SetSprite (UnityEngine.Object obj, string assetBundleName, string resourceName) {
-        SetSprite (obj, ResourceManager.Instance.LoadSprite (assetBundleName, resourceName));
-    }
     public static void SetSprite (UnityEngine.Object obj, Sprite sprite) {
         var image = GetComponent<Image> (obj, false);
         if (image != null) {
@@ -653,17 +725,12 @@ public static partial class EngineUtil {
             graphic.raycastTarget = cast;
         }
     }
-    //public static void SetImageGrey (UnityEngine.Object obj, bool grey) {
-    //    var graphic = GetComponent<Graphic> (obj, false);
-    //    if (graphic != null) {
-    //        graphic.material = grey ? ResourceManager.Instance.GreySprite : null;
-    //        return;
-    //    }
-    //    var renderer = GetComponent<SpriteRenderer> (obj, false);
-    //    if (renderer != null) {
-    //        renderer.sharedMaterial = grey ? ResourceManager.Instance.GreySprite : ResourceManager.Instance.DefaultSprite;
-    //    }
-    //}
+    public static void SetRendererSorting(UnityEngine.Object obj, string sortingLayerName, int sortingOrder) {
+        var renderer = GetComponent<Renderer>(obj, false);
+        if (renderer == null) { return; }
+        renderer.sortingLayerName = sortingLayerName;
+        renderer.sortingOrder = sortingOrder;
+    }
     public static void SetRendererSorting (UnityEngine.Object obj, string sortingLayerName) {
         var renderer = GetComponent<Renderer> (obj, false);
         if (renderer == null) { return; }
@@ -673,6 +740,12 @@ public static partial class EngineUtil {
         var renderer = GetComponent<Renderer> (obj, false);
         if (renderer == null) { return; }
         renderer.sortingOrder = sortingOrder;
+    }
+    public static ActiveAnimation PlayAnimation(UnityEngine.Object obj) {
+        return PlayAnimation(obj, null, null);
+    }
+    public static ActiveAnimation PlayAnimation(UnityEngine.Object obj, AnimationOrTween.OnFinished<ActiveAnimation> onFinished) {
+        return PlayAnimation(obj, null, onFinished);
     }
     public static ActiveAnimation PlayAnimation(UnityEngine.Object obj, string clipName) {
         return PlayAnimation(obj, clipName, null);
@@ -710,49 +783,19 @@ public static partial class EngineUtil {
         }
         return ActiveAnimator.Play (animator, clipName, normalizedTime, onFinished, args);
     }
-    public static void PlaySimpleAnimator(UnityEngine.Object obj, string clipName)
-    {
+    public static float GetAnimationClipLength(UnityEngine.Object obj, string clipName) {
         var gameObject = GetGameObject(obj);
-        if (gameObject == null) { return; }
+        if (gameObject == null) { return 0; }
         var animator = GetComponent<Animator>(obj, false);
         if (animator == null) {
             animator = GetComponentInChildren<Animator>(obj, true);
         }
-        animator.Play(clipName, 0, 0);
-        animator.Update(0);
-    }
-    public static float GetAnimationClipLength(UnityEngine.Object obj, string clipName)
-    {
-        var gameObject = GetGameObject(obj);
-        if (gameObject == null) { return 0; }
-        var animator = GetComponent<Animator>(obj, false);
-        if (animator == null)
-        {
-            animator = GetComponentInChildren<Animator>(obj, true);
-        }
         var controller = animator.runtimeAnimatorController;
-        foreach (var clip in controller.animationClips)
-        {
-            if(clip.name == clipName)
-            {
+        foreach (var clip in controller.animationClips) {
+            if(clip.name == clipName) {
                 return clip.length;
             }
         }
         return 0;
     }
-    //public static float GetSpineAnimationDuration(UnityEngine.Object obj, string animationName) {
-    //    Spine.Unity.SkeletonDataAsset skeletonDataAsset = null;
-    //    var skeletonGraphic = GetComponent<Spine.Unity.SkeletonGraphic>(obj, false);
-    //    if (skeletonGraphic != null) {
-    //        skeletonDataAsset = skeletonGraphic.SkeletonDataAsset;
-    //    } else {
-    //        var skeletonRenderer = GetComponent<Spine.Unity.SkeletonRenderer>(obj, false);
-    //        if (skeletonRenderer != null) {
-    //            skeletonDataAsset = skeletonRenderer.SkeletonDataAsset;
-    //        }
-    //    }
-    //    if (skeletonDataAsset == null) { return 0; }
-    //    var animation = skeletonDataAsset.GetSkeletonData(false).FindAnimation(animationName);
-    //    return animation == null ? 0 : animation.Duration;
-    //}
 }

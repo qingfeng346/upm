@@ -1,11 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-public class ScriptCancelHandler : MonoBehaviour, ICancelHandler {
-	static public void Register(UnityEngine.Object obj, ScriptEventHandlerDelegate onEvent) {
-		EngineUtil.GetComponent<ScriptCancelHandler> (obj).onEvent = onEvent;
-	}
-    public ScriptEventHandlerDelegate onEvent;
+﻿using UnityEngine.EventSystems;
+public class ScriptCancelHandler : IScriptEventHandler<ScriptCancelHandler>, ICancelHandler {
 	public void OnCancel(BaseEventData eventData) {
-		if (onEvent != null) onEvent(gameObject, eventData);
+		onEvent?.Invoke(gameObject, eventData);
     }
 }

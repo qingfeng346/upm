@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Scorpio.Unity.Command;
 using System.IO;
+using Scorpio.Unity.Util;
 using FileUtil = Scorpio.Unity.Util.FileUtil;
 [InitializeOnLoad]
 public class Command
@@ -56,31 +57,27 @@ public class Command
     }
     static void SyncScorpio(string version) {
         var path = GetTempPath();
-        try {
-            StartProcess("git", $"clone -b v{version} https://github.com/qingfeng346/Scorpio-CSharp.git {path}");
-            var packagePath = "Packages/com.scorpio.sco";
-            FileUtil.SyncFolder($"./{path}/Scorpio/src", $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
-            FileUtil.SyncFolder($"./{path}/ScorpioFastReflect/src", $"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
-            FileUtil.CopyFile($"./{path}/README.md", $"{packagePath}/Documentation~/index.md", true);
-            FileUtil.CopyFile($"./{path}/README.md", $"{packagePath}/README.md", true);
-            FileUtil.CopyFile($"./{path}/ReleaseNotes.md", $"{packagePath}/CHANGELOG.md", true);
-            FileUtil.CopyFile($"./{path}/LICENSE", $"{packagePath}/LICENSE.md", true);
-            AssetDatabase.Refresh();
-            var file = $"{packagePath}/package.json";
-            var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
-            package["version"] = version;
-            FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
-        } finally {
-            //FileUtil.DeleteFolder(tempPath, null, true);
-        }
+        StartProcess("git", $"clone -b v{version} https://github.com/qingfeng346/Scorpio-CSharp.git {path}");
+        var packagePath = "Packages/com.scorpio.sco";
+        FileUtil.SyncFolder($"{path}/Scorpio/src", $"{packagePath}/Runtime/Scorpio", new[] { "*.cs" }, true);
+        FileUtil.SyncFolder($"{path}/ScorpioFastReflect/src", $"{packagePath}/Editor/ScorpioFastReflect", new[] { "*.cs" }, true);
+        FileUtil.CopyFile($"{path}/README.md", $"{packagePath}/Documentation~/index.md", true);
+        FileUtil.CopyFile($"{path}/README.md", $"{packagePath}/README.md", true);
+        FileUtil.CopyFile($"{path}/ReleaseNotes.md", $"{packagePath}/CHANGELOG.md", true);
+        FileUtil.CopyFile($"{path}/LICENSE", $"{packagePath}/LICENSE.md", true);
+        AssetDatabase.Refresh();
+        var file = $"{packagePath}/package.json";
+        var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
+        package["version"] = version;
+        FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
     }
     static void SyncScov(string version) {
         var path = GetTempPath();
         StartProcess("git", $"clone -b v{version} https://github.com/qingfeng346/ScorpioConversion.git {path}");
         var packagePath = "Packages/com.scorpio.conversion.runtime";
-        FileUtil.SyncFolder($"./{path}/ScorpioProto/CSharp/Scorpio.Conversion.Runtime/src",     $"{packagePath}/Runtime/", new[] { "*.cs" }, true);
-        FileUtil.CopyFile($"./{path}/README.md",                                                $"{packagePath}/Documentation~/index.md", true);
-        FileUtil.CopyFile($"./{path}/README.md",                                                $"{packagePath}/README.md", true);
+        FileUtil.SyncFolder($"{path}/ScorpioProto/CSharp/Scorpio.Conversion.Runtime/src",     $"{packagePath}/Runtime/", new[] { "*.cs" }, true);
+        FileUtil.CopyFile($"{path}/README.md",                                                $"{packagePath}/Documentation~/index.md", true);
+        FileUtil.CopyFile($"{path}/README.md",                                                $"{packagePath}/README.md", true);
         AssetDatabase.Refresh();
         var file = $"{packagePath}/package.json";
         var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));

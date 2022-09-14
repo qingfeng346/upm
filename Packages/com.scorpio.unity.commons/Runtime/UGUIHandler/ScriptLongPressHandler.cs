@@ -4,18 +4,22 @@ using System.Collections;
 public class ScriptLongPressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
     public static float DefaultLongPressStartTime = 0.3f;
     public static float DefaultLongPressInterval = 0.05f;
-    static public ScriptLongPressHandler Register(UnityEngine.Object obj, ScriptEventHandlerDelegate onEvent) {
-        var handler = EngineUtil.AddComponent<ScriptLongPressHandler>(obj);
-        handler.onEvent = onEvent;
-        return handler;
-	}
 
-	public float LongPressStartTime = DefaultLongPressStartTime;
-    public float LongPressInterval = DefaultLongPressInterval;
     private bool isPress = false;
+    public float startTime = DefaultLongPressStartTime;
+    public float interval = DefaultLongPressInterval;
     public ScriptEventHandlerDelegate onEvent;
+    static public void Register(Object obj, ScriptEventHandlerDelegate onEvent) {
+        Register(obj, onEvent, DefaultLongPressStartTime, DefaultLongPressInterval);
+    }
+    static public void Register(Object obj, ScriptEventHandlerDelegate onEvent, float startTime, float interval) {
+        var handler = EngineUtil.GetComponent<ScriptLongPressHandler>(obj);
+        handler.onEvent = onEvent;
+        handler.startTime = startTime;
+        handler.interval = interval;
+    }
 
-	public void OnPointerDown(PointerEventData eventData) { 
+    public void OnPointerDown(PointerEventData eventData) { 
         isPress = true;
         StartCoroutine(OnLongPress());
     }
@@ -24,11 +28,11 @@ public class ScriptLongPressHandler : MonoBehaviour, IPointerDownHandler, IPoint
         StopAllCoroutines();
     }
     IEnumerator OnLongPress() {
-        yield return new WaitForSecondsRealtime(LongPressStartTime);
+        yield return new WaitForSecondsRealtime(startTime);
         while (isPress) {
-            if (onEvent != null) onEvent(gameObject, null);
-            if (LongPressInterval > 0) {
-                yield return new WaitForSecondsRealtime(LongPressInterval);
+            onEvent?.Invoke(gameObject, null);
+            if (interval > 0) {
+                yield return new WaitForSecondsRealtime(interval);
             } else {
                 yield return null;
             }

@@ -1,7 +1,9 @@
 {
     "name": "Scorpio.Unity.Commons.Editor",
+    "rootNamespace": "",
     "references": [
-        "Scorpio.Unity.Commons"
+        "Scorpio",
+        "Scorpio.Unity"
     ],
     "includePlatforms": [
         "Editor"

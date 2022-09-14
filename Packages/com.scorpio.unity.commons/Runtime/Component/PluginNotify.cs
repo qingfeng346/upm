@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Scorpio.Unity.Util;
 public class PluginNotify : MonoBehaviour
 {
 	void Log(string msg) {

@@ -26,6 +26,8 @@
 	<assembly fullname="Scorpio.Pool" preserve="all"/>
 	<assembly fullname="Scorpio.Unity" preserve="all"/>
 	<assembly fullname="Scorpio.Conversion.Runtime.Unity" preserve="all"/>
+	<assembly fullname="Scorpio.Ini" preserve="all"/>
+	<assembly fullname="Scorpio.Config" preserve="all"/>
 	<assembly fullname="Scorpio.Unity.Commons" preserve="all"/>
 
 </linker>

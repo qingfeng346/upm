@@ -2,8 +2,9 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using Scorpio.Unity.Logger;
-using Scorpio.Unity.Commons;
+using System.Threading;
+using Scorpio.Timer;
+using Scorpio.Unity.Util;
 namespace Commons.Util {
     /// <summary> 下载文件类 </summary>
     public class DownloadFile {
@@ -22,7 +23,7 @@ namespace Commons.Util {
         private long lastSpeedTime = 0;             //上次请求下载速度的时间点
         private long lastLength = 0;                //上次请求下载速度的文件大小
         private long downSpeed = 0;                 //下载速度（如果当前请求距离上次请求距离少于一毫秒则返回此值）
-        private ThreadPool m_thread;                //下载线程
+        private Thread m_thread;                    //下载线程
         private Stream m_fileStream = null;         //本地文件流
         private Stream m_httpStream = null;         //网络文件流
 
@@ -42,15 +43,16 @@ namespace Commons.Util {
             m_fileName = fileName;
             m_fileVersion = fileVersion;
             m_callBack = callBack;
-            m_thread = ThreadPool.CreateThread(Download);
+            m_thread = new Thread(Download);
+            m_thread.Start();
         }
         /// <summary> 销毁 </summary>
         public void Destroy() {
             lock (this) {
-                if (m_thread != null) {
-                    m_thread.Destroy();
-                    m_thread = null;
+                if (m_thread != null && m_thread.IsAlive) {
+                    m_thread.Abort();
                 }
+                m_thread = null;
                 DestroyStream();
             }
         }
@@ -63,7 +65,10 @@ namespace Commons.Util {
             }
             IsFinished = true;
             try {
-                m_callBack?.Invoke(errorCode, errorMessage, m_fileName, buffer);
+                //回调到主线程
+                LooperManager.Instance.Run(_ => {
+                    m_callBack?.Invoke(errorCode, errorMessage, m_fileName, buffer);
+                });
             } catch (Exception e) {
                 logger.error($"下载文件 {m_url} CallBack is error : " + e.ToString());
             }

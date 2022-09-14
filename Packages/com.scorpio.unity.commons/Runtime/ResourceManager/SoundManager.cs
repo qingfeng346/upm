@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using Scorpio.Config;
 using Scorpio.Timer;
 
-public class SoundManager : Singleton<SoundManager> {
-	private const string SOUND_VOLUME = "__SoundVolume";		//音效音量
+public class SoundManager {
+    public static SoundManager Instance { get; } = new SoundManager();
+    private const string SOUND_VOLUME = "__SoundVolume";		//音效音量
 	private const string MUSIC_VOLUME = "__MusicVolume";		//背景音乐音量
 	private const string SOUND_ENABLE = "__SoundEnable";		//音效开启
 	private const string MUSIC_ENABLE = "__MusicEnable";		//背景音乐开启

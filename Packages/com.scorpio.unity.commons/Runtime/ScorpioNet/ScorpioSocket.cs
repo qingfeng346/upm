@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using Scorpio.Unity.Util;
 namespace Scorpio.Net {
     using ActionClosed = Action<SocketError, string>;
     public enum State {
