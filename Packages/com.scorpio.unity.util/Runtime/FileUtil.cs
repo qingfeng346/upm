@@ -279,7 +279,7 @@ namespace Scorpio.Unity.Util {
             }
             if (recursive) {
                 foreach (string folder in Directory.GetDirectories(source, "*", SearchOption.TopDirectoryOnly)) {
-                    CopyFolder(folder, Path.Combine(target, Path.GetFileName(folder).GetName(nameType)), searchPatterns, recursive);
+                    CopyFolder(folder, Path.Combine(target, Path.GetFileName(folder).GetName(nameType)), searchPatterns, recursive, nameType);
                 }
             }
         }
@@ -304,7 +304,7 @@ namespace Scorpio.Unity.Util {
             }
             if (recursive) {
                 foreach (string folder in Directory.GetDirectories(source, "*", SearchOption.TopDirectoryOnly)) {
-                    MoveFolder(folder, Path.Combine(target, Path.GetFileName(folder).GetName(nameType)), searchPatterns, recursive, overwrite);
+                    MoveFolder(folder, Path.Combine(target, Path.GetFileName(folder).GetName(nameType)), searchPatterns, recursive, overwrite, nameType);
                 }
             }
             DeleteFolderIfEmpty(source);
@@ -368,7 +368,7 @@ namespace Scorpio.Unity.Util {
             }
             if (recursive) {
                 foreach (var dir in dirs) {
-                    changed |= SyncFolder(Path.Combine(source, dir), Path.Combine(target, dir.GetName(nameType)), searchPatterns, recursive);
+                    changed |= SyncFolder(Path.Combine(source, dir), Path.Combine(target, dir.GetName(nameType)), searchPatterns, recursive, compareType, nameType);
                 }
             }
             return changed;

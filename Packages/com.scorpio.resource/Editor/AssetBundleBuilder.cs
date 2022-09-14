@@ -19,11 +19,7 @@ namespace Scorpio.Resource.Editor {
         public Dictionary<string, string> AllAssets { get; private set; }                        //所有打进AB的资源文件
         public Dictionary<string, HashSet<string>> CommonAssets { get; private set; }            //多个AB引用的资源
         public List<AssetBundleBuild> AssetBundleBuilds { get; private set; }                    //ABBuilds
-        public event Action 
-        private string OutputPath;
-        public AssetBundleBuilder(string outputPath) {
-            OutputPath = outputPath;
-        }
+        public BuilderSetting BuilderSetting { get; set; }
         static BuildTarget BuildTarget {
             get {
 #if UNITY_ANDROID
@@ -133,7 +129,7 @@ namespace Scorpio.Resource.Editor {
             return filelist;
         }
         public void BuildBlueprints(BuildAssetBundleOptions buildAssetBundleOptions) {
-            FileUtil.CopyFolder(BlueprintsPath, $"{output}/Blueprints", new[] { "*.bytes" }, true);
+            //FileUtil.CopyFolder(BlueprintsPath, $"{output}/Blueprints", new[] { "*.bytes" }, true);
         }
         public AssetBundleManifest BuildMainAssetBundle(BuildAssetBundleOptions buildAssetBundleOptions, Action preProcess) {
             GenerateBuildInfo(MainAssetBundlesPath, null, GetMainABName);
@@ -141,7 +137,7 @@ namespace Scorpio.Resource.Editor {
             preProcess?.Invoke();
             CreateAssetBundleBuilds();
             EditorUtility.UnloadUnusedAssetsImmediate();
-            return BuildPipeline.BuildAssetBundles(output, AssetBundleBuilds.ToArray(), buildAssetBundleOptions, BuildTarget);
+            return BuildPipeline.BuildAssetBundles("", AssetBundleBuilds.ToArray(), buildAssetBundleOptions, BuildTarget);
         }
     }
 }
