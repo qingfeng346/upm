@@ -95,18 +95,17 @@ namespace Scorpio.Debugger {
         public virtual void OnSubmit(BaseEventData eventData) {
             this.InternalToggle();
         }
-
-#if UNITY_EDITOR
-        protected override void OnValidate() {
-            base.OnValidate();
-            if (!Application.isPlaying)
-                CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
-        }
-#endif // if UNITY_EDITOR
+//#if UNITY_EDITOR
+//        protected override void OnValidate() {
+//            base.OnValidate();
+//            if (!Application.isPlaying)
+//                CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
+//        }
+//#endif // if UNITY_EDITOR
         public virtual void Rebuild(CanvasUpdate executing) {
-#if UNITY_EDITOR
-            CheckShow();
-#endif
+//#if UNITY_EDITOR
+//            CheckShow();
+//#endif
         }
 
         public virtual void LayoutComplete() { }
