@@ -11,12 +11,16 @@ namespace Scorpio.Resource {
     //更新文件
     public class FileList {
         public class Asset {
-            public string size;
+            public long size;
             public string md5;
             public string GetName(string file) {
                 return $"{file}_{size}_{md5}";
             }
         }
+        public string Version;
+        public string BuildID;
+        public string ABMD5;
+        public long ABSize;
         public Dictionary<string, Asset> Assets = new Dictionary<string, Asset>();
     }
     public enum AssetBundleType {

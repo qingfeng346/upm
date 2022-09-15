@@ -172,8 +172,7 @@ namespace Scorpio.Unity.Util {
                             }
                         }
                     } catch (Exception e) {
-                        logger.error($"HttpRequest is error Url : {Url}  {e}");
-                        Listener(-1, e.ToString(), null, Url, Request.downloadHandler);
+                        Listener(-1, $"{Url} : {e}", null, Url, Request.downloadHandler);
                     } finally {
                         Listener = null;
                     }
