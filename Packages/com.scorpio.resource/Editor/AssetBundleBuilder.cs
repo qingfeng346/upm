@@ -72,7 +72,7 @@ namespace Scorpio.Resource.Editor {
             }
             value.Add(file);
         }
-        void CollectCommonBundle() {
+        void CollectCommonBundle(Func<string, bool> checkDependenValid) {
             try {
                 CommonAssets = new Dictionary<string, HashSet<string>>();
                 var length = AllAssets.Count;
@@ -89,10 +89,10 @@ namespace Scorpio.Resource.Editor {
                     foreach (var dependentObj in EditorUtility.CollectDependencies(new Object[1] { asset })) {
                         if (dependentObj == null || dependentObj is DefaultAsset) { continue; }
                         var dependentPath = AssetDatabase.GetAssetPath(dependentObj);
-                        if (dependentPath.StartsWith("Assets/AssetBundles/") ||
-                            !assetPath.StartsWith("Assets/") ||
+                        if (!assetPath.StartsWith("Assets/") ||
                             assetPath.EndsWith(".cs") ||
-                            assetPath.EndsWith(".dll")) { continue; }
+                            assetPath.EndsWith(".dll") ||
+                            !checkDependenValid(dependentPath)) { continue; }
                         if (!CommonAssets.TryGetValue(dependentPath, out var value)) {
                             CommonAssets[dependentPath] = (value = new HashSet<string>());
                         }
@@ -185,7 +185,9 @@ namespace Scorpio.Resource.Editor {
                 GenerateBuildInfo(MainAssetBundlesPath, check, (dir, file) => {
                     return FileUtil.GetFileNameWithoutExtension(dir);
                 });
-                CollectCommonBundle();
+                CollectCommonBundle((path) => {
+                    return !path.StartsWith(MainAssetBundlesPath);
+                });
                 preBuild?.Invoke();
                 var manifest = BuildAssetBundles();
                 CheckDeleteFiles(manifest, BuilderSetting.AssetBundlesBuildPath);
@@ -195,13 +197,16 @@ namespace Scorpio.Resource.Editor {
             }
         }
         public AssetBundleManifest BuildPatch(string patchName, bool force = false, Action preBuild = null) {
+            var patchPath = $"{PatchAssetBundlesPath}/{patchName}";
             return BuildPatch(patchName, () => {
-                GenerateBuildInfo($"{PatchAssetBundlesPath}/{patchName}", null, (dir, file) => {
+                GenerateBuildInfo(patchPath, null, (dir, file) => {
                     return $"patches/{patchName}/{Path.GetFileNameWithoutExtension(dir)}";
                 });
+            }, (path) => {
+                return !path.StartsWith(patchPath);
             }, force, preBuild);
         }
-        public AssetBundleManifest BuildPatch(string patchName, Action generateBuildInfo, bool force = false, Action preBuild = null) {
+        public AssetBundleManifest BuildPatch(string patchName, Action generateBuildInfo, Func<string, bool> checkDependenValid, bool force = false, Action preBuild = null) {
             using (var logRecord = new LogRecord($"´ò°üpatch : {patchName}")) {
                 var uuid = GetPatchUUID?.Invoke(patchName) ?? null;
                 if (force) {
@@ -211,7 +216,7 @@ namespace Scorpio.Resource.Editor {
                 }
                 EditorUtility.UnloadUnusedAssetsImmediate();
                 generateBuildInfo();
-                CollectCommonBundle();
+                CollectCommonBundle(checkDependenValid);
                 foreach (var pair in CommonAssets) {
                     if (pair.Value.Count > 1) {
                         InsertBundleAsset($"patches/{patchName}/{patchName}_common", pair.Key);
