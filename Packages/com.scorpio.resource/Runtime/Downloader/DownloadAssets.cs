@@ -26,14 +26,14 @@ namespace Scorpio.Resource {
         public class DownloadFileInfo : FileList.Asset {
             public string name;
         }
-        private string[] fileListUrls;
-        private string[] assetsUrls;
-        private FileList packageAssets;
-        private FileList storageAssets;
-        private FileList remoteAssets;
-        private string downloadPath;
-        private string storagePath;
-        private bool isBlueprints;
+        private string[] fileListUrls;      //filelist 下载地址
+        private string[] assetsUrls;        //assets 下载地址
+        private FileList packageAssets;     //包内的资源列表
+        private FileList storageAssets;     //本地的资源列表
+        private FileList remoteAssets;      //远程资源列表
+        private string downloadPath;        //下载保存目录
+        private string storagePath;         //最终保存目录
+        private bool isBlueprints;          //是否是Blueprints
         private bool isFixedPatch;
         private List<DownloadFileInfo> downloadFiles;   //需要下载的所有文件
         private HttpRequest downloadRequest;            //当前正在下载的网络链接

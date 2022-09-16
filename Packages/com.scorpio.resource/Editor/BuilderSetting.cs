@@ -16,7 +16,7 @@ namespace Scorpio.Resource.Editor {
         [SerializeField] private BuildTarget buildTarget = BuildTarget.NoTarget;
         [Tooltip("打进主包的Patch")]
         public string[] InPackagePatches = new string[0];
-        private Dictionary<string, PatchUUID> patchUUID;
+        private Dictionary<string, PatchUUID> patchesUUID;
         public BuildTarget BuildTarget {
             get {
                 if (buildTarget != BuildTarget.NoTarget) {
@@ -45,7 +45,7 @@ namespace Scorpio.Resource.Editor {
         public string OutputExport => $"{ExportPath}/Output";      //最终产出目录
         public string InfoExport => $"{ExportPath}/Info";          //
 
-        public string PatchUUIDFile => $"{InfoExport}/PatchUUID.json";
+        public string PatchesUUIDFile => $"{InfoExport}/PatchesUUID.json";
         
         public string BlueprintsBuildPath => $"{BuildExport}/blueprints";
         public string AssetBundlesBuildPath => $"{BuildExport}/assetbundles";
@@ -54,19 +54,19 @@ namespace Scorpio.Resource.Editor {
             return $"{AssetBundlesBuildPath}/patches/{patchName}";
         }
 
-        void LoadPatchBuildInfos() {
-            if (patchUUID == null) {
-                if (FileUtil.FileExist(PatchUUIDFile)) {
-                    patchUUID = JsonConvert.DeserializeObject<Dictionary<string, PatchUUID>>(FileUtil.GetFileString(PatchUUIDFile));
+        void LoadPatchesUUID() {
+            if (patchesUUID == null) {
+                if (FileUtil.FileExist(PatchesUUIDFile)) {
+                    patchesUUID = JsonConvert.DeserializeObject<Dictionary<string, PatchUUID>>(FileUtil.GetFileString(PatchesUUIDFile));
                 } else {
-                    patchUUID = new Dictionary<string, PatchUUID>();
+                    patchesUUID = new Dictionary<string, PatchUUID>();
                 }
             }
         }
         public bool CheckPatchUUID(string patchName, string uuid) {
             if (string.IsNullOrEmpty(uuid)) { return false; }
-            LoadPatchBuildInfos();
-            if (patchUUID.TryGetValue(patchName, out var info)) {
+            LoadPatchesUUID();
+            if (patchesUUID.TryGetValue(patchName, out var info)) {
                 if (info.uuid == uuid) {
                     return true;
                 }
@@ -75,9 +75,9 @@ namespace Scorpio.Resource.Editor {
         }
         public void SetPatchUUID(string patchName, string uuid) {
             if (string.IsNullOrEmpty(uuid)) { return; }
-            LoadPatchBuildInfos();
-            patchUUID[patchName] = new PatchUUID() { uuid = uuid, date = TimeUtil.GetNowDateString() };
-            FileUtil.CreateFile(PatchUUIDFile, JsonConvert.SerializeObject(patchUUID, Formatting.Indented));
+            LoadPatchesUUID();
+            patchesUUID[patchName] = new PatchUUID() { uuid = uuid, date = TimeUtil.GetNowDateString() };
+            FileUtil.CreateFile(PatchesUUIDFile, JsonConvert.SerializeObject(patchesUUID, Formatting.Indented));
         }
     }
 }
