@@ -9,20 +9,31 @@ using System.Text;
 
 using Object = UnityEngine.Object;
 using FileUtil = Scorpio.Unity.Util.FileUtil;
-using System.IO.Compression;
+using Newtonsoft.Json;
+using UnityEditor.Build.Content;
 
 namespace Scorpio.Resource.Editor {
     public class AssetBundleBuilder<T> where T : FileList, new() {
-        public const string MainAssetBundlesPath = "Assets/AssetBundles/assetbundles/";                 //主AB目录
-        public const string PatchAssetBundlesPath = "Assets/AssetBundles/patches/";                     //patchab目录
-        public const string BlueprintsPath = "Assets/AssetBundles/assetbundles/blueprints/";            //blueprints目录
-        private readonly string[] TextExtensions = new[] { "*.txt", "*.xml", "*.bytes", "*.json", "*.csv", "*.yaml", "*.html" };
-        private readonly string[] ABExtensions = new[] { "*.unity3d" }; 
-        public Dictionary<string, HashSet<string>> AssetBundleAssets { get; private set; }       //所有AB文件
-        public Dictionary<string, string> AllAssets { get; private set; }                        //所有打进AB的资源文件
-        public Dictionary<string, HashSet<string>> CommonAssets { get; private set; }            //多个AB引用的资源
-        public List<AssetBundleBuild> AssetBundleBuilds { get; private set; }                    //ABBuilds
-        public Func<string, string> GetPatchUUID;
+        public const string MainAssetBundlesPath = "Assets/AssetBundles/assetbundles";                  //主AB目录
+        public const string PatchAssetBundlesPath = "Assets/AssetBundles/patches";                      //patchab目录
+        public const string BlueprintsPath = "Assets/AssetBundles/assetbundles/blueprints";             //blueprints目录
+        
+        private static readonly string[] TextExtensions = new[] { "*.txt", "*.xml", "*.bytes", "*.json", "*.csv", "*.yaml", "*.html" };
+        private static readonly string[] ABExtensions = new[] { "*.unity3d" };
+        private static readonly string[] ABJsonExtensions = new[] { "*.unity3d", "*.json" };
+        private static readonly string[] AllExtensions = TextExtensions.Concat(ABExtensions).ToArray();
+        public Dictionary<string, HashSet<string>> AssetBundleAssets { get; private set; }      //所有AB文件
+        public Dictionary<string, string> AllAssets { get; private set; }                       //所有打进AB的资源文件
+        public Dictionary<string, HashSet<string>> CommonAssets { get; private set; }           //多个AB引用的资源
+        public List<AssetBundleBuild> AssetBundleBuilds { get; private set; }                   //ABBuilds
+        public Func<string, string> GetPatchUUID;                                               //获取PatchUUID
+        public Func<string> GetBlueprintsOutput, GetAssetBundlesOutput, GetPatchesOutput, GetStreamingABPath;       //
+
+        public string BlueprintsOutputPath => GetBlueprintsOutput?.Invoke() ?? $"{BuilderSetting.OutputExport}/blueprints";
+        public string AssetBundlesOutputPath => GetAssetBundlesOutput?.Invoke() ?? $"{BuilderSetting.OutputExport}/assetbundles";
+        public string PatchesOutputPath => GetPatchesOutput?.Invoke() ?? $"{BuilderSetting.OutputExport}/patches";
+        public string StreamingABPath => GetStreamingABPath?.Invoke() ?? $"{Application.streamingAssetsPath}/AB";
+
         public BuilderSetting BuilderSetting { get; set; }
         public AssetBundleBuilder(BuilderSetting builderSetting) {
             BuilderSetting = builderSetting;
@@ -39,14 +50,25 @@ namespace Scorpio.Resource.Editor {
                         var file = _.Replace("\\", "/");
                         if (file.IsInvalidFile()) { continue; }
                         var abName = getABName(dir, file);
-                        if (!AssetBundleAssets.TryGetValue(abName, out var value)) {
-                            AssetBundleAssets[abName] = (value = new HashSet<string>());
-                        }
-                        value.Add(file);
+                        InsertBundleAsset(abName, file);
                         AllAssets[file] = abName;
                     }
                 }
             }
+        }
+        void InsertBundleAsset(string abName, string file) {
+            foreach (var pair in AssetBundleAssets) {
+                if (pair.Value.Contains(file)) {
+                    if (pair.Key != abName) {
+                        logger.error($"{file} > {abName} 已包含在其他AB文件内 {pair.Key}");
+                    }
+                    return;
+                }
+            }
+            if (!AssetBundleAssets.TryGetValue(abName, out var value)) {
+                AssetBundleAssets[abName] = (value = new HashSet<string>());
+            }
+            value.Add(file);
         }
         void CollectCommonBundle() {
             try {
@@ -89,24 +111,30 @@ namespace Scorpio.Resource.Editor {
                 AssetBundleBuilds.Add(abBuild);
             }
         }
-        public FileList GenerateFileList(string rootPath, string[] searchPatterns) {
+        public T GenerateFileList(string rootPath, string[] searchPatterns, string[] ignoreNames = null) {
             var filelist = new T();
             var idBuilder = new StringBuilder();
+            var ignores = new HashSet<string>();
+            if (ignoreNames != null) {
+                ignores.UnionWith(ignoreNames);
+            }
             foreach (var file in FileUtil.GetFiles(rootPath, searchPatterns, SearchOption.TopDirectoryOnly)) {
                 var name = FileUtil.GetRelativePath(file, rootPath);
-                var asset = filelist.AddAsset(name, file);
+                if (ignores.Contains(name)) { continue; }
+                var asset = BuilderUtil.GetAsset(file);
+                filelist.Assets[name] = asset;
                 idBuilder.Append($"{name}:{asset.md5}_{asset.size},");
             }
             filelist.ID = FileUtil.GetMD5FromString(idBuilder.ToString());
-            filelist.UnityVersion = Application.unityVersion;
             filelist.Process();
             return filelist;
         }
-        void CreateFileList(string rootPath, string[] searchPatterns) {
-            var fileList = GenerateFileList(rootPath, searchPatterns);
+        public void CreateFileList(string rootPath, string[] searchPatterns, string[] ignoreNames = null) {
+            var fileList = GenerateFileList(rootPath, searchPatterns, ignoreNames);
             FileUtil.CreateFile($"{rootPath}/FileList.json", fileList.ToJson());
         }
         public AssetBundleManifest BuildAssetBundles() {
+            FileUtil.CreateDirectory(BuilderSetting.AssetBundlesBuildPath);
             CreateAssetBundleBuilds();
             EditorUtility.UnloadUnusedAssetsImmediate();
             var manifest = BuildPipeline.BuildAssetBundles(BuilderSetting.AssetBundlesBuildPath, AssetBundleBuilds.ToArray(), BuilderSetting.BuildOptions, BuilderSetting.BuildTarget);
@@ -115,18 +143,28 @@ namespace Scorpio.Resource.Editor {
             }
             return manifest;
         }
-        public AssetBundleManifest BuildBlueprints(Action<FileList> postBuild) {
+        public void CheckDeleteFiles(AssetBundleManifest assetBundleManifest, string path) {
+            var allABs = assetBundleManifest.GetAllAssetBundles();
+            foreach (var file in FileUtil.GetFiles(path, ABExtensions, SearchOption.TopDirectoryOnly)) {
+                if (!file.EndsWith("assetbundles.unity3d") && !allABs.Contains(FileUtil.GetRelativePath(file, BuilderSetting.AssetBundlesBuildPath))) {
+                    FileUtil.DeleteFile(file);
+                    FileUtil.DeleteFile($"{file}.manifest");
+                    logger.info($"删除无用AB文件:{file}");
+                }
+            }
+        }
+        public AssetBundleManifest BuildBlueprints() {
             using (var logRecord = new LogRecord("打包Blueprints")) {
                 EditorUtility.UnloadUnusedAssetsImmediate();
                 FileUtil.DeleteFolder(BuilderSetting.BlueprintsBuildPath);     //清楚缓存
+                FileUtil.DeleteFile($"{BlueprintsPath}/BlueprintsFileList.json");
                 FileUtil.CopyFolder(BlueprintsPath, BuilderSetting.BlueprintsBuildPath, TextExtensions, true);
                 var fileList = GenerateFileList(BuilderSetting.BlueprintsBuildPath, TextExtensions);
                 FileUtil.CreateFile($"{BlueprintsPath}/BlueprintsFileList.json", fileList.ToJson());
                 AssetDatabase.Refresh();
-                var guids = AssetDatabase.FindAssets("t:TextAsset", new string[] { BlueprintsPath });
                 var assetBundleBuild = new AssetBundleBuild();
                 assetBundleBuild.assetBundleName = "blueprints.unity3d";
-                assetBundleBuild.assetNames = Array.ConvertAll(guids, guid => AssetDatabase.GUIDToAssetPath(guid).ToLower());
+                assetBundleBuild.assetNames = FileUtil.GetFiles(BlueprintsPath, TextExtensions).ToArray();
                 EditorSettings.spritePackerMode = SpritePackerMode.Disabled;
                 var manifest = BuildPipeline.BuildAssetBundles(BuilderSetting.BlueprintsBuildPath, new[] { assetBundleBuild }, BuilderSetting.BuildOptions, BuilderSetting.BuildTarget);
                 if (manifest == null) {
@@ -134,13 +172,12 @@ namespace Scorpio.Resource.Editor {
                 }
                 FileUtil.DeleteFile($"{BuilderSetting.BlueprintsBuildPath}/Blueprints");
                 FileUtil.DeleteFolder(BuilderSetting.BlueprintsBuildPath, new[] { "*.manifest" }, false);
-                fileList.ABInfo = new FileList.Asset($"{BuilderSetting.BlueprintsBuildPath}/blueprints.unity3d");
-                postBuild?.Invoke(fileList);
+                fileList.ABInfo = BuilderUtil.GetAsset($"{BuilderSetting.BlueprintsBuildPath}/blueprints.unity3d");
                 FileUtil.CreateFile($"{BuilderSetting.BlueprintsBuildPath}/FileList.json", fileList.ToJson());
                 return manifest;
             }
         }
-        public AssetBundleManifest BuildMainAssetBundle(Func<string, bool> check, Action preBuild) {
+        public AssetBundleManifest BuildMainAssetBundle(Func<string, bool> check = null, Action preBuild = null) {
             using (var logRecord = new LogRecord("打包MainAssetBundles")) {
                 EditorUtility.UnloadUnusedAssetsImmediate();
                 GenerateBuildInfo(MainAssetBundlesPath, check, (dir, file) => {
@@ -149,27 +186,66 @@ namespace Scorpio.Resource.Editor {
                 CollectCommonBundle();
                 preBuild?.Invoke();
                 var manifest = BuildAssetBundles();
-                CreateFileList(BuilderSetting.AssetBundlesBuildPath, new[] { "*.unity3d", "assetbundles" });
+                CheckDeleteFiles(manifest, BuilderSetting.AssetBundlesBuildPath);
+                FileUtil.MoveFile($"{BuilderSetting.AssetBundlesBuildPath}/assetbundles", $"{BuilderSetting.AssetBundlesBuildPath}/assetbundles.unity3d", true);
+                CreateFileList(BuilderSetting.AssetBundlesBuildPath, ABExtensions, new[] { "blueprints.unity3d" });
                 return manifest;
             }
         }
-        public AssetBundleManifest BuildPatch(string patchName, bool force, Func<string, bool> check, Action preBuild) {
+        public AssetBundleManifest BuildPatch(string patchName, bool force = false, Action preBuild = null) {
+            return BuildPatch(patchName, () => {
+                GenerateBuildInfo($"{PatchAssetBundlesPath}/{patchName}", null, (dir, file) => {
+                    return $"patches/{patchName}/{Path.GetFileNameWithoutExtension(dir)}";
+                });
+            }, force, preBuild);
+        }
+        public AssetBundleManifest BuildPatch(string patchName, Action generateBuildInfo, bool force = false, Action preBuild = null) {
             using (var logRecord = new LogRecord($"打包patch : {patchName}")) {
-                var uuid = force ? null : (GetPatchUUID?.Invoke(patchName) ?? null);
-                if (BuilderSetting.CheckPatchUUID(patchName, uuid)) {
+                var uuid = GetPatchUUID?.Invoke(patchName) ?? null;
+                if (force) {
+                    FileUtil.DeleteFolder(BuilderSetting.GetPatchBuildPath(patchName));
+                } else if (BuilderSetting.CheckPatchUUID(patchName, uuid)) {
                     return null;
                 }
                 EditorUtility.UnloadUnusedAssetsImmediate();
-                GenerateBuildInfo($"{PatchAssetBundlesPath}/{patchName}", check, (dir, file) => {
-                    return $"patches/{patchName}/{Path.GetFileNameWithoutExtension(dir)}";
-                });
+                generateBuildInfo();
                 CollectCommonBundle();
+                foreach (var pair in CommonAssets) {
+                    if (pair.Value.Count > 1) {
+                        InsertBundleAsset($"patches/{patchName}/{patchName}_common", pair.Key);
+                    }
+                }
                 preBuild?.Invoke();
                 var manifest = BuildAssetBundles();
-                CreateFileList(BuilderSetting.GetPatchBuildPath(patchName), ABExtensions);
-                BuilderSetting.SetPatchBuildUUID(patchName, uuid);
+                var patchPath = BuilderSetting.GetPatchBuildPath(patchName);
+                CheckDeleteFiles(manifest, patchPath);
+                CreateFileList(patchPath, ABExtensions);
+                BuilderSetting.SetPatchUUID(patchName, uuid);
                 return manifest;
             }
+        }
+        public void SyncBlueprintsToOutput() {
+            FileUtil.SyncFolder(BuilderSetting.BlueprintsBuildPath, BlueprintsOutputPath, AllExtensions, true);
+        }
+        public void SyncAssetBundlesToOutput() {
+            FileUtil.SyncFolder(BuilderSetting.AssetBundlesBuildPath, AssetBundlesOutputPath, ABJsonExtensions, false);
+        }
+        public void SyncPatchesToOutput() {
+            FileUtil.SyncFolder(BuilderSetting.PatchesBuildPath, PatchesOutputPath, ABJsonExtensions, true);
+        }
+        public void SyncToStreaming() {
+            FileUtil.SyncFolder(BuilderSetting.AssetBundlesBuildPath, $"{StreamingABPath}/assetbundles", ABJsonExtensions, false);
+            var fixedPatchInfos = new Dictionary<string, FixedPatchInfo>();
+            foreach (var patchName in BuilderSetting.InPackagePatches) {
+                FileUtil.SyncFolder($"{BuilderSetting.PatchesBuildPath}/{patchName}", $"{StreamingABPath}/patches/{patchName}", ABJsonExtensions, true);
+                var fileList = JsonConvert.DeserializeObject<T>(FileUtil.GetFileString($"{BuilderSetting.PatchesBuildPath}/{patchName}/FileList.json"));
+                var fixedPatchInfo = new FixedPatchInfo();
+                foreach (var pair in fileList.Assets) {
+                    fixedPatchInfo.Assets.Add(new FixedPatchInfo.Asset() { name = pair.Key, md5 = pair.Value.md5 });
+                }
+                fixedPatchInfos[patchName] = fixedPatchInfo;
+            }
+            FileUtil.CreateFile($"{StreamingABPath}/FixedPatches.json", fixedPatchInfos.ToJson());
         }
     }
 }

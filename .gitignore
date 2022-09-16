@@ -5,3 +5,6 @@
 /*.sln
 /*.csproj
 /.vs
+/AssetBundlesOutputs
+/Assets/StreamingAssets
+/Assets/StreamingAssets.meta

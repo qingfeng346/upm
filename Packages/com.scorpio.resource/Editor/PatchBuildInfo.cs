@@ -1,5 +1,5 @@
 ﻿namespace Scorpio.Resource.Editor {
-    public class PatchBuildInfo {
+    public class PatchUUID {
         public string uuid;
         public string date;
     }

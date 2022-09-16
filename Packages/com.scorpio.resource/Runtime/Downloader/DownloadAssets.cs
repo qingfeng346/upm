@@ -182,16 +182,16 @@ namespace Scorpio.Resource {
             downloadSize = 0;          //已经下载的文件总大小
             downloadTotal = 0;         //需要下载的总大小
             //如果是下载Blueprints并且下载数量超过20个,则直接下载blueprints.unity3d
-            if (isBlueprints && !string.IsNullOrEmpty(remoteAssets.ABMD5) && downloadFileCount > 20) {
+            if (isBlueprints && remoteAssets.ABInfo != null && downloadFileCount > 20) {
                 //this.isDownloadBlueprintsAB = true                 //是否是下载的blueprints.unity3d
-                var blueprintsPath = $"{this.downloadPath}/blueprints.unity3d";
+                var blueprintsPath = $"{downloadPath}/blueprints.unity3d";
                 //比较需要下载的blueprints.unity3d 和 已下载的 blueprints.unity3d 是否相同
-                if (FileUtil.FileExist(blueprintsPath) && this.remoteAssets.ABMD5 == FileUtil.GetMD5FromFileStream(blueprintsPath)) {
+                if (FileUtil.FileExist(blueprintsPath) && remoteAssets.ABInfo.md5 == FileUtil.GetMD5FromFileStream(blueprintsPath)) {
                     Finished();
                     return;
                 }
                 downloadFiles.Clear();
-                downloadFiles.Add(new DownloadFileInfo() { name = "blueprints.unity3d", size = remoteAssets.ABSize, md5 = remoteAssets.ABMD5 });
+                downloadFiles.Add(new DownloadFileInfo() { name = "blueprints.unity3d", size = remoteAssets.ABInfo.size, md5 = remoteAssets.ABInfo.md5 });
             }
             downloadFiles.ForEach((value) => {
                 downloadTotal += value.size;

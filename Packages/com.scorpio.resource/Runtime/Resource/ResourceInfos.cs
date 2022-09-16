@@ -1,4 +1,7 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.IO;
+
 namespace Scorpio.Resource {
     //包体内的patch
     public class FixedPatchInfo {
@@ -8,7 +11,6 @@ namespace Scorpio.Resource {
         }
         public List<Asset> Assets = new List<Asset>();
     }
-    //更新文件
     public class FileList {
         public class Asset {
             public long size;
@@ -17,11 +19,12 @@ namespace Scorpio.Resource {
                 return $"{file}_{size}_{md5}";
             }
         }
-        public string Version;
-        public string BuildID;
-        public string ABMD5;
-        public long ABSize;
-        public Dictionary<string, Asset> Assets = new Dictionary<string, Asset>();
+        public string ID;               //根据所有assets的size和md5计算一个MD5
+        public string Version;          //版本号
+        public string BuildID;          //BuildID
+        public Asset ABInfo;            //Blueprints专用,保存Blueprints.unity3d的信息
+        public Dictionary<string, Asset> Assets = new Dictionary<string, Asset>();      //所有文件
+        public virtual void Process() { }
     }
     public enum AssetBundleType {
         Storage,        //本地文件

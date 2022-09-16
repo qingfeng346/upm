@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Text;
 using Scorpio.Unity.Util;
 using Newtonsoft.Json;
+using System.IO;
+using UnityEngine.Networking;
 
 namespace Scorpio.Resource {
     public partial class ResourceManager {
@@ -230,6 +232,20 @@ namespace Scorpio.Resource {
                 throw new System.Exception($"Instantiate is null : {resourceName}");
             }
             return Object.Instantiate(obj);
+        }
+        public byte[] LoadStreamingAssets(string path) {
+            var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, path));
+            var request = UnityWebRequest.Get(uri);
+            request.SendWebRequest();
+            if (request.error == null) {
+                while (true) {
+                    if (request.downloadHandler.isDone) {
+                        return request.downloadHandler.data;
+                    }
+                }
+            } else {
+                return null;
+            }
         }
 
         /// <summary> Load资源(不实例化) </summary>

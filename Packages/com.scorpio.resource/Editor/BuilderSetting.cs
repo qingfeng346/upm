@@ -8,10 +8,15 @@ using FileUtil = Scorpio.Unity.Util.FileUtil;
 namespace Scorpio.Resource.Editor {
     [CreateAssetMenu(menuName = "Scorpio/AssetBundleBuilderSetting")]
     public class BuilderSetting : ScriptableObject {
+        [Tooltip("导出目录")]
         public string ExportPath = "AssetBundlesOutputs";
+        [Tooltip("AB打包选项")]
         public BuildAssetBundleOptions BuildOptions = BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.DeterministicAssetBundle;
+        [Tooltip("AB目标平台")]
         [SerializeField] private BuildTarget buildTarget = BuildTarget.NoTarget;
-        private Dictionary<string, PatchBuildInfo> patchBuildInfos;
+        [Tooltip("打进主包的Patch")]
+        public string[] InPackagePatches = new string[0];
+        private Dictionary<string, PatchUUID> patchUUID;
         public BuildTarget BuildTarget {
             get {
                 if (buildTarget != BuildTarget.NoTarget) {
@@ -36,44 +41,43 @@ namespace Scorpio.Resource.Editor {
 #endif
             }
         }
-        private string BuildExport => $"{ExportPath}/Build";        //Build目录
-        private string OutputExport => $"{ExportPath}/Output";      //最终产出目录
-        private string InfoExport => $"{ExportPath}/Info";          //
+        public string BuildExport => $"{ExportPath}/Build";        //Build目录
+        public string OutputExport => $"{ExportPath}/Output";      //最终产出目录
+        public string InfoExport => $"{ExportPath}/Info";          //
 
-        public string PatchBuildInfosFile => $"{InfoExport}/PatchBuildInfos.json";
+        public string PatchUUIDFile => $"{InfoExport}/PatchUUID.json";
         
-        public string BlueprintsBuildPath => $"{BuildExport}/Blueprints";
+        public string BlueprintsBuildPath => $"{BuildExport}/blueprints";
         public string AssetBundlesBuildPath => $"{BuildExport}/assetbundles";
-
-
-        public string AssetBundlesOutputPath => $"{OutputExport}/assetbundles";
+        public string PatchesBuildPath => $"{BuildExport}/assetbundles/patches";
         public string GetPatchBuildPath(string patchName) {
             return $"{AssetBundlesBuildPath}/patches/{patchName}";
         }
+
         void LoadPatchBuildInfos() {
-            if (patchBuildInfos == null) {
-                if (FileUtil.FileExist(PatchBuildInfosFile)) {
-                    patchBuildInfos = JsonConvert.DeserializeObject<Dictionary<string, PatchBuildInfo>>(FileUtil.GetFileString(PatchBuildInfosFile));
+            if (patchUUID == null) {
+                if (FileUtil.FileExist(PatchUUIDFile)) {
+                    patchUUID = JsonConvert.DeserializeObject<Dictionary<string, PatchUUID>>(FileUtil.GetFileString(PatchUUIDFile));
                 } else {
-                    patchBuildInfos = new Dictionary<string, PatchBuildInfo>();
+                    patchUUID = new Dictionary<string, PatchUUID>();
                 }
             }
         }
         public bool CheckPatchUUID(string patchName, string uuid) {
             if (string.IsNullOrEmpty(uuid)) { return false; }
             LoadPatchBuildInfos();
-            if (patchBuildInfos.TryGetValue(patchName, out var info)) {
+            if (patchUUID.TryGetValue(patchName, out var info)) {
                 if (info.uuid == uuid) {
                     return true;
                 }
             }
             return false;
         }
-        public void SetPatchBuildUUID(string patchName, string uuid) {
+        public void SetPatchUUID(string patchName, string uuid) {
             if (string.IsNullOrEmpty(uuid)) { return; }
             LoadPatchBuildInfos();
-            patchBuildInfos[patchName] = new PatchBuildInfo() { uuid = uuid, date = TimeUtil.GetNowDateString() };
-            FileUtil.CreateFile(PatchBuildInfosFile, JsonConvert.SerializeObject(patchBuildInfos, Formatting.Indented));
+            patchUUID[patchName] = new PatchUUID() { uuid = uuid, date = TimeUtil.GetNowDateString() };
+            FileUtil.CreateFile(PatchUUIDFile, JsonConvert.SerializeObject(patchUUID, Formatting.Indented));
         }
     }
 }

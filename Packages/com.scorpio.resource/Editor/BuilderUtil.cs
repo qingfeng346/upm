@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using System.IO;
+using Scorpio.Unity.Util;
 
 namespace Scorpio.Resource.Editor {
     public static class BuilderUtil {
@@ -9,8 +11,11 @@ namespace Scorpio.Resource.Editor {
                 return true;
             return false;
         }
-        public static string ToJson(this FileList fileList) {
-            return JsonConvert.SerializeObject(fileList, JsonSerializerSettings);
+        public static string ToJson(this object obj) {
+            return JsonConvert.SerializeObject(obj, JsonSerializerSettings);
+        }
+        public static FileList.Asset GetAsset(string file) {
+            return new FileList.Asset() { size = new FileInfo(file).Length, md5 = FileUtil.GetMD5FromFile(file) };
         }
     }
 }
