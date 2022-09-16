@@ -34,6 +34,8 @@ namespace Scorpio.Resource.Editor {
         public string PatchesOutputPath => GetPatchesOutput?.Invoke() ?? $"{BuilderSetting.OutputExport}/patches";
         public string StreamingABPath => GetStreamingABPath?.Invoke() ?? $"{Application.streamingAssetsPath}/AB";
 
+        private string BlueprintsInABFileList => $"{BlueprintsPath}/BlueprintsFileList.json";
+
         public BuilderSetting BuilderSetting { get; set; }
         public AssetBundleBuilder(BuilderSetting builderSetting) {
             BuilderSetting = builderSetting;
@@ -157,10 +159,10 @@ namespace Scorpio.Resource.Editor {
             using (var logRecord = new LogRecord("´ò°üBlueprints")) {
                 EditorUtility.UnloadUnusedAssetsImmediate();
                 FileUtil.DeleteFolder(BuilderSetting.BlueprintsBuildPath);     //Çå³þ»º´æ
-                FileUtil.DeleteFile($"{BlueprintsPath}/BlueprintsFileList.json");
+                FileUtil.DeleteFile(BlueprintsInABFileList);
                 FileUtil.CopyFolder(BlueprintsPath, BuilderSetting.BlueprintsBuildPath, TextExtensions, true);
                 var fileList = GenerateFileList(BuilderSetting.BlueprintsBuildPath, TextExtensions);
-                FileUtil.CreateFile($"{BlueprintsPath}/BlueprintsFileList.json", fileList.ToJson());
+                FileUtil.CreateFile(BlueprintsInABFileList, fileList.ToJson());
                 AssetDatabase.Refresh();
                 var assetBundleBuild = new AssetBundleBuild();
                 assetBundleBuild.assetBundleName = "blueprints.unity3d";
