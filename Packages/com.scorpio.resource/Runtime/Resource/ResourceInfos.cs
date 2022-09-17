@@ -1,6 +1,4 @@
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Scorpio.Resource {
     //包体内的patch
@@ -11,6 +9,14 @@ namespace Scorpio.Resource {
         }
         public List<Asset> Assets = new List<Asset>();
     }
+    //AB信息,保存在Streaming主目录
+    public class ABInfo {
+        public string StreamingPath;    //Streaming目录
+        public string Expansion;        //扩展名
+        public string ManifestName;     //依赖文件名
+        public Dictionary<string, FixedPatchInfo> FixedPatchInfos = new Dictionary<string, FixedPatchInfo>();   //默认打入包的Patch
+    }
+    //文件列表
     public class FileList {
         public class Asset {
             public long size;

@@ -22,19 +22,23 @@ namespace Scorpio.Resource {
         public static readonly string DownloadBlueprintsPath = $"{AssetBundleDownloadPath}blueprints/";
         public static ResourceManager Instance { get; } = new ResourceManager();
 
-        private Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();     //AB信息
+        public ABInfo ABInfo { get; private set; }                                              //资源总信息
+        public Dictionary<string, FixedPatchInfo> FixedPatchInfos => ABInfo.FixedPatchInfos;    //包体内的patch
+        public HashSet<string> FixedPatchAssets { get; set; }                                   //包体内的assets
+
+        public AssetBundleManifest AssetBundleManifest { get; private set; }        //AssetBundleManifest
+
+
+        private Dictionary<string, AssetBundleInfo> m_AssetBundleInfos = new Dictionary<string, AssetBundleInfo>();     //AB文件信息
         private Dictionary<string, IAssetBundleLoader> m_AssetBundles = new Dictionary<string, IAssetBundleLoader>();   //所有的AssetBundle
         private Dictionary<string, FileList.Asset> assetBundleUsage = new Dictionary<string, FileList.Asset>();         //AssetBundle 是否使用硬盘资源
         private Dictionary<string, FileList.Asset> blueprintsUsage = new Dictionary<string, FileList.Asset>();          //Blueprints 是否使用硬盘资源
-        
-        public AssetBundleManifest AssetBundleManifest { get; private set; } //AssetBundleManifest
-        public Dictionary<string, FixedPatchInfo> FixedPatchInfos { get; set; }     //包体内的patch
-        public HashSet<string> FixedPatchAssets { get; set; }                       //包体内的assets
+       
 
         public ResourceManager() {
-            var patches = Resources.Load<TextAsset>("FixedPatches");
-            if (patches != null) {
-                FixedPatchInfos = JsonConvert.DeserializeObject<Dictionary<string, FixedPatchInfo>>(Encoding.UTF8.GetString(patches.bytes));
+            var bytes = LoadStreamingAssets("ABInfo.json");
+            if (bytes != null) {
+                ABInfo = JsonConvert.DeserializeObject<ABInfo>(Encoding.UTF8.GetString(bytes));
                 FixedPatchAssets = new HashSet<string>();
                 foreach (var pair in FixedPatchInfos) {
                     foreach (var asset in pair.Value.Assets) {
@@ -91,8 +95,8 @@ namespace Scorpio.Resource {
         public void Initialize() {
             UpdateAssetsUsage();
 #if !UNITY_EDITOR || UNITY_WEB_ASSETS
-            if (AssetBundleManifest == null) {
-                AssetBundleManifest = GetAssetBundle_impl ("assetbundles/assetbundles").LoadAsset<AssetBundleManifest> ("AssetBundleManifest");
+            if (!string.IsNullOrEmpty(ABInfo.ManifestName) && AssetBundleManifest == null) {
+                AssetBundleManifest = GetAssetBundle_impl($"assetbundles/{ABInfo.ManifestName}").LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             }
 #endif
         }
@@ -129,7 +133,7 @@ namespace Scorpio.Resource {
         }
         public string GetABName(string assetBundleName) {
             assetBundleName = assetBundleName.ToLowerInvariant();
-            if (!assetBundleName.EndsWith(".unity3d")) { assetBundleName = $"{assetBundleName}.unity3d"; }
+            if (!assetBundleName.EndsWith(ABInfo.Expansion)) { assetBundleName = $"{assetBundleName}{ABInfo.Expansion}"; }
             if (assetBundleName.StartsWith("patches/")) {
                 return assetBundleName;
             } else {
@@ -140,7 +144,7 @@ namespace Scorpio.Resource {
             return $"{AssetBundleDataPath}{assetBundleName}";
         }
         public string GetStreamingABPath(string assetBundleName) {
-            return $"{Application.streamingAssetsPath}/AB/{assetBundleName}";
+            return $"{Application.streamingAssetsPath}/{ABInfo.StreamingPath}/{assetBundleName}";
         }
         public void AddWebAssetBundle(string assetBundleName, string filePath, string url, string version) {
             AddWebAssetBundle(assetBundleName, filePath, new[] { url }, version, false);
@@ -168,8 +172,9 @@ namespace Scorpio.Resource {
         public IAssetBundleLoader GetAssetBundle(string assetBundleName) {
             return GetAssetBundle_impl(GetABName(assetBundleName));
         }
-
-        
+        public IAssetBundleLoaderAsync LoadAssetBundle(string assetBundleName) {
+            return GetAssetBundle(assetBundleName).LoadAssetBundle();
+        }
         /// <summary> 获得一个AssetBundle </summary>
         IAssetBundleLoader GetAssetBundle_impl(string assetBundleName) {
             if (m_AssetBundles.TryGetValue(assetBundleName, out var loader)) {
@@ -212,9 +217,6 @@ namespace Scorpio.Resource {
             }
             loader.Initialize();
             return loader;
-        }
-        public IAssetBundleLoaderAsync LoadAssetBundle(string assetBundleName) {
-            return GetAssetBundle(assetBundleName).LoadAssetBundle();
         }
 
         public Object Load(string resourceName) {

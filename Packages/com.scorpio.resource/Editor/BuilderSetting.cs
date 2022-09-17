@@ -10,9 +10,13 @@ namespace Scorpio.Resource.Editor {
     public class BuilderSetting : ScriptableObject {
         [Tooltip("导出目录")]
         public string ExportPath = "AssetBundlesOutputs";
+        [Tooltip("Streaming目录")]
+        public string StreamingPath = "AB";
+        [Tooltip("AB文件扩展名")]
+        public string Expansion = "unity3d";
         [Tooltip("AB打包选项")]
         public BuildAssetBundleOptions BuildOptions = BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.DeterministicAssetBundle;
-        [Tooltip("AB目标平台")]
+        [Tooltip("AB目标平台")] 
         [SerializeField] private BuildTarget buildTarget = BuildTarget.NoTarget;
         [Tooltip("打进主包的Patch")]
         public string[] InPackagePatches = new string[0];
