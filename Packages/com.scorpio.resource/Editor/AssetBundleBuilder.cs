@@ -248,7 +248,7 @@ namespace Scorpio.Resource.Editor {
             abInfo.StreamingPath = StreamingABPath;
             abInfo.ManifestName = $"assetbundles.{BuilderSetting.Expansion}";
             foreach (var patchName in BuilderSetting.InPackagePatches) {
-                FileUtil.SyncFolder($"{BuilderSetting.PatchesBuildPath}/{patchName}", $"{StreamingABPath}/patches/{patchName}", ABJsonExtensions, true);
+                FileUtil.SyncFolder($"{BuilderSetting.PatchesBuildPath}/{patchName}", $"{streamingPath}/patches/{patchName}", ABJsonExtensions, true);
                 var fileList = JsonConvert.DeserializeObject<T>(FileUtil.GetFileString($"{BuilderSetting.PatchesBuildPath}/{patchName}/FileList.json"));
                 var fixedPatchInfo = new FixedPatchInfo();
                 foreach (var pair in fileList.Assets) {
