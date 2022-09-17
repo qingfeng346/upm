@@ -1,6 +1,6 @@
 {
   "name": "com.scorpio.resource",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "unity": "2018.1",
   "displayName": "Scorpio.Resource",
   "hideInEditor": false,
@@ -15,5 +15,5 @@
     "resource"
   ],
   "samples": [],
-  "description": "\u8ba1\u65f6\u5668"
+  "description": "\u8d44\u6e90\u52a0\u8f7d"
 }

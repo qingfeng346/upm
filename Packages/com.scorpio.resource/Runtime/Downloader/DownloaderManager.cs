@@ -21,7 +21,7 @@ namespace Scorpio.Resource {
             }
         }
         public static int MaxDownloadQueue = 8;
-        private List<Downloader> downloaders = new List<Downloader>();
+        private LinkedList<Downloader> downloaders = new LinkedList<Downloader>();
         private List<Timer> timers = new List<Timer>();
         private int version = 0;
         private int downloadCount = 0;          //正在下载的数量
@@ -34,15 +34,15 @@ namespace Scorpio.Resource {
             if (FileUtil.FileExist(filePath) && FileUtil.GetFileString(versionFile) == version) {
                 success?.Invoke();
             } else {
-                downloaders.Insert(0, new Downloader() { urls = urls, filePath = filePath, versionPath = versionFile, version = version, success = success });
+                downloaders.AddFirst(new Downloader() { urls = urls, filePath = filePath, versionPath = versionFile, version = version, success = success });
                 CheckDownload();
             }
         }
         void CheckDownload() {
             if (downloaders.Count == 0 || downloadCount > MaxDownloadQueue) { return; }
             ++downloadCount;
-            var downloader = downloaders[0];
-            downloaders.RemoveAt(0);
+            var downloader = downloaders.First.Value;
+            downloaders.RemoveFirst();
             int version = this.version;
             downloader.StartDownload((success) => {
                 if (version != this.version) { return; }
@@ -52,7 +52,7 @@ namespace Scorpio.Resource {
                     downloader.success?.Invoke();
                 } else {
                     //下载失败,移到队尾,一会重试
-                    downloaders.Add(downloader);
+                    downloaders.AddLast(downloader);
                     CheckDownload();
                 }
             });
@@ -61,15 +61,17 @@ namespace Scorpio.Resource {
             timers.Add(new Timer() { end = Time.realtimeSinceStartup + seconds, callback = callback });
         }
         void Update() {
-            var now = Time.realtimeSinceStartup;
-            for (var i = 0; i < timers.Count;) {
-                var timer = timers[i];
-                if (now > timer.end) {
-                    timers.RemoveAt(i);
-                    timer.callback();
-                    continue;
+            if (timers.Count > 0) {
+                var now = Time.realtimeSinceStartup;
+                for (var i = 0; i < timers.Count;) {
+                    var timer = timers[i];
+                    if (now > timer.end) {
+                        timers.RemoveAt(i);
+                        timer.callback();
+                        continue;
+                    }
+                    ++i;
                 }
-                ++i;
             }
         }
     }

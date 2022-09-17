@@ -16,14 +16,23 @@ namespace Scorpio.Resource {
             Download(0, callback);
         }
         void Download(int index, Action<bool> callback) {
-            var request = HttpUtil.httpGet(urls[index], (errorCode, error, bytes, url, handler) => {
+            HttpRequest request = null;
+            request = HttpUtil.httpGet(urls[index], (errorCode, error, bytes, url, handler) => {
                 if (errorCode == 0) {
                     FileUtil.CreateFile(versionPath, version);
                     callback(true);
                 } else if (index < urls.Length - 1) {
                     Download(++index, callback);
                 } else {
-                    callback(false);
+                    if (errorCode == 2) {
+                        var responseCode = request != null ? request.Request.responseCode : 0;
+                        if (responseCode == 404 || responseCode == 403) {
+                            logger.error($"链接返回404或403,地址不存在,请检查下载地址:{Url}");
+                        }
+                        callback(false);
+                    } else {
+                        callback(false);
+                    }
                 }
             });
             FileUtil.DeleteFile(filePath);
@@ -31,5 +40,6 @@ namespace Scorpio.Resource {
             request.Request.downloadHandler = new DownloadHandlerFile(filePath);
             request.Send();
         }
+        public string Url => string.Join(";", urls);
     }
 }
