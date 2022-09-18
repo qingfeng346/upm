@@ -239,15 +239,8 @@ namespace Scorpio.Resource {
             var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, path));
             var request = UnityWebRequest.Get(uri);
             request.SendWebRequest();
-            if (request.error == null) {
-                while (true) {
-                    if (request.downloadHandler.isDone) {
-                        return request.downloadHandler.data;
-                    }
-                }
-            } else {
-                return null;
-            }
+            while (request.downloadHandler.isDone) { }
+            return string.IsNullOrEmpty(request.error) ? request.downloadHandler.data : null;
         }
 
         /// <summary> Load资源(不实例化) </summary>
