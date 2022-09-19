@@ -86,6 +86,8 @@ public class Command
         FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
     }
     static void Start() {
-        EditorUtil.Start("pull.bat", null, "");
+        //EditorUtil.Start("pull.bat");
+        var result = EditorUtil.ExecutePowershell("pull.ps1");
+        UnityEngine.Debug.Log(JsonConvert.SerializeObject(result));
     }
 }
