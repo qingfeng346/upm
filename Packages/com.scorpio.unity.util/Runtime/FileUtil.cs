@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using System;
 
 namespace Scorpio.Unity.Util {
     public static partial class FileUtil {
@@ -188,12 +189,23 @@ namespace Scorpio.Unity.Util {
             return false;
         }
         /// <summary> 删除文件 </summary>
-        public static bool DeleteFile(string fileName) {
-            if (File.Exists(fileName)) {
-                File.Delete(fileName);
+        public static bool DeleteFile(string file) {
+            if (File.Exists(file)) {
+                File.Delete(file);
                 return true;
             }
             return false;
+        }
+        /// <summary> 删除文件 </summary>
+        public static bool DeleteFile(params string[] files) {
+            bool changed = false;
+            Array.ForEach(files, (file) => {
+                if (File.Exists(file)) {
+                    File.Delete(file);
+                    changed = true;
+                }
+            });
+            return changed;
         }
         /// <summary> 如果是空文件夹,则删除 </summary>
         public static bool DeleteFolderIfEmpty(string folder) {
@@ -318,6 +330,18 @@ namespace Scorpio.Unity.Util {
             return SyncFolder(source, target, null, true, NameType.None);
         }
         /// <summary> 同步文件夹 </summary>
+        public static bool SyncFolder(string source, string target, string[] searchPatterns) {
+            return SyncFolder(source, target, searchPatterns, true, NameType.None);
+        }
+        /// <summary> 同步文件夹 </summary>
+        public static bool SyncFolder(string source, string target, string[] searchPatterns, CompareType compareType) {
+            return SyncFolder(source, target, searchPatterns, true, compareType, NameType.None);
+        }
+        /// <summary> 同步文件夹 </summary>
+        public static bool SyncFolder(string source, string target, CompareType compareType) {
+            return SyncFolder(source, target, null, true, compareType, NameType.None);
+        }
+        /// <summary> 同步文件夹 </summary>
         public static bool SyncFolder(string source, string target, string[] searchPatterns, bool recursive) {
             return SyncFolder(source, target, searchPatterns, recursive, NameType.None);
         }
@@ -378,12 +402,20 @@ namespace Scorpio.Unity.Util {
             return GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
         }
         /// <summary> 获取文件列表 </summary>
+        public static List<string> GetFiles(string path, string searchPattern, bool recursive) {
+            return GetFiles(path, searchPattern, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        }
+        /// <summary> 获取文件列表 </summary>
         public static List<string> GetFiles(string path, string searchPattern, SearchOption searchOption) {
             return GetFiles(path, searchPattern == null ? null : new[] { searchPattern }, searchOption);
         }
         /// <summary> 获取文件列表 </summary>
         public static List<string> GetFiles(string path, string[] searchPatterns) {
             return GetFiles(path, searchPatterns, SearchOption.TopDirectoryOnly);
+        }
+        /// <summary> 获取文件列表 </summary>
+        public static List<string> GetFiles(string path, string[] searchPatterns, bool recursive) {
+            return GetFiles(path, searchPatterns, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
         /// <summary> 获取文件列表 </summary>
         public static List<string> GetFiles(string path, string[] searchPatterns, SearchOption searchOption) {
