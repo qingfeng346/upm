@@ -13,6 +13,7 @@ public class Command
     static Command() {
         CommandBuild.AddCommand<string>("SyncScorpio", SyncScorpio);
         CommandBuild.AddCommand<string>("SyncScov", SyncScov);
+        CommandBuild.AddCommand("Start", Start);
     }
     public static int StartProcess(string fileName, string arguments, string workingDirectory = null) {
         try {
@@ -83,5 +84,8 @@ public class Command
         var package = (JObject)JsonConvert.DeserializeObject(FileUtil.GetFileString(file));
         package["version"] = version;
         FileUtil.CreateFile(file, JsonConvert.SerializeObject(package, Formatting.Indented));
+    }
+    static void Start() {
+        EditorUtil.Start("pull.bat", null, "");
     }
 }
