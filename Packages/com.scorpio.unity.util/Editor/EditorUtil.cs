@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 using UnityEditor;
-
+using Newtonsoft.Json;
 public static partial class EditorUtil {
+    private static Dictionary<string, object> Userdatas = new Dictionary<string, object>();
+    public static int AssetEditingIndex { get; private set; }
     public class ProcessResult {
         public int exitCode;
         public string output;
@@ -199,5 +202,66 @@ public static partial class EditorUtil {
                 texture.SetPixel(x, y, color);
             }
         }
+    }
+    public static void StartAssetEditing() {
+        AssetEditingIndex++;
+        AssetDatabase.StartAssetEditing();
+    }
+    public static void StopAssetEditing() {
+        AssetDatabase.StopAssetEditing();
+        if (--AssetEditingIndex == 0) {
+            foreach (var pair in Userdatas) {
+                var assetImporter = AssetImporter.GetAtPath(pair.Key);
+                if (assetImporter != null) {
+                    assetImporter.userData = JsonConvert.SerializeObject(pair.Value);
+                    assetImporter.SaveAndReimport();
+                }
+            }
+        }
+    }
+    public static void SetUserData(this UnityEngine.Object obj, object value) {
+        SetUserData(AssetDatabase.GetAssetPath(obj), value);
+    }
+    public static void SetUserDataByGUID(this string guid, object value) {
+        SetUserData(AssetDatabase.GUIDToAssetPath(guid), value);
+    }
+    public static void SetUserData(this string assetPath, object value) {
+        if (AssetEditingIndex == 0) {
+            var assetImporter = AssetImporter.GetAtPath(assetPath);
+            if (assetImporter == null) {
+                throw new Exception($"SetUserData AssetPath : {assetPath} is null");
+            }
+            assetImporter.userData = JsonConvert.SerializeObject(value);
+            assetImporter.SaveAndReimport();
+        } else {
+            Userdatas[assetPath] = value;
+        }
+    }
+
+    public static T GetUserData<T>(this UnityEngine.Object obj) {
+        return GetUserData<T>(AssetDatabase.GetAssetPath(obj));
+    }
+    public static T GetUserDataByGUID<T>(this string guid) {
+        return GetUserData<T>(AssetDatabase.GUIDToAssetPath(guid));
+    }
+    public static T GetUserData<T>(this string assetPath) {
+        if (Userdatas.TryGetValue(assetPath, out var value)) {
+            return (T)value;
+        } else {
+            var assetImporter = AssetImporter.GetAtPath(assetPath);
+            if (assetImporter == null) {
+                throw new Exception($"GetUserData AssetPath : {assetPath} is null");
+            }
+            return string.IsNullOrEmpty(assetImporter.userData) ? default : JsonConvert.DeserializeObject<T>(assetImporter.userData);
+        }
+    }
+    public static bool CheckUserData<T>(this string assetPath, T other) {
+        return other.Equals(GetUserData<T>(assetPath));
+    }
+    public static bool CheckUserData<T>(this UnityEngine.Object obj, T other) {
+        return other.Equals(GetUserData<T>(obj));
+    }
+    public static bool CheckUserDataByGUID<T>(this string guid, T other) {
+        return other.Equals(GetUserDataByGUID<T>(guid));
     }
 }

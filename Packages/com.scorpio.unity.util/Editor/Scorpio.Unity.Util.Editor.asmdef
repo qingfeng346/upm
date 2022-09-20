@@ -1,6 +1,8 @@
 {
     "name": "Scorpio.Unity.Util.Editor",
-    "references": [],
+    "references": [
+        "GUID:2db6dfe93400e274cbfaeccc546bd20b"
+    ],
     "includePlatforms": [
         "Editor"
     ],
