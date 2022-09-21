@@ -18,6 +18,7 @@ namespace Scorpio.Debugger {
             Calc();
         }
         public void Calc() {
+            if (!gameObject.activeInHierarchy) { return; }
             var scaler = GetComponentInParent<CanvasScaler>().referenceResolution;
             var area = new Rect(0, 0, Screen.width, Screen.height);
             var safeArea = Screen.safeArea;
