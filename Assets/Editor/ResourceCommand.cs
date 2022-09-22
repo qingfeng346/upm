@@ -10,11 +10,11 @@ public class ResourceCommand {
         CommandBuild.AddCommand<string[]>("BuildPatch", BuildPatch);
     }
     static void BuildBlueprints() {
-        var builder = new AssetBundleBuilder<FileList>(AssetDatabase.LoadAssetAtPath<BuilderSetting>("Assets/Commands/BuilderSetting.asset"));
+        var builder = new AssetBundleBuilder<FileList>(AssetDatabase.LoadAssetAtPath<BuilderSetting>("Assets/BuilderSetting/BuilderSetting.asset"));
         builder.BuildBlueprints();
     }
     static void BuildAssetBundles() {
-        var builder = new AssetBundleBuilder<FileList>(AssetDatabase.LoadAssetAtPath<BuilderSetting>("Assets/Commands/BuilderSetting.asset"));
+        var builder = new AssetBundleBuilder<FileList>(AssetDatabase.LoadAssetAtPath<BuilderSetting>("Assets/BuilderSetting/BuilderSetting.asset"));
         builder.GetAssetBundlesOutput = () => {
             return $"{builder.BuilderSetting.OutputExport}/Android/assetbundles";
         };
@@ -28,7 +28,7 @@ public class ResourceCommand {
         builder.SyncToStreaming();
     }
     static void BuildPatch(string[] names) {
-        var builder = new AssetBundleBuilder<FileList>(AssetDatabase.LoadAssetAtPath<BuilderSetting>("Assets/Commands/BuilderSetting.asset"));
+        var builder = new AssetBundleBuilder<FileList>(AssetDatabase.LoadAssetAtPath<BuilderSetting>("Assets/BuilderSetting/BuilderSetting.asset"));
         builder.GetPatchUUID = (patchName) => {
             return "";
         };
