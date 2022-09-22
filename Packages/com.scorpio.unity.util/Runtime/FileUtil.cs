@@ -65,6 +65,16 @@ namespace Scorpio.Unity.Util {
             }
             return false;
         }
+        public static bool CreateDirectory(params string[] paths) {
+            var changed = false;
+            foreach (var path in paths) {
+                if (!Directory.Exists(path)) {
+                    Directory.CreateDirectory(path);
+                    changed = true;
+                }
+            }
+            return changed;
+        }
         /// <summary> 删除后缀名 </summary>
         public static string RemoveExtension(string file) {
             var index = file.LastIndexOf(".");

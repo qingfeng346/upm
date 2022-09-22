@@ -5,8 +5,13 @@ using System.Text;
 using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json;
+using FileUtil = Scorpio.Unity.Util.FileUtil;
+public enum JsonType {
+    NewtonsoftJson,
+    UnityJson,
+}
 public static partial class EditorUtil {
-    private static Dictionary<string, object> Userdatas = new Dictionary<string, object>();
+    private static Dictionary<string, Tuple<object, JsonType>> Userdatas = new Dictionary<string, Tuple<object, JsonType>>();
     public static int AssetEditingIndex { get; private set; }
     public class ProcessResult {
         public int exitCode;
@@ -210,58 +215,95 @@ public static partial class EditorUtil {
     public static void StopAssetEditing() {
         AssetDatabase.StopAssetEditing();
         if (--AssetEditingIndex == 0) {
-            foreach (var pair in Userdatas) {
-                var assetImporter = AssetImporter.GetAtPath(pair.Key);
-                if (assetImporter != null) {
-                    assetImporter.userData = JsonConvert.SerializeObject(pair.Value);
-                    assetImporter.SaveAndReimport();
+            try {
+                AssetDatabase.StartAssetEditing();
+                foreach (var pair in Userdatas) {
+                    var assetImporter = AssetImporter.GetAtPath(pair.Key);
+                    if (assetImporter != null) {
+                        assetImporter.userData = pair.Value.Item1.ToJson(pair.Value.Item2);
+                        assetImporter.SaveAndReimport();
+                    }
                 }
+            } finally {
+                AssetDatabase.StopAssetEditing();
             }
         }
     }
-    public static void SetUserData(this UnityEngine.Object obj, object value) {
-        SetUserData(AssetDatabase.GetAssetPath(obj), value);
+    public static string GetGUID(this UnityEngine.Object obj) {
+        return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
     }
-    public static void SetUserDataByGUID(this string guid, object value) {
-        SetUserData(AssetDatabase.GUIDToAssetPath(guid), value);
+    public static UnityEngine.Object GetObject<T>(this string guid) where T : UnityEngine.Object {
+        return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
     }
-    public static void SetUserData(this string assetPath, object value) {
+    public static string ToJson(this object value, JsonType jsonType = JsonType.NewtonsoftJson, bool prettyPrint = false) {
+        switch (jsonType) {
+            case JsonType.UnityJson: return JsonUtility.ToJson(value, prettyPrint);
+            default: return JsonConvert.SerializeObject(value, prettyPrint ? Formatting.Indented : Formatting.None);
+        }
+    }
+    public static T FromJson<T>(this string value, JsonType jsonType = JsonType.NewtonsoftJson) {
+        switch (jsonType) {
+            case JsonType.UnityJson: return JsonUtility.FromJson<T>(value);
+            default: return JsonConvert.DeserializeObject<T>(value);
+        }
+    }
+    public static void SetUserData(this UnityEngine.Object obj, object value, JsonType jsonType = JsonType.NewtonsoftJson) {
+        SetUserData(AssetDatabase.GetAssetPath(obj), value, jsonType);
+    }
+    public static void SetUserDataByGUID(this string guid, object value, JsonType jsonType = JsonType.NewtonsoftJson) {
+        SetUserData(AssetDatabase.GUIDToAssetPath(guid), value, jsonType);
+    }
+    public static void SetUserData(this string assetPath, object value, JsonType jsonType = JsonType.NewtonsoftJson) {
         if (AssetEditingIndex == 0) {
             var assetImporter = AssetImporter.GetAtPath(assetPath);
             if (assetImporter == null) {
                 throw new Exception($"SetUserData AssetPath : {assetPath} is null");
             }
-            assetImporter.userData = JsonConvert.SerializeObject(value);
+            assetImporter.userData = value.ToJson(jsonType);
             assetImporter.SaveAndReimport();
         } else {
-            Userdatas[assetPath] = value;
+            Userdatas[assetPath] = new Tuple<object, JsonType>(value, jsonType);
         }
     }
-
-    public static T GetUserData<T>(this UnityEngine.Object obj) {
-        return GetUserData<T>(AssetDatabase.GetAssetPath(obj));
+    public static T GetUserData<T>(this UnityEngine.Object obj, JsonType jsonType = JsonType.NewtonsoftJson) {
+        return GetUserData<T>(AssetDatabase.GetAssetPath(obj), jsonType);
     }
-    public static T GetUserDataByGUID<T>(this string guid) {
-        return GetUserData<T>(AssetDatabase.GUIDToAssetPath(guid));
+    public static T GetUserDataByGUID<T>(this string guid, JsonType jsonType = JsonType.NewtonsoftJson) {
+        return GetUserData<T>(AssetDatabase.GUIDToAssetPath(guid), jsonType);
     }
-    public static T GetUserData<T>(this string assetPath) {
+    public static T GetUserData<T>(this string assetPath, JsonType jsonType = JsonType.NewtonsoftJson) {
         if (Userdatas.TryGetValue(assetPath, out var value)) {
-            return (T)value;
+            return (T)value.Item1;
         } else {
             var assetImporter = AssetImporter.GetAtPath(assetPath);
-            if (assetImporter == null) {
-                throw new Exception($"GetUserData AssetPath : {assetPath} is null");
-            }
-            return string.IsNullOrEmpty(assetImporter.userData) ? default : JsonConvert.DeserializeObject<T>(assetImporter.userData);
+            if (string.IsNullOrEmpty(assetImporter?.userData)) return default;
+            return assetImporter.userData.FromJson<T>(jsonType);
         }
     }
-    public static bool CheckUserData<T>(this string assetPath, T other) {
-        return other.Equals(GetUserData<T>(assetPath));
+    public static bool CheckUserData<T>(this string assetPath, T other, JsonType jsonType = JsonType.NewtonsoftJson) {
+        return other.Equals(GetUserData<T>(assetPath, jsonType));
     }
-    public static bool CheckUserData<T>(this UnityEngine.Object obj, T other) {
-        return other.Equals(GetUserData<T>(obj));
+    public static bool CheckUserData<T>(this UnityEngine.Object obj, T other, JsonType jsonType = JsonType.NewtonsoftJson) {
+        return other.Equals(GetUserData<T>(obj, jsonType));
     }
-    public static bool CheckUserDataByGUID<T>(this string guid, T other) {
-        return other.Equals(GetUserDataByGUID<T>(guid));
+    public static bool CheckUserDataByGUID<T>(this string guid, T other, JsonType jsonType = JsonType.NewtonsoftJson) {
+        return other.Equals(GetUserDataByGUID<T>(guid, jsonType));
+    }
+    
+    public static void SaveJsonToFile(this object data, string file, JsonType jsonType = JsonType.NewtonsoftJson, bool prettyPrint = false) {
+        FileUtil.CreateFile(file, data.ToJson(jsonType, prettyPrint));
+    }
+    public static void DeleteUnity(this string path) {
+        if (FileUtil.FileExist(path)) {
+            FileUtil.DeleteFile(path, $"{path}.meta");
+        } else {
+            FileUtil.DeleteFolder(path);
+            FileUtil.DeleteFile($"{path}.meta");
+        }
+    }
+    public static void CreateDirectory(string path) {
+        if (FileUtil.CreateDirectory(path)) {
+            AssetDatabase.Refresh();
+        }
     }
 }
