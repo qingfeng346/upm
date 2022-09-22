@@ -1,45 +1,53 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 
 namespace Scorpio.Unity.Command {
-    public class CommandLineArgument {
-        private List<string> args = new List<string>();
-        public CommandLineArgument(string name) {
-        }
-        public void Add(string arg) {
-            args.Add(arg);
-        }
-        public string[] GetValues() {
-            return args.Count > 0 ? args.ToArray() : null;
-        }
-        public string GetValue(string def) {
-            return args.Count > 0 ? args[0] : def;
-        }
-    }
     public class CommandLine {
+        private readonly string[] EMPTY_ARGS = new string[0];
+        public class Argument {
+            private List<string> args = new List<string>();
+            public Argument(string name) {
+                Name = name;
+            }
+            public string Name { get; private set; }
+            public IReadOnlyList<string> Args => args;
+            public void Add(string arg) {
+                args.Add(arg);
+            }
+            public string[] GetValues() {
+                return args.ToArray();
+            }
+            public string GetValue(string def) {
+                return args.Count > 0 ? args[0] : def;
+            }
+        }
         public static CommandLine Parse(string[] args) {
             return new CommandLine().Parser(args);
         }
-        private Dictionary<string, CommandLineArgument> arguments = new Dictionary<string, CommandLineArgument>();
+        private Dictionary<string, Argument> arguments = new Dictionary<string, Argument>();
         public string Type { get; private set; }
+        public List<string> Args { get; } = new List<string>();
+        public IReadOnlyDictionary<string, Argument> Arguments => arguments;
         public CommandLine Parser(string[] args) {
             arguments.Clear();
             Type = "";
-            CommandLineArgument argument = null;
+            Argument argument = null;
             for (int i = 0; i < args.Length; ++i) {
                 var arg = args[i];
                 if (arg.StartsWith("-")) {
                     if (arguments.ContainsKey(arg)) {
                         argument = arguments[arg];
                     } else {
-                        argument = new CommandLineArgument(arg);
+                        argument = new Argument(arg);
                         arguments[arg] = argument;
                     }
                 } else if (argument != null) {
                     argument.Add(arg);
-                } else {
+                } else if (string.IsNullOrWhiteSpace(Type)) {
                     Type = arg;
+                } else {
+                    Args.Add(arg);
                 }
             }
             return this;
@@ -56,7 +64,16 @@ namespace Scorpio.Unity.Command {
             return false;
         }
         public string[] GetValues(string key) {
-            return arguments.ContainsKey(key) ? arguments[key].GetValues() : null;
+            return arguments.ContainsKey(key) ? arguments[key].GetValues() : EMPTY_ARGS;
+        }
+        public string[] GetValues(string[] keys) {
+            var values = new List<string>();
+            foreach (var key in keys) {
+                if (arguments.ContainsKey(key)) {
+                    values.AddRange(arguments[key].GetValues());
+                }
+            }
+            return values.ToArray();
         }
         public string GetValue(string key) {
             return GetValueDefault(key, null);
@@ -76,35 +93,43 @@ namespace Scorpio.Unity.Command {
             return def;
         }
         public T GetValue<T>(string key) {
-            return (T)Convert.ChangeType(GetValue(key), typeof(T));
+            return (T)GetValue(key, typeof(T));
         }
         public T GetValue<T>(params string[] keys) {
-            return (T)Convert.ChangeType(GetValue(keys), typeof(T));
+            return (T)GetValue(typeof(T), keys);
         }
         public object GetValue(string key, Type type) {
-            return ChangeType(GetValue(key), type);
+            return ChangeType(GetValues(key), type);
         }
         public object GetValue(Type type, params string[] keys) {
-            return ChangeType(GetValue(keys), type);
+            return ChangeType(GetValues(keys), type);
         }
-        public object ChangeType(string value, Type type) {
+        public static object ChangeType(string[] values, Type type) {
             if (type.IsArray) {
-                var strs = value.Split(',');
-                var ret = Array.CreateInstance(type.GetElementType(), strs.Length);
-                for (var i = 0; i < strs.Length;++i) {
-                    ret.SetValue(ChangeElementType(strs[i], type.GetElementType()), i);
+                var elementType = type.GetElementType();
+                var vals = new List<string>();
+                foreach (var v in values) {
+                    vals.AddRange(v.Split(','));
                 }
-                return ret;
+                var result = Array.CreateInstance(elementType, vals.Count);
+                for (var i = 0; i < vals.Count; ++i) {
+                    result.SetValue(ChangeElementType(vals[i], elementType), i);
+                }
+                return result;
             } else {
-                return ChangeElementType(value, type);
+                return ChangeElementType(values.FirstOrDefault(), type);
             }
         }
-        object ChangeElementType(string value, Type type) {
+        public static object ChangeElementType(string value, Type type) {
             if (type == typeof(string)) {
                 return value;
             } else if (type == typeof(bool)) {
-                value = value.ToLowerInvariant();
-                return value == "true" || value == "yes" || value == "1";
+                if (string.IsNullOrEmpty(value)) {
+                    return true;
+                } else {
+                    value = value.ToLowerInvariant();
+                    return value == "true" || value == "yes" || value == "1";
+                }
             } else if (type == typeof(sbyte) ||
                        type == typeof(byte) ||
                        type == typeof(short) ||
